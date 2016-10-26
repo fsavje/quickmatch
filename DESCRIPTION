@@ -1,0 +1,14 @@
+Package: quickmatch
+Type: Package
+Title: Matching in Large Data Sets with Complicated Constraints
+Version: 0.0.1
+Date: 2016-10-26
+Authors@R: c(person("Fredrik", "Savje", email = "fredrik.savje@berkeley.edu", role = c("aut", "cre")))
+Description: Matching in large data sets with complicated constraints.
+Depends:
+    R (>= 3.2.3)
+Suggests: testthat
+License: GPL (>= 3) + file LICENSE
+Encoding: UTF-8
+URL: https://github.com/fsavje/quickmatch
+BugReports: https://github.com/fsavje/quickmatch/issues
