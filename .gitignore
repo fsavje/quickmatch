@@ -33,6 +33,20 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
-# Compiled files
+# C object files
 *.o
+*.ko
+*.obj
+*.elf
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
 *.so
+*.so.*
+*.dylib

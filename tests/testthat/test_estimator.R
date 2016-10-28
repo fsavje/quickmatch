@@ -2,7 +2,7 @@ library(quickmatch)
 suppressPackageStartupMessages(library(Rscclust))
 context("estimator.R")
 
-source("../replica/estimator.R")
+source("../replica/estimator.R", local = TRUE)
 
 sound_outcomes <- 1:10 / 2
 unsound_outcomes <- factor(1:10)

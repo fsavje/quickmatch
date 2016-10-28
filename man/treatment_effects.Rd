@@ -28,7 +28,7 @@ Otherwise, \code{subset} should contain treatment labels and
 the corresponding units (as given by \code{treatments}) will be
 included.}
 
-\item{drop}{If \code{FALSE}, the function always returns a matrix (even when
+\item{drop}{if \code{FALSE}, the function always returns a matrix (even when
 \code{contrasts} contains two elements).}
 }
 \value{

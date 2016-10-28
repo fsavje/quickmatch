@@ -101,7 +101,7 @@ potential_outcomes <- function(outcomes,
 #'                    specifying which treatment effects to estimate. If \code{NULL},
 #'                    all treatment effects will be estimated.
 #'
-#' @param drop        If \code{FALSE}, the function always returns a matrix (even when
+#' @param drop        if \code{FALSE}, the function always returns a matrix (even when
 #'                    \code{contrasts} contains two elements).
 #'
 #' @inheritParams potential_outcomes
