@@ -32,10 +32,10 @@ included.}
 Returns a named numeric vector with an estimate of each potential outcome.
 }
 \description{
-\code{potential_outcomes} estimates potential outcomes using matched groups. For
+\code{potential_outcomes} estimates potential outcomes in matched groups. For
 an outcome, a matching and treatments, the function returns estimates of the
 average potential outcomes for all treatments for the units in the sample. It is
-possible to estimate potential outcomes for a subset of the units (e.g., to derive
-ATT or ATC).
+possible to estimate potential outcomes for a subset of the units (e.g., ATT or
+ATC).
 }
 

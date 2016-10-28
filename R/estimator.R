@@ -21,11 +21,11 @@
 
 #' Average potential outcome estimator in matched groups
 #'
-#' \code{potential_outcomes} estimates potential outcomes using matched groups. For
+#' \code{potential_outcomes} estimates potential outcomes in matched groups. For
 #' an outcome, a matching and treatments, the function returns estimates of the
 #' average potential outcomes for all treatments for the units in the sample. It is
-#' possible to estimate potential outcomes for a subset of the units (e.g., to derive
-#' ATT or ATC).
+#' possible to estimate potential outcomes for a subset of the units (e.g., ATT or
+#' ATC).
 #'
 #' @param outcomes    numeric vector with observed outcomes.
 #'
@@ -86,4 +86,56 @@ potential_outcomes <- function(outcomes,
   ave_pot_outcomes <- ave_pot_outcomes[estimands_indicators]
   names(ave_pot_outcomes) <- names(estimands_indicators)[estimands_indicators]
   ave_pot_outcomes
+}
+
+
+#' Average treatment effect estimator in matched groups
+#'
+#' \code{treatment_effects} estimates treatment effect in matched groups. For a
+#' set of treatment conditions, the function returns estimates of treatment
+#' effects for the units in the sample for each pair of conditions.
+#' It is possible to estimate treatment effects for a subset of the
+#' units (e.g., ATT or ATC).
+#'
+#' @param contrasts   vector of treatment labels (corresponding to \code{treatments})
+#'                    specifying which treatment effects to estimate. If \code{NULL},
+#'                    all treatment effects will be estimated.
+#'
+#' @param drop        If \code{FALSE}, the function always returns a matrix (even when
+#'                    \code{contrasts} contains two elements).
+#'
+#' @inheritParams potential_outcomes
+#'
+#' @return Returns the estimated treatment effects. If \code{contrasts} is of length
+#'         two, a scaler is returned with the corresponding treatment effect. In all
+#'         other cases, a numeric matrix with all treatment effects are returned. Rows
+#'         in this matrix indicate minuends in the treatment contrast and columns
+#'         indicate subtrahends.
+#'
+#' @useDynLib quickmatch qmc_potential_outcomes
+#' @export
+treatment_effects <- function(outcomes,
+                              treatments,
+                              matching,
+                              contrasts = NULL,
+                              subset = NULL,
+                              drop = TRUE) {
+
+  po_vector <- potential_outcomes(outcomes = outcomes,
+                                  treatments = treatments,
+                                  matching = matching,
+                                  estimands = contrasts,
+                                  subset = subset)
+
+  po_matrix <- as.matrix(po_vector) %*% t(as.matrix(rep(1, length(po_vector))))
+  te <- po_matrix - t(po_matrix)
+  rownames(te) <- names(po_vector)
+  colnames(te) <- names(po_vector)
+
+  if (drop && (length(contrasts) == 2)) {
+    te <- te[1, 2]
+    names(te) <- paste0(names(po_vector)[1], "-", names(po_vector)[2])
+  }
+
+  te
 }
