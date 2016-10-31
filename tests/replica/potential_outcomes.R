@@ -1,21 +1,13 @@
-replica_potential_outcomes <- function(outcomes,
-                                       treatments,
-                                       matching,
-                                       estimands = NULL,
-                                       subset = NULL) {
-  qm_check_numeric(outcomes)
-  qm_check_treatment(treatments, length(outcomes))
-  qm_check_matching(matching, length(outcomes))
-
-  if (is.null(estimands)) estimands <- qm_get_all_treatment_conditions(treatments)
-  estimands_indicators <- qm_get_treatment_indicators(estimands, treatments)
+replica_internal_potential_outcomes <- function(outcomes,
+                                                treatments,
+                                                matching,
+                                                estimands = NULL,
+                                                subset = NULL) {
+  estimands_indicators <- get_treatment_indicators(estimands, treatments)
 
   if (is.null(subset)) {
     subset <- rep(TRUE, length(outcomes))
-  } else if (is.logical(subset)) {
-    stopifnot(length(outcomes) == length(subset))
-  } else {
-    qm_check_treatment_labels(subset, treatments)
+  } else if (!is.logical(subset)) {
     subset <- (treatments %in% subset)
   }
 
