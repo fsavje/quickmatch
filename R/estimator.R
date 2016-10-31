@@ -56,22 +56,41 @@ potential_outcomes <- function(outcomes,
                                matching,
                                estimands = NULL,
                                subset = NULL) {
-  qm_check_numeric(outcomes)
-  qm_check_treatment(treatments, length(outcomes))
-  qm_check_matching(matching, length(outcomes))
+  check_outcomes(outcomes)
+  treatments <- coerce_labels(treatments)
+  check_treatments(treatments, length(outcomes))
+  check_matching(matching, length(outcomes))
+  if (is.null(estimands)) {
+    estimands <- get_all_treatment_conditions(treatments)
+  }
+  check_against_treatments(estimands, treatments)
+  if (is.logical(subset)) {
+    check_indicators(subset, length(outcomes))
+  } else if (!is.null(subset)) {
+    check_against_treatments(subset, treatments)
+  }
 
-  if (is.null(estimands)) estimands <- qm_get_all_treatment_conditions(treatments)
-  estimands_indicators <- qm_get_treatment_indicators(estimands, treatments)
+  internal_potential_outcomes(outcomes = outcomes,
+                              treatments = treatments,
+                              matching = matching,
+                              estimands = estimands,
+                              subset = subset)
+}
+
+
+internal_potential_outcomes <- function(outcomes,
+                                        treatments,
+                                        matching,
+                                        estimands,
+                                        subset) {
+  estimands_indicators <- get_treatment_indicators(estimands, treatments)
 
   subset_indicators <- NULL
   subset_treatments <- NULL
-  if (!is.null(subset)) {
-    if (is.logical(subset)) {
-      stopifnot(length(outcomes) == length(subset))
-      subset_indicators <- subset
-    } else {
-      subset_treatments <- qm_get_treatment_indicators(subset, treatments)
-    }
+  if (is.logical(subset)) {
+    subset_indicators <- subset
+  } else if (!is.null(subset)) {
+    subset_treatments <- get_treatment_indicators(subset, treatments)
   }
 
   ave_pot_outcomes <- .Call("qmc_potential_outcomes",
@@ -120,12 +139,25 @@ treatment_effects <- function(outcomes,
                               contrasts = NULL,
                               subset = NULL,
                               drop = TRUE) {
+  check_outcomes(outcomes)
+  treatments <- coerce_labels(treatments)
+  check_treatments(treatments, length(outcomes))
+  check_matching(matching, length(outcomes))
+  if (is.null(contrasts)) {
+    contrasts <- get_all_treatment_conditions(treatments)
+  }
+  check_against_treatments(contrasts, treatments)
+  if (is.logical(subset)) {
+    check_indicators(subset, length(outcomes))
+  } else if (!is.null(subset)) {
+    check_against_treatments(subset, treatments)
+  }
 
-  po_vector <- potential_outcomes(outcomes = outcomes,
-                                  treatments = treatments,
-                                  matching = matching,
-                                  estimands = contrasts,
-                                  subset = subset)
+  po_vector <- internal_potential_outcomes(outcomes = outcomes,
+                                           treatments = treatments,
+                                           matching = matching,
+                                           estimands = contrasts,
+                                           subset = subset)
 
   po_matrix <- as.matrix(po_vector) %*% t(as.matrix(rep(1, length(po_vector))))
   te <- po_matrix - t(po_matrix)

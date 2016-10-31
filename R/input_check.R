@@ -18,77 +18,109 @@
 # along with this program. If not, see http://www.gnu.org/licenses/
 # ==============================================================================
 
-qm_check_numeric <- function(to_check,
+is.numeric_integer <- function(x) {
+  is.numeric(x) && !any(is.nan(x)) && !any(is.infinite(x)) && all(x == as.integer(x))
+}
+
+new_error <- function(...) {
+  stop(structure(list(message = paste0(...),
+                      call = match.call(definition = sys.function(-2),
+                                        call = sys.call(which = -2),
+                                        expand.dots = TRUE,
+                                        envir = sys.frame(-3))),
+                 class = c("error", "condition")))
+}
+
+new_warning <- function(...) {
+  warning(structure(list(message = paste0(...),
+                         call = match.call(definition = sys.function(-2),
+                                           call = sys.call(which = -2),
+                                           expand.dots = TRUE,
+                                           envir = sys.frame(-3))),
+                    class = c("warning", "condition")))
+}
+
+check_length <- function(x,
+                         req_length) {
+  if (length(x) != req_length) {
+    new_error("`", match.call()$x, "` is not of length `", match.call()$req_length, "`.")
+  }
+}
+
+check_outcomes <- function(outcomes,
+                           req_length = NULL) {
+  if (!is.numeric(outcomes)) {
+    new_error("`", match.call()$outcomes, "` is not numeric.")
+  } else if (!is.null(req_length) && (length(outcomes) != req_length)) {
+    new_error("`", match.call()$outcomes, "` is not of length `", match.call()$req_length, "`.")
+  }
+}
+
+check_matching <- function(matching,
+                           req_length = NULL) {
+  if (!is.qm_matching(matching)) {
+    new_error("`", match.call()$matching, "` is not a `qm_matching` object.")
+  }
+  if (!is.null(req_length) && (length(matching) != req_length)) {
+    new_error("`", match.call()$matching, "` is not of length `", match.call()$req_length, "`.")
+  }
+}
+
+coerce_labels <- function(labels) {
+  if (!is.factor(labels) && !is.integer(labels)) {
+    if (is.numeric(labels)) {
+      if (is.numeric_integer(labels)) {
+        labels <- as.integer(labels)
+      } else {
+        new_error("`", match.call()$labels, "` must be integer or factor.")
+      }
+    } else {
+      new_warning("Coercing `", match.call()$labels, "` to factor.")
+      labels <- as.factor(labels)
+    }
+  }
+  labels
+}
+
+check_treatments <- function(treatments,
                              req_length = NULL) {
-  stopifnot(
-    is.numeric(to_check),
-    is.null(req_length) || (length(to_check) == req_length)
-  )
-}
-
-
-qm_check_matching <- function(matching,
-                              req_length = NULL) {
-  stopifnot(
-    inherits(matching, "Rscc_clustering"),
-    is.integer(matching),
-    "cluster_count" %in% names(attributes(matching)),
-    as.integer(attr(matching, "cluster_count", exact = TRUE))[1] > 0L,
-    is.null(req_length) || (length(matching) == req_length)
-  )
-}
-
-
-qm_check_treatment <- function(treatments,
-                               req_length = NULL) {
-  stopifnot(
-    is.factor(treatments) || is.integer(treatments),
-    !is.factor(treatments) || all(!is.na(treatments)),
-    !is.integer(treatments) || isTRUE(min(treatments, na.rm = FALSE) >= 0L),
-    is.null(req_length) || (length(treatments) == req_length)
-  )
-}
-
-
-qm_check_treatment_labels <- function(labels,
-                                      treatments) {
-  stopifnot(
-    is.factor(treatments) || is.integer(treatments),
-    !is.factor(treatments) || all(labels %in% levels(treatments)),
-    !is.integer(treatments) || all(labels %in% treatments)
-  )
-}
-
-
-qm_get_all_treatment_conditions <- function(treatments) {
-  stopifnot(is.factor(treatments) || is.integer(treatments))
-  if (is.factor(treatments)) {
-    out_conditions <- levels(treatments)
-  } else if (is.integer(treatments)) {
-    out_conditions <- sort(unique(treatments))
+  if (!is.factor(treatments) && !is.integer(treatments)) {
+    new_error("`", match.call()$treatments, "` must be integer or factor.")
   }
-  out_conditions
+  if (is.factor(treatments)) {
+    if (any(is.na(treatments))) {
+      new_error("`", match.call()$treatments, "` may not contain NAs.")
+    }
+  } else if (is.integer(treatments)) {
+    minNA <- min(treatments, na.rm = FALSE)
+    if (is.na(minNA)) {
+      new_error("`", match.call()$treatments, "` may not contain NAs.")
+    }
+    if (minNA < 0L) {
+      new_error("`", match.call()$treatments, "` must not contain negtive entries.")
+    }
+  }
+  if (!is.null(req_length) && (length(treatments) != req_length)) {
+    new_error("`", match.call()$treatments, "` is not of length `", match.call()$req_length, "`.")
+  }
 }
 
-
-qm_get_treatment_indicators <- function(targets,
-                                        treatments) {
-
+check_against_treatments <- function(labels,
+                                     treatments) {
   stopifnot(is.factor(treatments) || is.integer(treatments))
-
-  if (is.factor(treatments)) {
-    out_indicators <- rep(FALSE, nlevels(treatments))
-    names(out_indicators) <- levels(treatments)
-    stopifnot(all(targets %in% names(out_indicators)))
-    out_indicators[targets] <- TRUE
-    out_indicators <- c(FALSE, out_indicators)
-  } else if (is.integer(treatments)) {
-    max_label <- max(treatments)
-    out_indicators <- rep(FALSE, max_label + 1L)
-    names(out_indicators) <- as.character(0L:max_label)
-    stopifnot(all(as.character(targets) %in% names(out_indicators)))
-    out_indicators[as.character(targets)] <- TRUE
+  if ((is.factor(treatments) && !all(as.character(labels) %in% levels(treatments))) ||
+      (is.integer(treatments) && !all(as.integer(labels) %in% treatments))) {
+    new_error("Some labels in `", match.call()$labels, "` are not in `", match.call()$treatments, "`.")
   }
+}
 
-  out_indicators
+check_indicators <- function(indicators,
+                             req_length = NULL) {
+  stopifnot(is.logical(indicators))
+  if (any(is.na(indicators))) {
+    new_error("`", match.call()$indicators, "` may not contain NAs.")
+  }
+  if (!is.null(req_length) && (length(indicators) != req_length)) {
+    new_error("`", match.call()$indicators, "` is not of length `", match.call()$req_length, "`.")
+  }
 }
