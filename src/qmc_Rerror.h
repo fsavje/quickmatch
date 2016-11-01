@@ -18,17 +18,14 @@
  * along with this program. If not, see http://www.gnu.org/licenses/
  * ========================================================================== */
 
-#ifndef QMC_POTENTIAL_OUTCOMES_HG
-#define QMC_POTENTIAL_OUTCOMES_HG
+#ifndef QMC_RERROR_HG
+#define QMC_RERROR_HG
 
-#include <R.h>
-#include <Rinternals.h>
+#define qmc_Rerror(msg) (qmc_Rerror__(msg, __FILE__, __LINE__))
 
-SEXP qmc_potential_outcomes(SEXP R_outcomes,
-                            SEXP R_matching,
-                            SEXP R_treatment,
-                            SEXP R_estimands,
-                            SEXP R_subset_indicators,
-                            SEXP R_subset_treatments);
+void qmc_Rerror__(const char* msg,
+                  const char* file,
+                  int line);
 
-#endif // ifndef QMC_POTENTIAL_OUTCOMES_HG
+#endif // ifndef QMC_RERROR_HG
+
