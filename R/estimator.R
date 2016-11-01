@@ -56,18 +56,18 @@ potential_outcomes <- function(outcomes,
                                matching,
                                estimands = NULL,
                                subset = NULL) {
-  check_outcomes(outcomes)
+  ensure_outcomes(outcomes)
   treatments <- coerce_labels(treatments)
-  check_treatments(treatments, length(outcomes))
-  check_matching(matching, length(outcomes))
-  if (is.null(estimands)) {
-    estimands <- get_all_treatment_conditions(treatments)
-  }
-  check_against_treatments(estimands, treatments)
+  ensure_treatments(treatments, length(outcomes))
+  all_treatment_conditions <- get_all_treatment_conditions(treatments)
+  ensure_matching(matching, length(outcomes))
+
+  if (is.null(estimands)) estimands <- all_treatment_conditions
+  ensure_treatment_labels(estimands, all_treatment_conditions)
   if (is.logical(subset)) {
-    check_indicators(subset, length(outcomes))
+    ensure_indicators(subset, length(outcomes))
   } else if (!is.null(subset)) {
-    check_against_treatments(subset, treatments)
+    ensure_treatment_labels(subset, all_treatment_conditions)
   }
 
   internal_potential_outcomes(outcomes = outcomes,
@@ -139,18 +139,18 @@ treatment_effects <- function(outcomes,
                               contrasts = NULL,
                               subset = NULL,
                               drop = TRUE) {
-  check_outcomes(outcomes)
+  ensure_outcomes(outcomes)
   treatments <- coerce_labels(treatments)
-  check_treatments(treatments, length(outcomes))
-  check_matching(matching, length(outcomes))
-  if (is.null(contrasts)) {
-    contrasts <- get_all_treatment_conditions(treatments)
-  }
-  check_against_treatments(contrasts, treatments)
+  ensure_treatments(treatments, length(outcomes))
+  all_treatment_conditions <- get_all_treatment_conditions(treatments)
+  ensure_matching(matching, length(outcomes))
+
+  if (is.null(contrasts)) contrasts <- all_treatment_conditions
+  ensure_treatment_labels(contrasts, all_treatment_conditions)
   if (is.logical(subset)) {
-    check_indicators(subset, length(outcomes))
+    ensure_indicators(subset, length(outcomes))
   } else if (!is.null(subset)) {
-    check_against_treatments(subset, treatments)
+    ensure_treatment_labels(subset, all_treatment_conditions)
   }
 
   po_vector <- internal_potential_outcomes(outcomes = outcomes,

@@ -67,11 +67,6 @@ qm_matching <- function(labels,
 #'
 #' @export
 is.qm_matching <- function(obj) {
-  if (!inherits(obj, "qm_matching")) {
-    return(FALSE)
-  }
-  if (!Rscclust::is.Rscc_clustering(obj)) {
-    return(FALSE)
-  }
-  TRUE
+  inherits(obj, "qm_matching") &&
+    Rscclust::is.Rscc_clustering(obj)
 }
