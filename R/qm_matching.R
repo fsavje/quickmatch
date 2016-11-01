@@ -42,7 +42,7 @@ qm_matching <- function(labels,
                         ids = NULL) {
   labels <- coerce_labels(labels)
   if (!is.null(ids)) {
-    check_length(ids, length(labels))
+    ensure_length(ids, length(labels))
   }
 
   out_matching <- Rscclust::Rscc_clustering(cluster_labels = labels,

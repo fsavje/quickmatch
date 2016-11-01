@@ -50,7 +50,7 @@ quickmatch <- function(distances,
   ensure_distances(distances)
   num_observations <- get_distance_obs(distances)
   treatments <- coerce_labels(treatments)
-  check_treatments(treatments, num_observations)
+  ensure_treatments(treatments, num_observations)
   all_treatment_conditions <- get_all_treatment_conditions(treatments)
 
   if (is.null(treatment_constraints)) {
@@ -74,7 +74,7 @@ quickmatch <- function(distances,
       ensure_treatment_labels(subset, all_treatment_conditions)
       subset <- (treatments %in% subset)
     }
-    ensure_indicators(subset, length(outcomes), any_true = TRUE)
+    ensure_indicators(subset, num_observations, any_true = TRUE)
   }
 
   out_matching <- Rscclust::nng_clustering_types(distance_object = distances,

@@ -45,7 +45,10 @@ new_warning <- function(...) {
 
 # Is `x` a numeric that can be coerced into integer without loss of information?
 is.numeric_integer <- function(x) {
-  is.numeric(x) && !any(is.nan(x)) && !any(is.infinite(x)) && all(x == as.integer(x))
+  is.numeric(x) &&
+    !any(is.nan(x)) &&
+    !any(is.infinite(x)) &
+    all(x == as.integer(x))
 }
 
 
@@ -93,7 +96,7 @@ ensure_counts <- function(counts,
 # Ensure that `distances` is `Rscc_distances` object
 ensure_distances <- function(distances,
                              req_length = NULL) {
-  if (!Rscc_clustering::is.Rscc_distances(distances)) {
+  if (!Rscclust::is.Rscc_distances(distances)) {
     new_error("`", match.call()$distances, "` is not a `Rscc_distances` object.")
   }
   if (!is.null(req_length) && (get_distance_obs(distances) != req_length)) {
