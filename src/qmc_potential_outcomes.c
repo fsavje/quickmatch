@@ -33,13 +33,19 @@
 // =============================================================================
 
 SEXP qmc_potential_outcomes(const SEXP R_outcomes,
-                            const SEXP R_matching,
                             const SEXP R_treatments,
+                            const SEXP R_matching,
                             const SEXP R_estimands,
                             const SEXP R_subset)
 {
 	if (!isReal(R_outcomes)) {
 		qmc_Rerror("`R_outcomes` must be numeric.");
+	}
+	if (!isInteger(R_treatments)) {
+		qmc_Rerror("`R_treatments` must be integer.");
+	}
+	if (xlength(R_treatments) != xlength(R_outcomes)) {
+		qmc_Rerror("`R_treatments` and `R_outcomes` must be same length.");
 	}
 	if (!isInteger(R_matching)) {
 		qmc_Rerror("`R_matching` must be integer.");
@@ -53,18 +59,12 @@ SEXP qmc_potential_outcomes(const SEXP R_outcomes,
 	if (asInteger(getAttrib(R_matching, install("cluster_count"))) <= 0) {
 		qmc_Rerror("`R_matching` is empty.");
 	}
-	if (!isInteger(R_treatments)) {
-		qmc_Rerror("`R_treatments` must be integer.");
-	}
-	if (xlength(R_treatments) != xlength(R_outcomes)) {
-		qmc_Rerror("`R_treatments` and `R_outcomes` must be same length.");
-	}
 	if (!isLogical(R_estimands)) {
 		qmc_Rerror("`R_estimands` must be logical.");
 	}
 	if (!isNull(R_subset)) {
 		if (!isLogical(R_subset)){
-			qmc_Rerror("`R_subset` must be logical.");
+			qmc_Rerror("`R_subset` must be logical or NULL.");
 		}
 		if (xlength(R_subset) != xlength(R_outcomes)) {
 			qmc_Rerror("`R_subset` and `R_outcomes` must be same length.");

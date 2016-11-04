@@ -37,7 +37,7 @@ SEXP qmc_translate_targets(const SEXP R_targets,
 		qmc_Rerror("`R_targets` must be logical.");
 	}
 	if (!isInteger(R_treatments)) {
-		qmc_Rerror("`R_treatment` must be integer.");
+		qmc_Rerror("`R_treatments` must be integer.");
 	}
 
 	const size_t num_treatments = (size_t) xlength(R_targets);

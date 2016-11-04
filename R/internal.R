@@ -34,21 +34,6 @@ get_all_treatment_conditions <- function(treatments) {
 # C wrappers
 # ==============================================================================
 
-# Translate treatment labels to indicators for each unit
-# translate_targets(c(TRUE, FALSE, TRUE),
-#                   c(0L, 0L, 1L, 2L, 1L, 0L))
-# > c(TRUE, TRUE, FALSE, TRUE, FALSE, TRUE)
-translate_targets <- function(targets,
-                              treatments) {
-  stopifnot(is.logical(targets),
-            is.factor(treatments) || is.integer(treatments))
-  .Call("qmc_translate_targets",
-        targets,
-        unclass(treatments),
-        PACKAGE = "quickmatch")
-}
-
-
 # Estimate potential outcomes
 internal_potential_outcomes <- function(outcomes,
                                         treatments,
@@ -64,8 +49,8 @@ internal_potential_outcomes <- function(outcomes,
 
   ave_pot_outcomes <- .Call("qmc_potential_outcomes",
                             outcomes,
-                            matching,
                             unclass(treatments),
+                            matching,
                             estimands,
                             subset,
                             PACKAGE = "quickmatch")
@@ -73,4 +58,19 @@ internal_potential_outcomes <- function(outcomes,
   ave_pot_outcomes <- ave_pot_outcomes[estimands]
   names(ave_pot_outcomes) <- names(estimands)[estimands]
   ave_pot_outcomes
+}
+
+
+# Translate treatment labels to indicators for each unit
+# translate_targets(c(TRUE, FALSE, TRUE),
+#                   c(0L, 0L, 1L, 2L, 1L, 0L))
+# > c(TRUE, TRUE, FALSE, TRUE, FALSE, TRUE)
+translate_targets <- function(targets,
+                              treatments) {
+  stopifnot(is.logical(targets),
+            is.factor(treatments) || is.integer(treatments))
+  .Call("qmc_translate_targets",
+        targets,
+        unclass(treatments),
+        PACKAGE = "quickmatch")
 }

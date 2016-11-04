@@ -25,8 +25,8 @@
 #include <Rinternals.h>
 
 SEXP qmc_potential_outcomes(SEXP R_outcomes,
-                            SEXP R_matching,
                             SEXP R_treatments,
+                            SEXP R_matching,
                             SEXP R_estimands,
                             SEXP R_subset);
 
