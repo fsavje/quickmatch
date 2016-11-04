@@ -46,7 +46,7 @@ qm_matching <- function(labels,
   }
 
   out_matching <- Rscclust::Rscc_clustering(cluster_labels = labels,
-                                            unassigned_labels = unassigned_labels,
+                                            unassigned_labels = NULL,
                                             ids = ids)
 
   class(out_matching) <- c("qm_matching", class(out_matching))
