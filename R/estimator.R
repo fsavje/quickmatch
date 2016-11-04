@@ -56,55 +56,27 @@ potential_outcomes <- function(outcomes,
                                matching,
                                estimands = NULL,
                                subset = NULL) {
-  ensure_outcomes(outcomes)
-  treatments <- coerce_labels(treatments)
-  ensure_treatments(treatments, length(outcomes))
+  coerce_double(outcomes)
+  treatments <- Rscclust:::coerce_type_labels(treatments, length(outcomes))
   all_treatment_conditions <- get_all_treatment_conditions(treatments)
-  ensure_matching(matching, length(outcomes))
+  Rscclust:::ensure_Rscc_clustering(matching, length(outcomes))
 
-  if (is.null(estimands)) estimands <- all_treatment_conditions
-  ensure_treatment_labels(estimands, all_treatment_conditions)
+  if (is.null(estimands)) {
+    estimands <- all_treatment_conditions
+  }
+  ensure_treatment_label_indicators(estimands, all_treatment_conditions)
+
   if (is.logical(subset)) {
-    ensure_indicators(subset, length(outcomes))
+    Rscclust:::ensure_indicators(subset, length(outcomes), TRUE)
   } else if (!is.null(subset)) {
-    ensure_treatment_labels(subset, all_treatment_conditions)
+    ensure_treatment_label_indicators(subset, all_treatment_conditions)
   }
 
-  internal_potential_outcomes(outcomes = outcomes,
-                              treatments = treatments,
-                              matching = matching,
-                              estimands = estimands,
-                              subset = subset)
-}
-
-
-internal_potential_outcomes <- function(outcomes,
-                                        treatments,
-                                        matching,
-                                        estimands,
-                                        subset) {
-  estimands_indicators <- get_treatment_indicators(estimands, treatments)
-
-  subset_indicators <- NULL
-  subset_treatments <- NULL
-  if (is.logical(subset)) {
-    subset_indicators <- subset
-  } else if (!is.null(subset)) {
-    subset_treatments <- get_treatment_indicators(subset, treatments)
-  }
-
-  ave_pot_outcomes <- .Call("qmc_potential_outcomes",
-                            outcomes,
-                            matching,
-                            unclass(treatments),
-                            estimands_indicators,
-                            subset_indicators,
-                            subset_treatments,
-                            PACKAGE = "quickmatch")
-
-  ave_pot_outcomes <- ave_pot_outcomes[estimands_indicators]
-  names(ave_pot_outcomes) <- names(estimands_indicators)[estimands_indicators]
-  ave_pot_outcomes
+  internal_potential_outcomes(outcomes,
+                              treatments,
+                              matching,
+                              estimands,
+                              subset)
 }
 
 
@@ -139,19 +111,23 @@ treatment_effects <- function(outcomes,
                               contrasts = NULL,
                               subset = NULL,
                               drop = TRUE) {
-  ensure_outcomes(outcomes)
-  treatments <- coerce_labels(treatments)
-  ensure_treatments(treatments, length(outcomes))
+  coerce_double(outcomes)
+  treatments <- Rscclust:::coerce_type_labels(treatments, length(outcomes))
   all_treatment_conditions <- get_all_treatment_conditions(treatments)
-  ensure_matching(matching, length(outcomes))
+  Rscclust:::ensure_Rscc_clustering(matching, length(outcomes))
 
-  if (is.null(contrasts)) contrasts <- all_treatment_conditions
-  ensure_treatment_labels(contrasts, all_treatment_conditions)
-  if (is.logical(subset)) {
-    ensure_indicators(subset, length(outcomes))
-  } else if (!is.null(subset)) {
-    ensure_treatment_labels(subset, all_treatment_conditions)
+  if (is.null(contrasts)) {
+    contrasts <- all_treatment_conditions
   }
+  ensure_treatment_label_indicators(contrasts, all_treatment_conditions)
+
+  if (is.logical(subset)) {
+    Rscclust:::ensure_indicators(subset, length(outcomes), TRUE)
+  } else if (!is.null(subset)) {
+    ensure_treatment_label_indicators(subset, all_treatment_conditions)
+  }
+
+  Rscclust:::ensure_indicators(drop, 1L)
 
   po_vector <- internal_potential_outcomes(outcomes = outcomes,
                                            treatments = treatments,

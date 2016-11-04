@@ -38,11 +38,11 @@
 #'
 #' @export
 qm_matching <- function(labels,
-                        unassigned_labels = NA,
+                        unassigned_labels = NULL,
                         ids = NULL) {
-  labels <- coerce_labels(labels)
+  labels <- Rscclust:::coerce_cluster_labels(labels, unassigned_labels)
   if (!is.null(ids)) {
-    ensure_length(ids, length(labels))
+    ids <- Rscclust:::coerce_character(ids, length(labels))
   }
 
   out_matching <- Rscclust::Rscc_clustering(cluster_labels = labels,

@@ -3,12 +3,13 @@ replica_internal_potential_outcomes <- function(outcomes,
                                                 matching,
                                                 estimands = NULL,
                                                 subset = NULL) {
-  estimands_indicators <- get_treatment_indicators(estimands, treatments)
+  estimands <- Rscclust:::make_type_indicators(estimands, treatments)
 
   if (is.null(subset)) {
     subset <- rep(TRUE, length(outcomes))
   } else if (!is.logical(subset)) {
-    subset <- (treatments %in% subset)
+    subset <- Rscclust:::make_type_indicators(subset, treatments)
+    subset <- translate_targets(subset, treatments)
   }
 
   treatment_mean <- aggregate(list(outcomes = outcomes),
@@ -21,8 +22,8 @@ replica_internal_potential_outcomes <- function(outcomes,
                             list("matching" = as.integer(matching)),
                             sum)
 
-  ave_pot_outcomes <- as.numeric(rep(NA, length(estimands_indicators)))
-  for (t in which(estimands_indicators)) {
+  ave_pot_outcomes <- as.numeric(rep(NA, length(estimands)))
+  for (t in which(estimands)) {
     tmp <- treatment_mean[treatment_mean$treatments == (t - 1), c("matching", "outcomes")]
     if (all(weight_count$matching[weight_count$weight > 0] %in% tmp$matching)) {
       tmp <- merge(weight_count, tmp)
@@ -30,7 +31,7 @@ replica_internal_potential_outcomes <- function(outcomes,
     }
   }
 
-  ave_pot_outcomes <- ave_pot_outcomes[estimands_indicators]
-  names(ave_pot_outcomes) <- names(estimands_indicators)[estimands_indicators]
+  ave_pot_outcomes <- ave_pot_outcomes[estimands]
+  names(ave_pot_outcomes) <- names(estimands)[estimands]
   ave_pot_outcomes
 }

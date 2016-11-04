@@ -4,7 +4,7 @@
 \alias{qm_matching}
 \title{Construct a \code{qm_matching} object}
 \usage{
-qm_matching(labels, unassigned_labels = NA, ids = NULL)
+qm_matching(labels, unassigned_labels = NULL, ids = NULL)
 }
 \arguments{
 \item{labels}{a vector containing each data point's label.}

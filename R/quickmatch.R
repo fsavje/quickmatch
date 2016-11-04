@@ -47,34 +47,30 @@ quickmatch <- function(distances,
                        caliper = NULL,
                        subset = NULL,
                        ...) {
-  ensure_distances(distances)
-  num_observations <- get_distance_obs(distances)
-  treatments <- coerce_labels(treatments)
-  ensure_treatments(treatments, num_observations)
+  Rscclust:::ensure_distances(distances)
+  num_observations <- Rscclust:::data_point_count.Rscc_distances(distances)
+  treatments <- Rscclust:::coerce_type_labels(treatments, num_observations)
   all_treatment_conditions <- get_all_treatment_conditions(treatments)
 
   if (is.null(treatment_constraints)) {
     treatment_constraints <- rep(1L, length(all_treatment_conditions))
     names(treatment_constraints) <- as.character(all_treatment_conditions)
   }
-  treatment_constraints <- coerce_integer(treatment_constraints)
-  ensure_treatment_constraints(treatment_constraints)
-  ensure_treatment_labels(names(treatment_constraints), all_treatment_conditions)
+  treatment_constraints <- Rscclust:::coerce_type_constraints(treatment_constraints)
+  ensure_treatment_label_indicators(names(treatment_constraints), all_treatment_conditions)
 
-  if (is.null(total_size_constraint)) {
-    total_size_constraint <- sum(treatment_constraints)
-  }
-  total_size_constraint <- coerce_integer(total_size_constraint)
-  ensure_counts(total_size_constraint, 1L)
+  total_size_constraint <- Rscclust:::coerce_total_size_constraint(total_size_constraint,
+                                                                   treatment_constraints,
+                                                                   num_observations)
 
-  ensure_caliper(caliper)
+  caliper <- Rscclust:::coerce_radius(caliper)
 
-  if (!is.null(subset)) {
-    if (!is.logical(subset)) {
-      ensure_treatment_labels(subset, all_treatment_conditions)
-      subset <- (treatments %in% subset)
-    }
-    ensure_indicators(subset, num_observations, any_true = TRUE)
+  if (is.logical(subset)) {
+    Rscclust:::ensure_indicators(subset, num_observations, TRUE)
+  } else if (!is.null(subset)) {
+    ensure_treatment_label_indicators(subset, all_treatment_conditions)
+    subset <- Rscclust:::make_type_indicators(subset, treatments)
+    subset <- translate_targets(subset, treatments)
   }
 
   out_matching <- Rscclust::nng_clustering_types(distance_object = distances,
