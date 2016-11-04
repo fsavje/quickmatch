@@ -164,12 +164,11 @@ treatment_effects <- function(outcomes,
 
   po_matrix <- as.matrix(po_vector) %*% t(as.matrix(rep(1, length(po_vector))))
   te <- po_matrix - t(po_matrix)
-  rownames(te) <- names(po_vector)
-  colnames(te) <- names(po_vector)
+  dimnames(te) <- list(names(po_vector), names(po_vector))
 
-  if (drop && (length(contrasts) == 2)) {
+  if (drop && (length(po_vector) == 2)) {
     te <- te[1, 2]
-    names(te) <- paste0(names(po_vector)[1], "-", names(po_vector)[2])
+    names(te) <- paste0(names(po_vector), collapse = "-")
   }
 
   te
