@@ -62,7 +62,7 @@ test_that("potential_outcomes produces correct output.", {
                                  contrasts = NULL,
                                  subset = NULL,
                                  drop = TRUE),
-               te_diff(pos1))
+               te_matrix(pos1))
   expect_equal(treatment_effects(outcomes = test_outcome,
                                  treatments = test_treatment1,
                                  matching = test_matching,

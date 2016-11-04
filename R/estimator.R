@@ -144,9 +144,11 @@ treatment_effects <- function(outcomes,
   Rscclust:::ensure_Rscc_clustering(matching, length(outcomes))
 
   if (is.null(contrasts)) {
-    contrasts <- all_treatment_conditions
+    estimands <- all_treatment_conditions
+  } else {
+    estimands <- contrasts
   }
-  ensure_treatment_label_indicators(contrasts, all_treatment_conditions)
+  ensure_treatment_label_indicators(estimands, all_treatment_conditions)
 
   if (is.logical(subset)) {
     Rscclust:::ensure_indicators(subset, length(outcomes), TRUE)
@@ -159,14 +161,14 @@ treatment_effects <- function(outcomes,
   po_vector <- internal_potential_outcomes(outcomes = outcomes,
                                            treatments = treatments,
                                            matching = matching,
-                                           estimands = contrasts,
+                                           estimands = estimands,
                                            subset = subset)
 
   po_matrix <- as.matrix(po_vector) %*% t(as.matrix(rep(1, length(po_vector))))
   te <- po_matrix - t(po_matrix)
   dimnames(te) <- list(names(po_vector), names(po_vector))
 
-  if (drop && (length(po_vector) == 2)) {
+  if (drop && (length(contrasts) == 2)) {
     te <- te[1, 2]
     names(te) <- paste0(names(po_vector), collapse = "-")
   }
