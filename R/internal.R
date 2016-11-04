@@ -34,33 +34,6 @@ get_all_treatment_conditions <- function(treatments) {
 # C wrappers
 # ==============================================================================
 
-# Estimate potential outcomes
-internal_potential_outcomes <- function(outcomes,
-                                        treatments,
-                                        matching,
-                                        estimands,
-                                        subset) {
-  estimands <- Rscclust:::make_type_indicators(estimands, treatments)
-
-  if (!is.null(subset) && !is.logical(subset)) {
-    subset <- Rscclust:::make_type_indicators(subset, treatments)
-    subset <- translate_targets(subset, treatments)
-  }
-
-  ave_pot_outcomes <- .Call("qmc_potential_outcomes",
-                            outcomes,
-                            unclass(treatments),
-                            matching,
-                            estimands,
-                            subset,
-                            PACKAGE = "quickmatch")
-
-  ave_pot_outcomes <- ave_pot_outcomes[estimands]
-  names(ave_pot_outcomes) <- names(estimands)[estimands]
-  ave_pot_outcomes
-}
-
-
 # Translate treatment labels to indicators for each unit
 # translate_targets(c(TRUE, FALSE, TRUE),
 #                   c(0L, 0L, 1L, 2L, 1L, 0L))

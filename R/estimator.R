@@ -80,6 +80,33 @@ potential_outcomes <- function(outcomes,
 }
 
 
+# C wrapper
+internal_potential_outcomes <- function(outcomes,
+                                        treatments,
+                                        matching,
+                                        estimands,
+                                        subset) {
+  estimands <- Rscclust:::make_type_indicators(estimands, treatments)
+
+  if (!is.null(subset) && !is.logical(subset)) {
+    subset <- Rscclust:::make_type_indicators(subset, treatments)
+    subset <- translate_targets(subset, treatments)
+  }
+
+  ave_pot_outcomes <- .Call("qmc_potential_outcomes",
+                            outcomes,
+                            unclass(treatments),
+                            matching,
+                            estimands,
+                            subset,
+                            PACKAGE = "quickmatch")
+
+  ave_pot_outcomes <- ave_pot_outcomes[estimands]
+  names(ave_pot_outcomes) <- names(estimands)[estimands]
+  ave_pot_outcomes
+}
+
+
 #' Average treatment effect estimator in matched groups
 #'
 #' \code{treatment_effects} estimates treatment effect in matched groups. For a
