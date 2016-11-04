@@ -45,8 +45,48 @@ get_treatment_indicators <- function(targets,
     out_indicators[as.character(as.integer(targets))] <- TRUE
   }
   out_indicators
+
+# ==============================================================================
+# C wrappers
+# ==============================================================================
+
+# Translate treatment labels to indicators for each unit
+# translate_targets(c(TRUE, FALSE, TRUE),
+#                   c(0L, 0L, 1L, 2L, 1L, 0L))
+# > c(TRUE, TRUE, FALSE, TRUE, FALSE, TRUE)
+translate_targets <- function(targets,
+                              treatments) {
+  stopifnot(is.logical(targets),
+            is.factor(treatments) || is.integer(treatments))
+  .Call("qmc_translate_targets",
+        targets,
+        unclass(treatments),
+        PACKAGE = "quickmatch")
 }
 
-get_distance_obs <- function(distance_object) {
-  ncol(distance_object)
+
+# Estimate potential outcomes
+internal_potential_outcomes <- function(outcomes,
+                                        treatments,
+                                        matching,
+                                        estimands,
+                                        subset) {
+  estimands <- Rscclust:::make_type_indicators(estimands, treatments)
+
+  if (!is.null(subset) && !is.logical(subset)) {
+    subset <- Rscclust:::make_type_indicators(subset, treatments)
+    subset <- translate_targets(subset, treatments)
+  }
+
+  ave_pot_outcomes <- .Call("qmc_potential_outcomes",
+                            outcomes,
+                            matching,
+                            unclass(treatments),
+                            estimands,
+                            subset,
+                            PACKAGE = "quickmatch")
+
+  ave_pot_outcomes <- ave_pot_outcomes[estimands]
+  names(ave_pot_outcomes) <- names(estimands)[estimands]
+  ave_pot_outcomes
 }

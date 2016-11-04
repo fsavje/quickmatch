@@ -18,16 +18,13 @@
  * along with this program. If not, see http://www.gnu.org/licenses/
  * ========================================================================== */
 
-#ifndef QMC_POTENTIAL_OUTCOMES_HG
-#define QMC_POTENTIAL_OUTCOMES_HG
+#ifndef QMC_UTILITIES_HG
+#define QMC_UTILITIES_HG
 
 #include <R.h>
 #include <Rinternals.h>
 
-SEXP qmc_potential_outcomes(SEXP R_outcomes,
-                            SEXP R_matching,
-                            SEXP R_treatments,
-                            SEXP R_estimands,
-                            SEXP R_subset);
+SEXP qmc_translate_targets(SEXP R_targets,
+                           SEXP R_treatments);
 
-#endif // ifndef QMC_POTENTIAL_OUTCOMES_HG
+#endif // ifndef QMC_UTILITIES_HG

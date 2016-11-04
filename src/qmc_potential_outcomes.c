@@ -20,7 +20,6 @@
 
 #include "qmc_potential_outcomes.h"
 
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -35,24 +34,42 @@
 
 SEXP qmc_potential_outcomes(const SEXP R_outcomes,
                             const SEXP R_matching,
-                            const SEXP R_treatment,
+                            const SEXP R_treatments,
                             const SEXP R_estimands,
-                            const SEXP R_subset_indicators,
-                            const SEXP R_subset_treatments)
+                            const SEXP R_subset)
 {
-	if (!isReal(R_outcomes)) qmc_Rerror("`R_outcomes` must be numeric.");
-	if (!isInteger(R_matching)) qmc_Rerror("`R_matching` must be integer.");
-	if (!isInteger(R_treatment)) qmc_Rerror("`R_treatment` must be integer.");
-	if (xlength(R_outcomes) != xlength(R_matching)) {
-		qmc_Rerror("`R_outcomes` and `R_matching` must be same length.");
+	if (!isReal(R_outcomes)) {
+		qmc_Rerror("`R_outcomes` must be numeric.");
 	}
-	if (xlength(R_outcomes) != xlength(R_treatment)) {
-		qmc_Rerror("`R_outcomes` and `R_treatment` must be same length.");
+	if (!isInteger(R_matching)) {
+		qmc_Rerror("`R_matching` must be integer.");
+	}
+	if (xlength(R_matching) != xlength(R_outcomes)) {
+		qmc_Rerror("`R_matching` and `R_outcomes` must be same length.");
+	}
+	if (!isInteger(getAttrib(R_matching, install("cluster_count")))) {
+		qmc_Rerror("`R_matching` is not valid `Rscc_clustering` object.");
 	}
 	if (asInteger(getAttrib(R_matching, install("cluster_count"))) <= 0) {
 		qmc_Rerror("`R_matching` is empty.");
 	}
-	if (!isLogical(R_estimands)) qmc_Rerror("`R_estimands` must be logical.");
+	if (!isInteger(R_treatments)) {
+		qmc_Rerror("`R_treatments` must be integer.");
+	}
+	if (xlength(R_treatments) != xlength(R_outcomes)) {
+		qmc_Rerror("`R_treatments` and `R_outcomes` must be same length.");
+	}
+	if (!isLogical(R_estimands)) {
+		qmc_Rerror("`R_estimands` must be logical.");
+	}
+	if (!isNull(R_subset)) {
+		if (!isLogical(R_subset)){
+			qmc_Rerror("`R_subset` must be logical.");
+		}
+		if (xlength(R_subset) != xlength(R_outcomes)) {
+			qmc_Rerror("`R_subset` and `R_outcomes` must be same length.");
+		}
+	}
 
 	const size_t num_observations = (size_t) xlength(R_outcomes);
 	const size_t num_groups = (size_t) asInteger(getAttrib(R_matching, install("cluster_count")));
@@ -60,40 +77,15 @@ SEXP qmc_potential_outcomes(const SEXP R_outcomes,
 
 	const double* const outcomes = REAL(R_outcomes);
 	const int* const matching = INTEGER(R_matching);
-	const int* const treatments = INTEGER(R_treatment);
+	const int* const treatments = INTEGER(R_treatments);
 	const int* const estimands = LOGICAL(R_estimands);
-
-	const int* subset_indicators = NULL;
-	if (!isNull(R_subset_indicators)) {
-		if (!isLogical(R_subset_indicators)){
-			qmc_Rerror("`R_subset_indicators` must be logical.");
-		}
-		if (xlength(R_subset_indicators) != num_observations) {
-			qmc_Rerror("`R_outcomes` and `R_subset_indicators` must be same length.");
-		}
-		subset_indicators = LOGICAL(R_subset_indicators);
-	}
-
-	const int* subset_treatments = NULL;
-	if (!isNull(R_subset_treatments)) {
-		if (!isLogical(R_subset_treatments)) {
-			qmc_Rerror("`R_subset_treatments` must be logical.");
-		}
-		if (xlength(R_subset_treatments) != num_treatments) {
-			qmc_Rerror("`R_estimands` and `R_subset_treatments` must be same length.");
-		}
-		subset_treatments = LOGICAL(R_subset_treatments);
-	}
-
-	const bool ATE_weighting = (subset_indicators == NULL &&
-	                            subset_treatments == NULL);
+	const int* const subset = isNull(R_subset) ? NULL : LOGICAL(R_subset);
 
 	SEXP R_out_means = PROTECT(allocVector(REALSXP, (R_xlen_t) num_treatments));
 	double* const out_means = REAL(R_out_means);
 	uint32_t* const weight_count = calloc(num_groups, sizeof(uint32_t));
 	uint32_t* const treatment_count = calloc(num_groups * num_treatments, sizeof(uint32_t));
 	double* const treatment_outcome_sum = calloc(num_groups * num_treatments, sizeof(double));
-
 	if (weight_count == NULL ||
 			treatment_count == NULL ||
 			treatment_outcome_sum == NULL) {
@@ -111,11 +103,10 @@ SEXP qmc_potential_outcomes(const SEXP R_outcomes,
 		if (treatments[i] < 0 || treatments[i] >= num_treatments) {
 			qmc_Rerror("Treatment out of bounds.");
 		}
-		weight_count[matching[i]] += (ATE_weighting ||
-				(subset_indicators != NULL && subset_indicators[i]) ||
-				(subset_treatments != NULL && subset_treatments[treatments[i]]));
-		++treatment_count[treatments[i] * num_groups + matching[i]];
-		treatment_outcome_sum[treatments[i] * num_groups + matching[i]] += outcomes[i];
+		weight_count[matching[i]] += (subset == NULL || subset[i]);
+		const size_t tmp_index = ((size_t) treatments[i]) * num_groups + matching[i];
+		++treatment_count[tmp_index];
+		treatment_outcome_sum[tmp_index] += outcomes[i];
 	}
 
 	uint64_t total_weight_count = 0;
@@ -135,10 +126,9 @@ SEXP qmc_potential_outcomes(const SEXP R_outcomes,
 						out_means[t] = NA_REAL;
 						break;
 					} else {
-						out_means[t] +=
-							((double) weight_count[g]) *
-							treatment_outcome_sum[t_add + g] /
-							((double) treatment_count[t_add + g]);
+						out_means[t] += ((double) weight_count[g]) *
+												treatment_outcome_sum[t_add + g] /
+												((double) treatment_count[t_add + g]);
 					}
 				}
 			}
