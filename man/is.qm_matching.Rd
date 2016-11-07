@@ -10,12 +10,12 @@ is.qm_matching(obj)
 \item{obj}{object to check.}
 }
 \value{
-Returns \code{TRUE} if \code{obj} is a valid
-        \code{qm_matching} object, otherwise \code{FALSE}.
+Returns \code{TRUE} if \code{obj} is valid,
+        otherwise \code{FALSE}.
 }
 \description{
-\code{check_qm_matching} checks whether the provided object
-is a valid instance of the \code{qm_matching} class. It does
-not whether the matching is sensible.
+\code{is.qm_matching} checks whether the provided object
+is a valid instance of the \code{\link{qm_matching}} class.
+It does not check whether the matching it describes is sensible.
 }
 

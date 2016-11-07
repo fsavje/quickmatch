@@ -35,7 +35,7 @@
 SEXP qmc_potential_outcomes(const SEXP R_outcomes,
                             const SEXP R_treatments,
                             const SEXP R_matching,
-                            const SEXP R_estimands,
+                            const SEXP R_targets,
                             const SEXP R_subset)
 {
 	if (!isReal(R_outcomes)) {
@@ -59,8 +59,8 @@ SEXP qmc_potential_outcomes(const SEXP R_outcomes,
 	if (asInteger(getAttrib(R_matching, install("cluster_count"))) <= 0) {
 		qmc_Rerror("`R_matching` is empty.");
 	}
-	if (!isLogical(R_estimands)) {
-		qmc_Rerror("`R_estimands` must be logical.");
+	if (!isLogical(R_targets)) {
+		qmc_Rerror("`R_targets` must be logical.");
 	}
 	if (!isNull(R_subset)) {
 		if (!isLogical(R_subset)){
@@ -73,12 +73,12 @@ SEXP qmc_potential_outcomes(const SEXP R_outcomes,
 
 	const size_t num_observations = (size_t) xlength(R_outcomes);
 	const size_t num_groups = (size_t) asInteger(getAttrib(R_matching, install("cluster_count")));
-	const size_t num_treatments = (size_t) xlength(R_estimands);
+	const size_t num_treatments = (size_t) xlength(R_targets);
 
 	const double* const outcomes = REAL(R_outcomes);
 	const int* const matching = INTEGER(R_matching);
 	const int* const treatments = INTEGER(R_treatments);
-	const int* const estimands = LOGICAL(R_estimands);
+	const int* const targets = LOGICAL(R_targets);
 	const int* const subset = isNull(R_subset) ? NULL : LOGICAL(R_subset);
 
 	SEXP R_out_means = PROTECT(allocVector(REALSXP, (R_xlen_t) num_treatments));
@@ -115,7 +115,7 @@ SEXP qmc_potential_outcomes(const SEXP R_outcomes,
 	}
 
 	for (size_t t = 0; t < num_treatments; ++t) {
-		if (!estimands[t]) {
+		if (!targets[t]) {
 			out_means[t] = NA_REAL;
 		} else {
 			out_means[t] = 0.0;

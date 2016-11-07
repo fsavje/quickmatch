@@ -29,13 +29,13 @@ context("Input checking in C code")
 c_potential_outcomes <- function(outcomes = as.numeric(1:20),
                                  treatments = rep(1:4, 5L),
                                  matching = qm_matching(c(rep(0L, 10), rep(1L, 10))),
-                                 estimands = c(FALSE, TRUE, TRUE, TRUE, TRUE),
+                                 targets = c(FALSE, TRUE, TRUE, TRUE, TRUE),
                                  subset = NULL) {
   .Call("qmc_potential_outcomes",
         outcomes,
         unclass(treatments),
         matching,
-        estimands,
+        targets,
         subset,
         PACKAGE = "quickmatch")
 }
@@ -61,8 +61,8 @@ test_that("`qmc_potential_outcomes` checks input.", {
   expect_error(c_potential_outcomes(matching = structure(c(rep(0L, 10), rep(1L, 10)),
                                                          cluster_count = 0L)),
                regexp = "`R_matching` is empty.")
-  expect_error(c_potential_outcomes(estimands = 1:5),
-               regexp = "`R_estimands` must be logical.")
+  expect_error(c_potential_outcomes(targets = 1:5),
+               regexp = "`R_targets` must be logical.")
   expect_error(c_potential_outcomes(subset = rep("a", 20)),
                regexp = "`R_subset` must be logical or NULL.")
   expect_error(c_potential_outcomes(subset = rep(TRUE, 15)),
@@ -81,7 +81,7 @@ test_that("`qmc_potential_outcomes` checks input.", {
 
 
 # ==============================================================================
-# qmc_potential_outcomes.c
+# qmc_utilities.c
 # ==============================================================================
 
 c_translate_targets <- function(targets = c(TRUE, FALSE, TRUE),

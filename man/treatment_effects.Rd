@@ -12,7 +12,8 @@ treatment_effects(outcomes, treatments, matching, contrasts = NULL,
 
 \item{treatments}{integer or factor vector with treatment indicators.}
 
-\item{matching}{qm_matching object containing the matching.}
+\item{matching}{\code{\link{qm_matching}} or \code{\link[Rscclust]{Rscc_clustering}}
+object describing the matched groups.}
 
 \item{contrasts}{vector of treatment labels (corresponding to \code{treatments})
 specifying which treatment effects to estimate. If \code{NULL},
@@ -24,7 +25,7 @@ corresponding to ATE). A non-null value specificies a subset
 of units that the estimate should pertain to (e.g., ATT or ATC).
 If \code{subset} is a logical vector and of length equal to the
 sample size, units indicated with \code{TRUE} will be included.
-Otherwise, \code{subset} should contain treatment labels and
+Otherwise, \code{subset} should contain treatment labels, and
 the corresponding units (as given by \code{treatments}) will be
 included.}
 
@@ -32,17 +33,52 @@ included.}
 \code{contrasts} contains two elements).}
 }
 \value{
-Returns the estimated treatment effects. If \code{contrasts} is of length
-        two, a scaler is returned with the corresponding treatment effect. In all
-        other cases, a numeric matrix with all treatment effects are returned. Rows
-        in this matrix indicate minuends in the treatment contrast and columns
-        indicate subtrahends.
+Returns the estimated treatment effects. If \code{contrasts} contains
+        two conditions and \code{drop} is \code{TRUE}, a named, numeric scalar is returned
+        with the corresponding treatment effect. In all other cases, a named, numeric matrix
+        with all estimated treatment effects is returned. Rows in this matrix indicate minuends
+        in the treatment contrast and columns indicate subtrahends. For example, if the function
+        returns the matrix:
+        \tabular{rrrr}{
+        \tab a \tab b \tab c\cr
+        a \tab 0.0 \tab 4.5 \tab 5.5\cr
+        b \tab -4.5 \tab 0.0 \tab 1.0\cr
+        c \tab -5.5 \tab -1.0 \tab 0.0\cr
+        }
+        the treatment effect between conditions \eqn{a} and \eqn{b} is \eqn{4.5}, or
+        in symbols: \eqn{E[Y(a) - Y(b)] = 4.5}.
 }
 \description{
-\code{treatment_effects} estimates treatment effect in matched groups. For a
-set of treatment conditions, the function returns estimates of treatment
-effects for the units in the sample for each pair of conditions.
-It is possible to estimate treatment effects for a subset of the
-units (e.g., ATT or ATC).
+\code{treatment_effects} estimates treatment effect in matched groups. Provided
+matched groups, outcomes and treatments, the function returns point estimates of the
+average treatment effects for the units in the sample. It is also possible to estimate
+treatment effects for subsets of the units. For example, one can estimate the effects
+for units assigned to a certain treatment condition (e.g., ATT).
+}
+\examples{
+# Example input
+outcomes <- (1:100)^0.5
+treatments <- factor(rep(c("a", "b", "c", "c"), each = 25))
+matching <- qm_matching(rep(1:10, 10))
+
+# Estimate all treatment effects for the whole sample
+treatment_effects(outcomes, treatments, matching)
+
+# Estimate only treatment effect between "a" and "b"
+treatment_effects(outcomes, treatments, matching, contrasts = c("a", "b"))
+
+# As last command, but return a matrix
+treatment_effects(outcomes, treatments, matching, contrasts = c("a", "b"), drop = FALSE)
+
+# Estimate all treatment effects for units assigned to treatments "b" or "c"
+treatment_effects(outcomes, treatments, matching, subset = c("b", "c"))
+
+# Estimate all treatment effects for units 1:15 and 31:45
+subset <- c(rep(TRUE, 15), rep(FALSE, 15), rep(TRUE, 15), rep(FALSE, 55))
+treatment_effects(outcomes, treatments, matching, subset = subset)
+
+}
+\seealso{
+\code{\link{potential_outcomes}} for estimating potential outcomes.
 }
 

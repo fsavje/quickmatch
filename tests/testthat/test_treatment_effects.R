@@ -54,7 +54,7 @@ test_that("potential_outcomes produces correct output.", {
   pos1 <- potential_outcomes(outcomes = test_outcome,
                              treatments = test_treatment1,
                              matching = test_matching,
-                             estimands = NULL,
+                             targets = NULL,
                              subset = NULL)
   expect_equal(treatment_effects(outcomes = test_outcome,
                                  treatments = test_treatment1,
@@ -74,7 +74,7 @@ test_that("potential_outcomes produces correct output.", {
   pos2 <- potential_outcomes(outcomes = test_outcome,
                              treatments = test_treatment2,
                              matching = test_matching,
-                             estimands = NULL,
+                             targets = NULL,
                              subset = NULL)
   expect_equal(treatment_effects(outcomes = test_outcome,
                                  treatments = test_treatment2,
@@ -94,7 +94,7 @@ test_that("potential_outcomes produces correct output.", {
   pos3 <- potential_outcomes(outcomes = test_outcome,
                              treatments = test_treatment2,
                              matching = test_matching,
-                             estimands = c("a", "c"),
+                             targets = c("a", "c"),
                              subset = NULL)
   expect_equal(treatment_effects(outcomes = test_outcome,
                                  treatments = test_treatment2,
@@ -114,7 +114,7 @@ test_that("potential_outcomes produces correct output.", {
   pos4 <- potential_outcomes(outcomes = test_outcome,
                              treatments = test_treatment2,
                              matching = test_matching,
-                             estimands = NULL,
+                             targets = NULL,
                              subset = test_subset1)
   expect_equal(treatment_effects(outcomes = test_outcome,
                                  treatments = test_treatment2,
@@ -127,7 +127,7 @@ test_that("potential_outcomes produces correct output.", {
   pos5 <- potential_outcomes(outcomes = test_outcome,
                              treatments = test_treatment2,
                              matching = test_matching,
-                             estimands = NULL,
+                             targets = NULL,
                              subset = test_subset2)
   expect_equal(treatment_effects(outcomes = test_outcome,
                                  treatments = test_treatment2,
@@ -140,7 +140,7 @@ test_that("potential_outcomes produces correct output.", {
   pos6 <- potential_outcomes(outcomes = test_outcome,
                              treatments = test_treatment2,
                              matching = test_matching,
-                             estimands = c("a", "c", "d"),
+                             targets = c("a", "c", "d"),
                              subset = test_subset1)
   expect_equal(treatment_effects(outcomes = test_outcome,
                                  treatments = test_treatment2,
@@ -153,7 +153,7 @@ test_that("potential_outcomes produces correct output.", {
   pos7 <- potential_outcomes(outcomes = test_outcome,
                              treatments = test_treatment2,
                              matching = test_matching,
-                             estimands = c("a", "b"),
+                             targets = c("a", "b"),
                              subset = test_subset2)
   expect_equal(treatment_effects(outcomes = test_outcome,
                                  treatments = test_treatment2,

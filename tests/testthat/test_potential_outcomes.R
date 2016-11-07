@@ -122,14 +122,14 @@ test_that("potential_outcomes produces correct output.", {
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment1,
                                   test_matching1,
-                                  estimands = "1"), ref1a)
+                                  targets = "1"), ref1a)
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
                                   test_matching1), ref1)
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
                                   test_matching1,
-                                  estimands = 1), ref1a)
+                                  targets = 1), ref1a)
 
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment1,
@@ -137,14 +137,14 @@ test_that("potential_outcomes produces correct output.", {
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment1,
                                   test_matching2,
-                                  estimands = "1"), ref2a)
+                                  targets = "1"), ref2a)
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
                                   test_matching2), ref2)
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
                                   test_matching2,
-                                  estimands = 1), ref2a)
+                                  targets = 1), ref2a)
 
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment1,
@@ -153,7 +153,7 @@ test_that("potential_outcomes produces correct output.", {
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment1,
                                   test_matching1,
-                                  estimands = "1",
+                                  targets = "1",
                                   subset = 1), ref3a)
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
@@ -162,7 +162,7 @@ test_that("potential_outcomes produces correct output.", {
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
                                   test_matching1,
-                                  estimands = 1,
+                                  targets = 1,
                                   subset = 1), ref3a)
 
   expect_equal(potential_outcomes(test_outcome,
@@ -172,7 +172,7 @@ test_that("potential_outcomes produces correct output.", {
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment1,
                                   test_matching1,
-                                  estimands = "1",
+                                  targets = "1",
                                   subset = test_subset), ref4a)
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
@@ -181,7 +181,7 @@ test_that("potential_outcomes produces correct output.", {
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
                                   test_matching1,
-                                  estimands = 1,
+                                  targets = 1,
                                   subset = test_subset), ref4a)
 })
 
@@ -189,17 +189,17 @@ test_that("potential_outcomes produces correct output.", {
 test_against_replica <- function(outcomes,
                                  treatments,
                                  matching,
-                                 estimands,
+                                 targets,
                                  subset) {
   eval(bquote(expect_equal(internal_potential_outcomes(outcomes,
                                                        treatments,
                                                        matching,
-                                                       estimands,
+                                                       targets,
                                                        subset),
                            replica_internal_potential_outcomes(outcomes,
                                                                treatments,
                                                                matching,
-                                                               estimands,
+                                                               targets,
                                                                subset))))
 }
 

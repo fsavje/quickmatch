@@ -21,19 +21,22 @@
 
 #' Average potential outcome estimator in matched groups
 #'
-#' \code{potential_outcomes} estimates potential outcomes in matched groups. For
-#' an outcome, a matching and treatments, the function returns estimates of the
-#' average potential outcomes for all treatments for the units in the sample. It is
-#' possible to estimate potential outcomes for a subset of the units (e.g., ATT or
-#' ATC).
+#' \code{potential_outcomes} estimates potential outcomes in matched groups. Provided
+#' matched groups, outcomes and treatments, the function returns estimates of the average
+#' potential outcomes for all treatments for the units in the sample. It is also possible
+#' to estimate potential outcomes for subsets of the units. For example, one can estimate
+#' the potential outcomes for units assigned to a certain treatment condition (corresponding
+#' to, e.g., ATT).
+#'
 #'
 #' @param outcomes    numeric vector with observed outcomes.
 #'
 #' @param treatments  integer or factor vector with treatment indicators.
 #'
-#' @param matching    qm_matching object containing the matching.
+#' @param matching    \code{\link{qm_matching}} or \code{\link[Rscclust]{Rscc_clustering}}
+#'                    object describing the matched groups.
 #'
-#' @param estimands   vector of treatment labels (corresponding to \code{treatments})
+#' @param targets     vector of treatment labels (corresponding to \code{treatments})
 #'                    specifying which potential outcomes to estimate. If \code{NULL},
 #'                    all potential outcomes will be estimated.
 #'
@@ -43,28 +46,48 @@
 #'                    of units that the estimate should pertain to (e.g., ATT or ATC).
 #'                    If \code{subset} is a logical vector and of length equal to the
 #'                    sample size, units indicated with \code{TRUE} will be included.
-#'                    Otherwise, \code{subset} should contain treatment labels and
+#'                    Otherwise, \code{subset} should contain treatment labels, and
 #'                    the corresponding units (as given by \code{treatments}) will be
 #'                    included.
 #'
-#' @return Returns a named numeric vector with an estimate of each potential outcome.
+#' @return Returns a named numeric vector with estimates of the potential outcomes.
 #'
-#' @useDynLib quickmatch qmc_potential_outcomes
+#' @seealso \code{\link{treatment_effects}} for estimating treatment effects.
+#'
+#' @examples
+#' # Example input
+#' outcomes <- (1:100)^0.5
+#' treatments <- factor(rep(c("a", "b", "c", "c"), each = 25))
+#' matching <- qm_matching(rep(1:10, 10))
+#'
+#' # Estimate all potential outcomes for the whole sample
+#' potential_outcomes(outcomes, treatments, matching)
+#'
+#' # Estimate only "a" potential outcome
+#' potential_outcomes(outcomes, treatments, matching, targets = "a")
+#'
+#' # Estimate potential outcomes for units assigned to treatments "b" or "c"
+#' potential_outcomes(outcomes, treatments, matching, subset = c("b", "c"))
+#'
+#' # Estimate potential outcomes for units 1:15 and 31:45
+#' subset <- c(rep(TRUE, 15), rep(FALSE, 15), rep(TRUE, 15), rep(FALSE, 55))
+#' potential_outcomes(outcomes, treatments, matching, subset = subset)
+#'
 #' @export
 potential_outcomes <- function(outcomes,
                                treatments,
                                matching,
-                               estimands = NULL,
+                               targets = NULL,
                                subset = NULL) {
   coerce_double(outcomes)
   treatments <- Rscclust:::coerce_type_labels(treatments, length(outcomes))
   all_treatment_conditions <- get_all_treatment_conditions(treatments)
   Rscclust:::ensure_Rscc_clustering(matching, length(outcomes))
 
-  if (is.null(estimands)) {
-    estimands <- all_treatment_conditions
+  if (is.null(targets)) {
+    targets <- all_treatment_conditions
   }
-  ensure_treatment_label_indicators(estimands, all_treatment_conditions)
+  ensure_treatment_label_indicators(targets, all_treatment_conditions)
 
   if (is.logical(subset)) {
     Rscclust:::ensure_indicators(subset, length(outcomes), TRUE)
@@ -75,18 +98,19 @@ potential_outcomes <- function(outcomes,
   internal_potential_outcomes(outcomes,
                               treatments,
                               matching,
-                              estimands,
+                              targets,
                               subset)
 }
 
 
-# C wrapper
+# Potential outcome estimator C wrapper
+#' @useDynLib quickmatch qmc_potential_outcomes
 internal_potential_outcomes <- function(outcomes,
                                         treatments,
                                         matching,
-                                        estimands,
+                                        targets,
                                         subset) {
-  estimands <- Rscclust:::make_type_indicators(estimands, treatments)
+  targets <- Rscclust:::make_type_indicators(targets, treatments)
 
   if (!is.null(subset) && !is.logical(subset)) {
     subset <- Rscclust:::make_type_indicators(subset, treatments)
@@ -97,23 +121,24 @@ internal_potential_outcomes <- function(outcomes,
                             outcomes,
                             unclass(treatments),
                             matching,
-                            estimands,
+                            targets,
                             subset,
                             PACKAGE = "quickmatch")
 
-  ave_pot_outcomes <- ave_pot_outcomes[estimands]
-  names(ave_pot_outcomes) <- names(estimands)[estimands]
+  ave_pot_outcomes <- ave_pot_outcomes[targets]
+  names(ave_pot_outcomes) <- names(targets)[targets]
   ave_pot_outcomes
 }
 
 
 #' Average treatment effect estimator in matched groups
 #'
-#' \code{treatment_effects} estimates treatment effect in matched groups. For a
-#' set of treatment conditions, the function returns estimates of treatment
-#' effects for the units in the sample for each pair of conditions.
-#' It is possible to estimate treatment effects for a subset of the
-#' units (e.g., ATT or ATC).
+#' \code{treatment_effects} estimates treatment effect in matched groups. Provided
+#' matched groups, outcomes and treatments, the function returns point estimates of the
+#' average treatment effects for the units in the sample. It is also possible to estimate
+#' treatment effects for subsets of the units. For example, one can estimate the effects
+#' for units assigned to a certain treatment condition (e.g., ATT).
+#'
 #'
 #' @param contrasts   vector of treatment labels (corresponding to \code{treatments})
 #'                    specifying which treatment effects to estimate. If \code{NULL},
@@ -124,13 +149,45 @@ internal_potential_outcomes <- function(outcomes,
 #'
 #' @inheritParams potential_outcomes
 #'
-#' @return Returns the estimated treatment effects. If \code{contrasts} is of length
-#'         two, a scaler is returned with the corresponding treatment effect. In all
-#'         other cases, a numeric matrix with all treatment effects are returned. Rows
-#'         in this matrix indicate minuends in the treatment contrast and columns
-#'         indicate subtrahends.
+#' @return Returns the estimated treatment effects. If \code{contrasts} contains
+#'         two conditions and \code{drop} is \code{TRUE}, a named, numeric scalar is returned
+#'         with the corresponding treatment effect. In all other cases, a named, numeric matrix
+#'         with all estimated treatment effects is returned. Rows in this matrix indicate minuends
+#'         in the treatment contrast and columns indicate subtrahends. For example, if the function
+#'         returns the matrix:
+#'         \tabular{rrrr}{
+#'         \tab a \tab b \tab c\cr
+#'         a \tab 0.0 \tab 4.5 \tab 5.5\cr
+#'         b \tab -4.5 \tab 0.0 \tab 1.0\cr
+#'         c \tab -5.5 \tab -1.0 \tab 0.0\cr
+#'         }
+#'         the treatment effect between conditions \eqn{a} and \eqn{b} is \eqn{4.5}, or
+#'         in symbols: \eqn{E[Y(a) - Y(b)] = 4.5}.
 #'
-#' @useDynLib quickmatch qmc_potential_outcomes
+#' @seealso \code{\link{potential_outcomes}} for estimating potential outcomes.
+#'
+#' @examples
+#' # Example input
+#' outcomes <- (1:100)^0.5
+#' treatments <- factor(rep(c("a", "b", "c", "c"), each = 25))
+#' matching <- qm_matching(rep(1:10, 10))
+#'
+#' # Estimate all treatment effects for the whole sample
+#' treatment_effects(outcomes, treatments, matching)
+#'
+#' # Estimate only treatment effect between "a" and "b"
+#' treatment_effects(outcomes, treatments, matching, contrasts = c("a", "b"))
+#'
+#' # As last command, but return a matrix
+#' treatment_effects(outcomes, treatments, matching, contrasts = c("a", "b"), drop = FALSE)
+#'
+#' # Estimate all treatment effects for units assigned to treatments "b" or "c"
+#' treatment_effects(outcomes, treatments, matching, subset = c("b", "c"))
+#'
+#' # Estimate all treatment effects for units 1:15 and 31:45
+#' subset <- c(rep(TRUE, 15), rep(FALSE, 15), rep(TRUE, 15), rep(FALSE, 55))
+#' treatment_effects(outcomes, treatments, matching, subset = subset)
+#'
 #' @export
 treatment_effects <- function(outcomes,
                               treatments,
@@ -144,11 +201,11 @@ treatment_effects <- function(outcomes,
   Rscclust:::ensure_Rscc_clustering(matching, length(outcomes))
 
   if (is.null(contrasts)) {
-    estimands <- all_treatment_conditions
+    targets <- all_treatment_conditions
   } else {
-    estimands <- contrasts
+    targets <- contrasts
   }
-  ensure_treatment_label_indicators(estimands, all_treatment_conditions)
+  ensure_treatment_label_indicators(targets, all_treatment_conditions)
 
   if (is.logical(subset)) {
     Rscclust:::ensure_indicators(subset, length(outcomes), TRUE)
@@ -161,7 +218,7 @@ treatment_effects <- function(outcomes,
   po_vector <- internal_potential_outcomes(outcomes = outcomes,
                                            treatments = treatments,
                                            matching = matching,
-                                           estimands = estimands,
+                                           targets = targets,
                                            subset = subset)
 
   po_matrix <- as.matrix(po_vector) %*% t(as.matrix(rep(1, length(po_vector))))

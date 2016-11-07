@@ -2,27 +2,46 @@
 % Please edit documentation in R/qm_matching.R
 \name{qm_matching}
 \alias{qm_matching}
-\title{Construct a \code{qm_matching} object}
+\title{Construct \code{qm_matching} objects}
 \usage{
 qm_matching(labels, unassigned_labels = NULL, ids = NULL)
 }
 \arguments{
-\item{labels}{a vector containing each data point's label.}
+\item{labels}{vector with labels describing which matched group each unit
+is assigned to.}
 
-\item{unassigned_labels}{a vector containing labels that denote unassigned data points.}
+\item{unassigned_labels}{labels that denote unassigned data points.
+\code{NA} values are always considered unassigned.}
 
-\item{ids}{optional IDs for the data points. Either a vector of the same length as
-\code{cluster_labels} or \code{NULL}. If \code{NULL}, the IDs are set to
-\code{1:length(labels)}.}
+\item{ids}{optional vector with IDs for the data points. If \code{NULL},
+the IDs are set to \code{1:length(labels)}.}
 }
 \value{
 Returns a \code{qm_matching} object.
 }
 \description{
 \code{qm_matching} constructs a \code{qm_matching} object from existing
-matching labels.
+matching labels. This is useful when one uses the estimators in
+the package with a matching not constructed by the \code{\link{quickmatch}}
+function.
 }
 \details{
 \code{qm_matching} inherits from \code{Rscc_clustering}.
+}
+\examples{
+# Ten units in three matched groups
+qm_matching(c("A", "B", "B", "C", "B", "C", "A", "A", "C", "C"))
+
+# Label "999" denotes units not assigned to a matched group
+qm_matching(c("A", "999", "B", "C", "B", "999", "A", "A", "C", "C"),
+            unassigned_labels = "999")
+
+# Equivalent to previous command
+qm_matching(c("A", NA, "B", "C", "B", NA, "A", "A", "C", "C"))
+
+# Custom IDs
+qm_matching(c("A", "B", "B", "C", "B", "C", "A", "A", "C", "C"),
+            ids = letters[1:10])
+
 }
 

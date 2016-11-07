@@ -27,7 +27,7 @@
 SEXP qmc_potential_outcomes(SEXP R_outcomes,
                             SEXP R_treatments,
                             SEXP R_matching,
-                            SEXP R_estimands,
+                            SEXP R_targets,
                             SEXP R_subset);
 
 #endif // ifndef QMC_POTENTIAL_OUTCOMES_HG
