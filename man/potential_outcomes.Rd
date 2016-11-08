@@ -23,7 +23,7 @@ all potential outcomes will be estimated.}
 the estimate will pertain to all units in the sample (i.e.,
 corresponding to ATE). A non-null value specificies a subset
 of units that the estimate should pertain to (e.g., ATT or ATC).
-If \code{subset} is a logical vector and of length equal to the
+If \code{subset} is a logical vector and of the same length as the
 sample size, units indicated with \code{TRUE} will be included.
 Otherwise, \code{subset} should contain treatment labels, and
 the corresponding units (as given by \code{treatments}) will be
@@ -34,11 +34,10 @@ Returns a named numeric vector with estimates of the potential outcomes.
 }
 \description{
 \code{potential_outcomes} estimates potential outcomes in matched groups. Provided
-matched groups, outcomes and treatments, the function returns estimates of the average
+matched groups, outcomes and treatment indicators, the function returns estimates of the average
 potential outcomes for all treatments for the units in the sample. It is also possible
 to estimate potential outcomes for subsets of the units. For example, one can estimate
-the potential outcomes for units assigned to a certain treatment condition (corresponding
-to, e.g., ATT).
+the potential outcomes for units assigned to a certain treatment condition.
 }
 \examples{
 # Example input
@@ -49,7 +48,7 @@ matching <- qm_matching(rep(1:10, 10))
 # Estimate all potential outcomes for the whole sample
 potential_outcomes(outcomes, treatments, matching)
 
-# Estimate only "a" potential outcome
+# Estimate only the average potential outcome for the "a" treatment
 potential_outcomes(outcomes, treatments, matching, targets = "a")
 
 # Estimate potential outcomes for units assigned to treatments "b" or "c"
@@ -61,6 +60,6 @@ potential_outcomes(outcomes, treatments, matching, subset = subset)
 
 }
 \seealso{
-\code{\link{treatment_effects}} for estimating treatment effects.
+See \code{\link{treatment_effects}} for a treatment effects estimator.
 }
 

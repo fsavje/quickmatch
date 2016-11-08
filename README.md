@@ -13,9 +13,6 @@ R package for matching in large data sets with complicated constraints
 # Install devtools, if not already installed, with command:
 # install.packages("devtools")
 
-# Install dependencies
-devtools::install_github("fsavje/Rscclust")
-
 # Install quickmatch
 devtools::install_github("fsavje/quickmatch")
 ```

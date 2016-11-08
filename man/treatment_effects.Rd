@@ -23,7 +23,7 @@ all treatment effects will be estimated.}
 the estimate will pertain to all units in the sample (i.e.,
 corresponding to ATE). A non-null value specificies a subset
 of units that the estimate should pertain to (e.g., ATT or ATC).
-If \code{subset} is a logical vector and of length equal to the
+If \code{subset} is a logical vector and of the same length as the
 sample size, units indicated with \code{TRUE} will be included.
 Otherwise, \code{subset} should contain treatment labels, and
 the corresponding units (as given by \code{treatments}) will be
@@ -33,24 +33,24 @@ included.}
 \code{contrasts} contains two elements).}
 }
 \value{
-Returns the estimated treatment effects. If \code{contrasts} contains
-        two conditions and \code{drop} is \code{TRUE}, a named, numeric scalar is returned
-        with the corresponding treatment effect. In all other cases, a named, numeric matrix
+Returns estimated treatment effects. If \code{contrasts} contains
+        two conditions and \code{drop} is \code{TRUE}, a numeric scalar is returned
+        with the corresponding treatment effect. In all other cases, a numeric matrix
         with all estimated treatment effects is returned. Rows in this matrix indicate minuends
-        in the treatment contrast and columns indicate subtrahends. For example, if the function
-        returns the matrix:
+        in the treatment effect contrast and columns indicate subtrahends. For example, in the matrix:
         \tabular{rrrr}{
         \tab a \tab b \tab c\cr
         a \tab 0.0 \tab 4.5 \tab 5.5\cr
         b \tab -4.5 \tab 0.0 \tab 1.0\cr
         c \tab -5.5 \tab -1.0 \tab 0.0\cr
         }
-        the treatment effect between conditions \eqn{a} and \eqn{b} is \eqn{4.5}, or
-        in symbols: \eqn{E[Y(a) - Y(b)] = 4.5}.
+        the estimated treatment effect between conditions \eqn{a} and \eqn{b} is \eqn{4.5},
+        and the estimated treatment effect between conditions \eqn{c} and \eqn{b} is \eqn{-1.0}.
+        Or in symbols: \eqn{E[Y(a) - Y(b)] = 4.5} and \eqn{E[Y(c) - Y(b)] = -1.0}.
 }
 \description{
 \code{treatment_effects} estimates treatment effect in matched groups. Provided
-matched groups, outcomes and treatments, the function returns point estimates of the
+matched groups, outcomes and treatment indicators, the function returns point estimates of the
 average treatment effects for the units in the sample. It is also possible to estimate
 treatment effects for subsets of the units. For example, one can estimate the effects
 for units assigned to a certain treatment condition (e.g., ATT).
@@ -79,6 +79,6 @@ treatment_effects(outcomes, treatments, matching, subset = subset)
 
 }
 \seealso{
-\code{\link{potential_outcomes}} for estimating potential outcomes.
+\code{\link{potential_outcomes}} for a potential outcome estimator.
 }
 

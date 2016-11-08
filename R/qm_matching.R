@@ -19,31 +19,47 @@
 # ==============================================================================
 
 
-#' Construct \code{qm_matching} objects
+#' \code{qm_matching} objects
 #'
-#' \code{qm_matching} constructs a \code{qm_matching} object from existing
-#' matching labels. This is useful when one uses the estimators in
+#' Construct and check \code{qm_matching} objects.
+#'
+#' The \code{qm_matching} function constructs a \code{qm_matching} object
+#' from existing matching labels. This is useful when one uses the estimators in
 #' the package with a matching not constructed by the \code{\link{quickmatch}}
 #' function.
 #'
-#' \code{qm_matching} inherits from \code{Rscc_clustering}.
+#' \code{is.qm_matching} checks whether the provided object
+#' is a valid instance of the \code{qm_matching} class.
+#' It does not check whether the matching it describes is sensible.
+#' See \code{\link[Rscclust]{check_clustering_types}} for a function
+#' that provides such checks.
 #'
-#' @param labels             vector with labels describing which matched group each unit
-#'                           is assigned to.
+#' \code{qm_matching} objects are based on integer vectors and indexes
+#' matched groups starting with zero. The \code{qm_matching} class
+#' inherits from the \code{\link[Rscclust]{Rscc_clustering}} class in
+#' \code{Rscclust}.
 #'
-#' @param unassigned_labels  labels that denote unassigned data points.
+#'
+#' @param labels             vector with labels describing the matched groups.
+#'
+#' @param unassigned_labels  labels denoting unassigned data points.
 #'                           \code{NA} values are always considered unassigned.
 #'
-#' @param ids                optional vector with IDs for the data points. If \code{NULL},
+#' @param ids                vector with IDs for the data points. If \code{NULL},
 #'                           the IDs are set to \code{1:length(labels)}.
 #'
-#' @return Returns a \code{qm_matching} object.
+#' @param obj                object to check.
+#'
+#' @return The \code{qm_matching} function returns a \code{qm_matching} object.
+#'
+#'         \code{is.qm_matching} returns \code{TRUE} if \code{obj} is valid,
+#'         otherwise \code{FALSE}.
 #'
 #' @examples
 #' # Ten units in three matched groups
 #' qm_matching(c("A", "B", "B", "C", "B", "C", "A", "A", "C", "C"))
 #'
-#' # Label "999" denotes units not assigned to a matched group
+#' # Label "999" denotes, in this example, units not assigned to a matched group
 #' qm_matching(c("A", "999", "B", "C", "B", "999", "A", "A", "C", "C"),
 #'             unassigned_labels = "999")
 #'
@@ -53,6 +69,9 @@
 #' # Custom IDs
 #' qm_matching(c("A", "B", "B", "C", "B", "C", "A", "A", "C", "C"),
 #'             ids = letters[1:10])
+#'
+#' # Check whether constructed object is a qm_matching
+#' is.qm_matching(qm_matching(c("A", "B", "B", "C")))
 #'
 #' @export
 qm_matching <- function(labels,
@@ -72,17 +91,7 @@ qm_matching <- function(labels,
 }
 
 
-#' Check \code{qm_matching} object
-#'
-#' \code{is.qm_matching} checks whether the provided object
-#' is a valid instance of the \code{\link{qm_matching}} class.
-#' It does not check whether the matching it describes is sensible.
-#'
-#' @param obj  object to check.
-#'
-#' @return Returns \code{TRUE} if \code{obj} is valid,
-#'         otherwise \code{FALSE}.
-#'
+#' @rdname qm_matching
 #' @export
 is.qm_matching <- function(obj) {
   inherits(obj, "qm_matching") &&
