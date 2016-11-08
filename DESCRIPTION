@@ -2,9 +2,11 @@ Package: quickmatch
 Type: Package
 Title: Fast Matching in Large Data Sets with Complicated Constraints
 Version: 0.0.1
-Date: 2016-10-26
+Date: 2016-11-08
 Authors@R: c(person("Fredrik", "Savje", email = "fredrik.savje@berkeley.edu", role = c("aut", "cre")))
-Description: Fast matching in large data sets with complicated constraints.
+Description: quickmatch provides matching functions for constructing generalized full matchings in
+             large samples. It also provides computationally efficient estimators for treatment
+             effects and potential outcomes in matched groups.
 Depends:
     R (>= 3.2.3)
 Imports:
