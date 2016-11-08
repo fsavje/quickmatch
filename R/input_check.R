@@ -40,10 +40,47 @@ ensure_treatment_label_indicators <- function(label_indicators,
   }
 }
 
+# Coerce `caliper` to NULL or a scalar, positive, non-na, numeric
+ensure_sane_caliper <- function(caliper,
+                                main_unassigned_method) {
+  if (!is.null(caliper) && !is.null(main_unassigned_method)) {
+    main_unassigned_method <- Rscclust:::coerce_args(main_unassigned_method,
+                                                     c("ignore",
+                                                       "by_nng",
+                                                       "closest_assigned",
+                                                       "closest_seed",
+                                                       "estimated_radius_closest_seed"))
+    if (main_unassigned_method != "closest_seed") {
+      Rscclust:::new_warning("Non-NULL `caliper` with `main_unassigned_method` = \"", main_unassigned_method, "\".")
+    }
+  }
+}
+
 
 # ==============================================================================
 # Coerce functions
 # ==============================================================================
+
+# Coerce `caliper` to NULL or a scalar, positive, non-na, numeric
+coerce_caliper <- function(caliper) {
+  if (!is.null(caliper)) {
+    if (!is.numeric(caliper)) {
+      Rscclust:::new_error("`", match.call()$caliper, "` must be numeric or `NULL`.")
+    }
+    if (length(caliper) != 1L) {
+      Rscclust:::new_error("`", match.call()$caliper, "` must be scalar.")
+    }
+    if (is.na(caliper)) {
+      Rscclust:::new_error("`", match.call()$caliper, "` may not be NA.")
+    }
+    if (caliper <= 0.0) {
+      Rscclust:::new_error("`", match.call()$caliper, "` must be positive or `NULL`.")
+    }
+    caliper <- as.numeric(caliper) / 2.0
+  }
+  caliper
+}
+
 
 # Coerce `x` to double
 coerce_double <- function(x,

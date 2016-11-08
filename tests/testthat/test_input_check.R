@@ -44,6 +44,60 @@ test_that("`ensure_treatment_label_indicators` checks input.", {
 
 
 # ==============================================================================
+# ensure_sane_caliper
+# ==============================================================================
+
+t_ensure_sane_caliper <- function(t_caliper = NULL,
+                                  t_main_unassigned_method = NULL) {
+  ensure_sane_caliper(t_caliper, t_main_unassigned_method)
+}
+
+test_that("`ensure_sane_caliper` checks input.", {
+  expect_silent(t_ensure_sane_caliper())
+  expect_silent(t_ensure_sane_caliper(t_caliper = 0.5))
+  expect_silent(t_ensure_sane_caliper(t_main_unassigned_method = "ign"))
+  expect_silent(t_ensure_sane_caliper(t_caliper = 0.5,
+                                      t_main_unassigned_method = "closest_seed"))
+  expect_error(t_ensure_sane_caliper(t_caliper = 0.5,
+                                     t_main_unassigned_method = "invalid"),
+               regexp = "`main_unassigned_method` must be one of")
+  expect_warning(t_ensure_sane_caliper(t_caliper = 0.5,
+                                       t_main_unassigned_method = "ignore"),
+                 regexp = "Non-NULL `caliper` with `main_unassigned_method` = \"ignore\".")
+})
+
+
+# ==============================================================================
+# coerce_caliper
+# ==============================================================================
+
+t_coerce_caliper <- function(t_caliper = 0.5) {
+  coerce_caliper(t_caliper)
+}
+
+test_that("`coerce_caliper` checks input.", {
+  expect_silent(t_coerce_caliper())
+  expect_silent(t_coerce_caliper(t_caliper = 1L))
+  expect_silent(t_coerce_caliper(t_caliper = NULL))
+  expect_error(t_coerce_caliper(t_caliper = "a"),
+               regexp = "`t_caliper` must be numeric or `NULL`.")
+  expect_error(t_coerce_caliper(t_caliper = c(1.4, 2.4)),
+               regexp = "`t_caliper` must be scalar.")
+  expect_error(t_coerce_caliper(t_caliper = as.numeric(NA)),
+               regexp = "`t_caliper` may not be NA.")
+  expect_error(t_coerce_caliper(t_caliper = -0.5),
+               regexp = "`t_caliper` must be positive or `NULL`.")
+})
+
+test_that("`coerce_caliper` coerces correctly.", {
+  expect_equal(t_coerce_caliper(), 0.25)
+  expect_type(t_coerce_caliper(t_caliper = 1L), "double")
+  expect_equal(t_coerce_caliper(t_caliper = 1L), 0.5)
+  expect_null(t_coerce_caliper(t_caliper = NULL))
+})
+
+
+# ==============================================================================
 # coerce_double
 # ==============================================================================
 

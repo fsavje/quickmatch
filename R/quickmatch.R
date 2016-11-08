@@ -156,8 +156,6 @@ quickmatch <- function(distances,
                                                                    treatment_constraints,
                                                                    num_observations)
 
-  caliper <- Rscclust:::coerce_radius(caliper)
-
   if (is.logical(subset)) {
     Rscclust:::ensure_indicators(subset, num_observations, TRUE)
   } else if (!is.null(subset)) {
@@ -165,6 +163,10 @@ quickmatch <- function(distances,
     subset <- Rscclust:::make_type_indicators(subset, treatments)
     subset <- translate_targets(subset, treatments)
   }
+
+  caliper <- coerce_caliper(caliper)
+  dots <- eval(substitute(alist(...)))
+  ensure_sane_caliper(caliper, dots$main_unassigned_method)
 
   out_matching <- Rscclust::nng_clustering_types(distance_object = distances,
                                                  type_labels = treatments,

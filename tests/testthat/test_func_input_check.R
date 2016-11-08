@@ -214,4 +214,11 @@ test_that("`quickmatch` checks input.", {
                           total_size_constraint = sound_total_size_constraint,
                           caliper = sound_caliper,
                           subset = unsound_subset))
+  expect_warning(quickmatch(distances = sound_distance_object,
+                            treatments = sound_treatments,
+                            treatment_constraints = sound_treatment_constraints,
+                            total_size_constraint = sound_total_size_constraint,
+                            caliper = 5.0,
+                            subset = sound_subset,
+                            main_unassigned_method = "closest_assigned"))
 })

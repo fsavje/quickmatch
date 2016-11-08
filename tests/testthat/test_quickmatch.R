@@ -34,7 +34,7 @@ test_quickmatch_against_Rscclust <- function(distances,
                                             type_labels = treatments,
                                             type_size_constraints = Rscc_type_constraints,
                                             total_size_constraint = total_size_constraint,
-                                            main_radius = caliper,
+                                            main_radius = if(is.null(caliper)) { caliper } else { caliper / 2.0 },
                                             main_data_points = Rscc_main_data_points)
   class(Rscc_cl) <- c("qm_matching", class(Rscc_cl))
   eval(bquote(expect_identical(quickmatch(distances,
@@ -136,7 +136,7 @@ test_that("`quickmatch` returns correct output", {
                                    test_treat_constraint4,
                                    NULL,
                                    NULL,
-                                   5.5,
+                                   11.0,
                                    test_treat_constraint4,
                                    NULL)
   test_quickmatch_against_Rscclust(test_distances,
@@ -168,7 +168,7 @@ test_that("`quickmatch` returns correct output", {
                                    test_treat_constraint2,
                                    10L,
                                    NULL,
-                                   7.5,
+                                   15.0,
                                    test_treat_constraint2,
                                    NULL)
   expect_warning(test_quickmatch_against_Rscclust(test_distances,
@@ -192,7 +192,7 @@ test_that("`quickmatch` returns correct output", {
                                    NULL,
                                    10L,
                                    NULL,
-                                   7.5,
+                                   15.5,
                                    test_treat_constraint1,
                                    NULL)
   test_quickmatch_against_Rscclust(test_distances,
@@ -216,7 +216,7 @@ test_that("`quickmatch` returns correct output", {
                                    test_treat_constraint4,
                                    10L,
                                    NULL,
-                                   7.5,
+                                   15.5,
                                    test_treat_constraint4,
                                    NULL)
   test_quickmatch_against_Rscclust(test_distances,
@@ -240,7 +240,7 @@ test_that("`quickmatch` returns correct output", {
                                    test_treat_constraint1,
                                    NULL,
                                    test_subset1,
-                                   1.5,
+                                   3.5,
                                    test_treat_constraint1,
                                    test_treatments2 == "1")
   test_quickmatch_against_Rscclust(test_distances,
@@ -280,7 +280,7 @@ test_that("`quickmatch` returns correct output", {
                                    NULL,
                                    NULL,
                                    test_subset3,
-                                   1.5,
+                                   3.5,
                                    test_treat_constraint2,
                                    test_treatments3 == "a")
   expect_warning(test_quickmatch_against_Rscclust(test_distances,
@@ -400,7 +400,7 @@ test_that("`quickmatch` returns correct output", {
                                    test_treat_constraint1,
                                    NULL,
                                    test_subset5,
-                                   1.5,
+                                   3.5,
                                    test_treat_constraint1,
                                    test_subset5)
   test_quickmatch_against_Rscclust(test_distances,
@@ -424,7 +424,7 @@ test_that("`quickmatch` returns correct output", {
                                    test_treat_constraint4,
                                    NULL,
                                    test_subset5,
-                                   6.5,
+                                   12.5,
                                    test_treat_constraint4,
                                    test_subset5)
   test_quickmatch_against_Rscclust(test_distances,
