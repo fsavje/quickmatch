@@ -29,13 +29,13 @@ test_quickmatch_against_Rscclust <- function(distances,
                                              subset,
                                              caliper,
                                              Rscc_type_constraints,
-                                             Rscc_main_data_points) {
+                                             Rscc_primary_data_points) {
   Rscc_cl <- Rscclust::nng_clustering_types(distance_object = distances,
                                             type_labels = treatments,
                                             type_size_constraints = Rscc_type_constraints,
                                             total_size_constraint = total_size_constraint,
-                                            main_radius = if(is.null(caliper)) { caliper } else { caliper / 2.0 },
-                                            main_data_points = Rscc_main_data_points)
+                                            radius = if(is.null(caliper)) { caliper } else { caliper / 2.0 },
+                                            primary_data_points = Rscc_primary_data_points)
   class(Rscc_cl) <- c("qm_matching", class(Rscc_cl))
   eval(bquote(expect_identical(quickmatch(distances,
                                           treatments,
@@ -227,14 +227,14 @@ test_that("`quickmatch` returns correct output", {
                                    NULL,
                                    test_treat_constraint4,
                                    NULL)
-    test_quickmatch_against_Rscclust(test_distances,
-                                     test_treatments1,
-                                     test_treat_constraint1,
-                                     NULL,
-                                     test_subset2,
-                                     NULL,
-                                     test_treat_constraint1,
-                                     test_treatments1 == 2L)
+  test_quickmatch_against_Rscclust(test_distances,
+                                   test_treatments1,
+                                   test_treat_constraint1,
+                                   NULL,
+                                   test_subset2,
+                                   NULL,
+                                   test_treat_constraint1,
+                                   test_treatments1 == 2L)
   test_quickmatch_against_Rscclust(test_distances,
                                    test_treatments2,
                                    test_treat_constraint1,

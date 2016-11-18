@@ -42,16 +42,16 @@ ensure_treatment_label_indicators <- function(label_indicators,
 
 # Coerce `caliper` to NULL or a scalar, positive, non-na, numeric
 ensure_sane_caliper <- function(caliper,
-                                main_unassigned_method) {
-  if (!is.null(caliper) && !is.null(main_unassigned_method)) {
-    main_unassigned_method <- Rscclust:::coerce_args(main_unassigned_method,
-                                                     c("ignore",
-                                                       "by_nng",
-                                                       "closest_assigned",
-                                                       "closest_seed",
-                                                       "estimated_radius_closest_seed"))
-    if (main_unassigned_method != "closest_seed") {
-      Rscclust:::new_warning("Non-NULL `caliper` with `main_unassigned_method` = \"", main_unassigned_method, "\".")
+                                unassigned_method) {
+  if (!is.null(caliper) && !is.null(unassigned_method)) {
+    unassigned_method <- Rscclust:::coerce_args(unassigned_method,
+                                                c("ignore",
+                                                  "by_nng",
+                                                  "closest_assigned",
+                                                  "closest_seed",
+                                                  "estimated_radius_closest_seed"))
+    if (unassigned_method != "closest_seed") {
+      Rscclust:::new_warning("Non-NULL `caliper` with `unassigned_method` = \"", unassigned_method, "\".")
     }
   }
 }

@@ -19,7 +19,7 @@
 # ==============================================================================
 
 library(quickmatch)
-context("Input checking in external functions")
+context("Input checking in exported functions")
 
 
 # ==============================================================================
@@ -220,5 +220,5 @@ test_that("`quickmatch` checks input.", {
                             total_size_constraint = sound_total_size_constraint,
                             caliper = 5.0,
                             subset = sound_subset,
-                            main_unassigned_method = "closest_assigned"))
+                            unassigned_method = "closest_assigned"))
 })

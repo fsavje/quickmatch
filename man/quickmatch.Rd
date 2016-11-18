@@ -89,7 +89,7 @@ distances which, in turn, tends to reduce the bias of treatment effect estimator
 reduce variance, it is often beneficial to assign ignored units that are near existing matched groups to those groups.
 This can be achieved using the \code{secondary_unassigned_method} and \code{secondary_radius} arguments
 in the \code{\link[Rscclust]{nng_clustering_types}} function that \code{quickmatch} calls. The \code{subset}
-argument corresponds to the \code{main_data_points} argument in \code{\link[Rscclust]{nng_clustering_types}}.
+argument corresponds to the \code{primary_data_points} argument in \code{\link[Rscclust]{nng_clustering_types}}.
 A similar, but more blunt, effect can be achieved by increasing \code{total_size_constraint}.
 
 The \code{caliper} argument bounds the maximum distance between units assigned to the same matched group.
@@ -98,7 +98,7 @@ a result, the caliper will affect all groups in the matching and, in general, ma
 to find good matchings also when the caliper is not binding. In particular, a too tight \code{caliper} can lead to discarded units that otherwise
 would be assigned to a matched group satisfying both the matching constraints and the caliper. For this reason,
 it is recommended to set \code{caliper} quite high and only use it to avoid particularly poor matches. It strongly
-recommended to use the \code{caliper} argument only when \code{main_unassigned_method = "closest_seed"} in the
+recommended to use the \code{caliper} argument only when \code{unassigned_method = "closest_seed"} in the
 underlying \code{\link[Rscclust]{nng_clustering_types}} function (which is the default behavior). Other options
 will still restrict the maximum within-group distance, but the bound is no longer guaranteed.
 }
