@@ -62,13 +62,8 @@ SEXP qmc_potential_outcomes(const SEXP R_outcomes,
 	if (!isLogical(R_targets)) {
 		qmc_Rerror("`R_targets` must be logical.");
 	}
-	if (!isNull(R_subset)) {
-		if (!isLogical(R_subset)){
-			qmc_Rerror("`R_subset` must be logical or NULL.");
-		}
-		if (xlength(R_subset) != xlength(R_outcomes)) {
-			qmc_Rerror("`R_subset` and `R_outcomes` must be same length.");
-		}
+	if (!isNull(R_subset) && !isInteger(R_subset)) {
+		qmc_Rerror("`R_subset` must be NULL or integer.");
 	}
 
 	const size_t num_observations = (size_t) xlength(R_outcomes);
@@ -79,7 +74,8 @@ SEXP qmc_potential_outcomes(const SEXP R_outcomes,
 	const int* const matching = INTEGER(R_matching);
 	const int* const treatments = INTEGER(R_treatments);
 	const int* const targets = LOGICAL(R_targets);
-	const int* const subset = isNull(R_subset) ? NULL : LOGICAL(R_subset);
+	const size_t len_subset = (size_t) xlength(R_subset);
+	const int* const subset = isNull(R_subset) ? NULL : INTEGER(R_subset);
 
 	SEXP R_out_means = PROTECT(allocVector(REALSXP, (R_xlen_t) num_treatments));
 	double* const out_means = REAL(R_out_means);
@@ -96,17 +92,36 @@ SEXP qmc_potential_outcomes(const SEXP R_outcomes,
 	}
 
 	for (size_t i = 0; i < num_observations; ++i) {
-		if (matching[i] == NA_INTEGER) continue;
+		if (matching[i] == NA_INTEGER) {
+			continue;
+		}
 		if (matching[i] < 0 || matching[i] >= num_groups) {
 			qmc_Rerror("Matching out of bounds.");
 		}
 		if (treatments[i] < 0 || treatments[i] >= num_treatments) {
 			qmc_Rerror("Treatment out of bounds.");
 		}
-		weight_count[matching[i]] += (subset == NULL || subset[i]);
 		const size_t tmp_index = ((size_t) treatments[i]) * num_groups + matching[i];
 		++treatment_count[tmp_index];
 		treatment_outcome_sum[tmp_index] += outcomes[i];
+	}
+
+	if (subset == NULL) {
+		for (size_t i = 0; i < num_observations; ++i) {
+			if (matching[i] != NA_INTEGER) {
+				++weight_count[matching[i]];
+			} else {
+				qmc_Rerror("Cannot include unmatched units in estimation.");
+			}
+		}
+	} else {
+		for (size_t i = 0; i < len_subset; ++i) {
+			if (matching[subset[i]] != NA_INTEGER) {
+				++weight_count[matching[subset[i]]];
+			} else {
+				qmc_Rerror("Cannot include unmatched units in estimation.");
+			}
+		}
 	}
 
 	uint64_t total_weight_count = 0;
@@ -127,8 +142,8 @@ SEXP qmc_potential_outcomes(const SEXP R_outcomes,
 						break;
 					} else {
 						out_means[t] += ((double) weight_count[g]) *
-												treatment_outcome_sum[t_add + g] /
-												((double) treatment_count[t_add + g]);
+						                   treatment_outcome_sum[t_add + g] /
+						                   ((double) treatment_count[t_add + g]);
 					}
 				}
 			}

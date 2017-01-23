@@ -29,6 +29,7 @@ test_treatment2 <- rep(1:2, 5)
 test_matching1 <- qm_matching(c(rep(0, 5), rep(1, 5)))
 test_matching2 <- qm_matching(c(1, 1, 2, 2, 3, 3, 3, 4, 4, 4))
 test_subset <- c(TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, TRUE)
+test_subset2 <- c(1L, 4L, 5L, 8L, 10L)
 
 ref1 <- c(
   "1" = (
@@ -129,7 +130,7 @@ test_that("potential_outcomes produces correct output.", {
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
                                   test_matching1,
-                                  targets = 1), ref1a)
+                                  targets = "1"), ref1a)
 
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment1,
@@ -144,26 +145,26 @@ test_that("potential_outcomes produces correct output.", {
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
                                   test_matching2,
-                                  targets = 1), ref2a)
+                                  targets = "1"), ref2a)
 
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment1,
                                   test_matching1,
-                                  subset = 1), ref3)
+                                  subset = "1"), ref3)
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment1,
                                   test_matching1,
                                   targets = "1",
-                                  subset = 1), ref3a)
+                                  subset = "1"), ref3a)
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
                                   test_matching1,
-                                  subset = 1), ref3)
+                                  subset = "1"), ref3)
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
                                   test_matching1,
-                                  targets = 1,
-                                  subset = 1), ref3a)
+                                  targets = "1",
+                                  subset = "1"), ref3a)
 
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment1,
@@ -181,8 +182,27 @@ test_that("potential_outcomes produces correct output.", {
   expect_equal(potential_outcomes(test_outcome,
                                   test_treatment2,
                                   test_matching1,
-                                  targets = 1,
+                                  targets = "1",
                                   subset = test_subset), ref4a)
+
+  expect_equal(potential_outcomes(test_outcome,
+                                  test_treatment1,
+                                  test_matching1,
+                                  subset = test_subset2), ref4)
+  expect_equal(potential_outcomes(test_outcome,
+                                  test_treatment1,
+                                  test_matching1,
+                                  targets = "1",
+                                  subset = test_subset2), ref4a)
+  expect_equal(potential_outcomes(test_outcome,
+                                  test_treatment2,
+                                  test_matching1,
+                                  subset = test_subset2), ref4)
+  expect_equal(potential_outcomes(test_outcome,
+                                  test_treatment2,
+                                  test_matching1,
+                                  targets = "1",
+                                  subset = test_subset2), ref4a)
 })
 
 
@@ -191,16 +211,16 @@ test_against_replica <- function(outcomes,
                                  matching,
                                  targets,
                                  subset) {
-  eval(bquote(expect_equal(internal_potential_outcomes(outcomes,
-                                                       treatments,
-                                                       matching,
-                                                       targets,
-                                                       subset),
-                           replica_internal_potential_outcomes(outcomes,
-                                                               treatments,
-                                                               matching,
-                                                               targets,
-                                                               subset))))
+  eval(bquote(expect_equal(potential_outcomes(outcomes,
+                                              treatments,
+                                              matching,
+                                              targets,
+                                              subset),
+                           replica_potential_outcomes(outcomes,
+                                                      treatments,
+                                                      matching,
+                                                      targets,
+                                                      subset))))
 }
 
 
@@ -211,9 +231,9 @@ treatment2 <- factor(c("T", "T", "O", "C", "O", "C", "O", "T", "C", "T", "T", "C
 matching1 <- qm_matching(c(8, 1, 7, 5, 14, 4, 15, 2, 11, 3, 10, 6, 20, 8, 19, 7, 13, 15, 15, 3, 4, 14, 16, 6, 5, 17, 13, 17, 12, 4, 9, 14, 18, 10, 9, 8, 19, 4, 15, 2, 17, 10, 19, 16, 6, 3, 12, 19, 8, 18, 6, 19, 10, 7, 12, 7, 2, 16, 11, 18, 1, 12, 11, 10, 14, 4, 13, 13, 5, 15, 3, 18, 1, 20, 11, 1, 5, 14, 5, 11, 16, 6, 1, 2, 8, 9, 18, 17, 20, 7, 3, 17, 12, 9, 20, 13, 16, 2, 20, 9))
 matching2 <- qm_matching(c(1, 1, 0, 1, 0, 2, 2, 1, 1, 0, 1, 0, 0, 1, 2, 1, 1, 1, 2, 1, 0, 3, 1, 0, 2, 0, 0, 1, 2, 0, 1, 1, 2, 1, 1, 1, 0, 1, 1, 0, 0, 2, 1, 2, 1, 2, 0, 1, 1, 1, 3, 2, 1, 0, 0, 0, 1, 1, 2, 1, 3, 1, 1, 1, 1, 0, 0, 1, 1, 1, 2, 1, 0, 0, 2, 0, 0, 3, 1, 0, 2, 0, 0, 1, 2, 2, 2, 0, 2, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1))
 matching3 <- qm_matching(c(1, 1, 2, 5, 1, 4, 3, 4, 2, 3, 5, 3, 2, 2, 3, 1, 5, 5, 1, 2, 1, 1, 1, 3, 5, 1, 2, 1, 1, 5, 2, 4, 3, 4, 1, 4, 3, 4, 4, 1, 5, 3, 3, 4, 2, 5, 5, 5, 1, 2, 3, 5, 1, 4, 4, 3, 3, 2, 2, 1, 5, 4, 5, 3, 4, 5, 3, 3, 2, 2, 1, 3, 2, 4, 1, 4, 5, 4, 2, 3, 4, 3, 4, 1, 5, 2, 2, 4, 3, 2, 3, 1, 5, 5, 4, 2, 5, 5, 4, 2))
-subset1 <- c(TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE)
+subset1 <- which(c(TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE))
 subset2 <- c(FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE)
-subset3 <- c(TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE)
+subset3 <- which(c(TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE))
 
 test_that("potential_outcomes is identical to replica.", {
   test_against_replica(outcome1, treatment1, matching1, NULL, NULL)

@@ -35,7 +35,7 @@ unsound_matching <- c(rep("a", 10), rep("b", 10))
 sound_treatment_labels <- c(1L, 2L)
 unsound_treatment_labels <- c("a", "b")
 sound_subset <- NULL
-unsound_subset <- rep(TRUE, 5)
+unsound_subset <- "a"
 sound_bool <- TRUE
 unsound_bool <- "a"
 
@@ -220,5 +220,5 @@ test_that("`quickmatch` checks input.", {
                             total_size_constraint = sound_total_size_constraint,
                             caliper = 5.0,
                             subset = sound_subset,
-                            unassigned_method = "closest_assigned"))
+                            primary_unassigned_method = "closest_assigned"))
 })

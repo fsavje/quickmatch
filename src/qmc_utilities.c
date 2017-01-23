@@ -46,16 +46,19 @@ SEXP qmc_translate_targets(const SEXP R_targets,
 	const int* const targets = LOGICAL(R_targets);
 	const int* const treatments = INTEGER(R_treatments);
 
-	SEXP R_out_indicators = PROTECT(allocVector(LGLSXP, (R_xlen_t) num_observations));
-	int* const out_indicators = LOGICAL(R_out_indicators);
+	SEXP R_out_indices = PROTECT(allocVector(INTSXP, (R_xlen_t) num_observations));
+	int* out_indices = INTEGER(R_out_indices);
 
-	for (size_t i = 0; i < num_observations; ++i) {
+	for (int i = 0; i < num_observations; ++i) {
 		if (treatments[i] < 0 || treatments[i] >= num_treatments) {
 			qmc_Rerror("Treatment out of bounds.");
 		}
-		out_indicators[i] = targets[treatments[i]];
+		*out_indices = i + 1;
+		out_indices += targets[treatments[i]];
 	}
 
+	SETLENGTH(R_out_indices, out_indices - INTEGER(R_out_indices));
+
 	UNPROTECT(1);
-	return R_out_indicators;
+	return R_out_indices;
 }

@@ -42,8 +42,8 @@ c_potential_outcomes <- function(outcomes = as.numeric(1:20),
 
 test_that("`qmc_potential_outcomes` checks input.", {
   expect_silent(c_potential_outcomes())
-  expect_silent(c_potential_outcomes(subset = rep(TRUE, 20)))
-  expect_silent(c_potential_outcomes(subset = rep(TRUE, 20)))
+  expect_silent(c_potential_outcomes(subset = 0:19))
+  expect_silent(c_potential_outcomes(subset = c(1:5, 15:19)))
   expect_silent(c_potential_outcomes(matching = structure(c(rep(0L, 10), rep(1L, 10)),
                                                           cluster_count = 2L)))
   expect_error(c_potential_outcomes(outcomes = "a"),
@@ -64,9 +64,7 @@ test_that("`qmc_potential_outcomes` checks input.", {
   expect_error(c_potential_outcomes(targets = 1:5),
                regexp = "`R_targets` must be logical.")
   expect_error(c_potential_outcomes(subset = rep("a", 20)),
-               regexp = "`R_subset` must be logical or NULL.")
-  expect_error(c_potential_outcomes(subset = rep(TRUE, 15)),
-               regexp = "`R_subset` and `R_outcomes` must be same length.")
+               regexp = "`R_subset` must be NULL or integer.")
   expect_error(c_potential_outcomes(matching = structure(c(rep(-1L, 10), rep(1L, 10)),
                                                          cluster_count = 2L)),
                regexp = "Matching out of bounds.")

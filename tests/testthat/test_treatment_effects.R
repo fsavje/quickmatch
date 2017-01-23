@@ -49,6 +49,7 @@ test_treatment2 <- c("a", "c", "d", "a", "b", "c", "d", "c", "d", "b", "a", "d",
 test_matching <- qm_matching(c(rep(0, 25), rep(1, 25), rep(2, 25), rep(3, 25)))
 test_subset1 <- c("a")
 test_subset2 <- c(rep(TRUE, 50), rep(FALSE, 50))
+test_subset3 <- 25:50
 
 test_that("potential_outcomes produces correct output.", {
   pos1 <- potential_outcomes(outcomes = test_outcome,
@@ -137,6 +138,19 @@ test_that("potential_outcomes produces correct output.", {
                                  drop = TRUE),
                te_matrix(pos5))
 
+  pos5b <- potential_outcomes(outcomes = test_outcome,
+                             treatments = test_treatment2,
+                             matching = test_matching,
+                             targets = NULL,
+                             subset = test_subset3)
+  expect_equal(treatment_effects(outcomes = test_outcome,
+                                 treatments = test_treatment2,
+                                 matching = test_matching,
+                                 contrasts = NULL,
+                                 subset = test_subset3,
+                                 drop = TRUE),
+               te_matrix(pos5b))
+
   pos6 <- potential_outcomes(outcomes = test_outcome,
                              treatments = test_treatment2,
                              matching = test_matching,
@@ -162,4 +176,36 @@ test_that("potential_outcomes produces correct output.", {
                                  subset = test_subset2,
                                  drop = TRUE),
                te_diff(pos7))
+
+  pos7b <- potential_outcomes(outcomes = test_outcome,
+                             treatments = test_treatment2,
+                             matching = test_matching,
+                             targets = c("a", "b"),
+                             subset = test_subset3)
+  expect_equal(treatment_effects(outcomes = test_outcome,
+                                 treatments = test_treatment2,
+                                 matching = test_matching,
+                                 contrasts = c("a", "b"),
+                                 subset = test_subset3,
+                                 drop = TRUE),
+               te_diff(pos7b))
+})
+
+
+ans1 <- -1.25
+names(ans1) <- "1-0"
+ans2 <- 1.25
+names(ans2) <- "0-1"
+
+test_that("potential_outcomes produces correct output #2.", {
+  expect_equal(treatment_effects(outcomes = as.numeric(1:10),
+                                 treatments = c(0L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 0L, 0L),
+                                 matching = qm_matching(rep(c("A", "B"), each = 5)),
+                                 contrasts = c(1, 0)),
+               ans1)
+  expect_equal(treatment_effects(outcomes = as.numeric(1:10),
+                                 treatments = c(0L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 0L, 0L),
+                                 matching = qm_matching(rep(c("A", "B"), each = 5)),
+                                 contrasts = c(0, 1)),
+               ans2)
 })

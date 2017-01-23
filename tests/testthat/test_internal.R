@@ -61,8 +61,8 @@ test_that("`translate_targets` checks input.", {
 test_that("`translate_targets` returns correct output.", {
   expect_identical(translate_targets(c(TRUE, FALSE, TRUE),
                                      c(0L, 0L, 1L, 2L, 1L, 0L)),
-                   c(TRUE, TRUE, FALSE, TRUE, FALSE, TRUE))
+                   c(1L, 2L, 4L, 6L))
   expect_identical(translate_targets(c(FALSE, TRUE, FALSE, TRUE),
                                      factor(c(0L, 0L, 1L, 2L, 1L, 0L))),
-                   c(TRUE, TRUE, FALSE, TRUE, FALSE, TRUE))
+                   c(1L, 2L, 4L, 6L))
 })
