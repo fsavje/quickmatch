@@ -46,7 +46,7 @@ included.}
 \item{caliper}{restrict the maximum allowed distance between units in the matching.}
 
 \item{...}{additional parameters to be sent the underlying
-\code{\link[Rscclust]{nng_clustering}} function.}
+\code{\link[Rscclust]{make_clustering}} function.}
 }
 \value{
 Returns a \code{\link{qm_matching}} object with the matched groups.
@@ -96,8 +96,8 @@ extent while satisfying the matching contraints. This tends to minimize within-g
 distances which, in turn, tends to reduce the bias of treatment effect estimators. However, in order to
 reduce variance, it is often beneficial to assign ignored units that are near existing matched groups to those groups.
 This can be achieved using the \code{secondary_unassigned_method} and \code{secondary_radius} arguments
-in the \code{\link[Rscclust]{nng_clustering}} function that \code{quickmatch} calls. The \code{subset}
-argument corresponds to the \code{primary_data_points} argument in \code{\link[Rscclust]{nng_clustering}}.
+in the \code{\link[Rscclust]{make_clustering}} function that \code{quickmatch} calls. The \code{subset}
+argument corresponds to the \code{primary_data_points} argument in \code{\link[Rscclust]{make_clustering}}.
 A similar, but more blunt, effect can be achieved by increasing \code{total_size_constraint}.
 
 The \code{caliper} argument bounds the maximum distance between units assigned to the same matched group.
@@ -107,7 +107,7 @@ to find good matchings also when the caliper is not binding. In particular, a to
 would be assigned to a matched group satisfying both the matching constraints and the caliper. For this reason,
 it is recommended to set \code{caliper} quite high and only use it to avoid particularly poor matches. It strongly
 recommended to use the \code{caliper} argument only when \code{unassigned_method = "closest_seed"} in the
-underlying \code{\link[Rscclust]{nng_clustering_types}} function (which is the default behavior). Other options
+underlying \code{\link[Rscclust]{make_clustering}} function (which is the default behavior). Other options
 will still restrict the maximum within-group distance, but the bound is no longer guaranteed.
 }
 \examples{
@@ -150,7 +150,7 @@ quickmatch(my_distances,
 See \code{\link{potential_outcomes}} and \code{\link{treatment_effects}} for
          estimators that can be used with the produced matching.
 
-         See \code{\link[Rscclust]{nng_clustering}} for the underlying function used to
+         See \code{\link[Rscclust]{make_clustering}} for the underlying function used to
          construct the matched groups.
 }
 
