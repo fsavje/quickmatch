@@ -40,16 +40,16 @@ ensure_treatment_label_indicators <- function(label_indicators,
   }
 }
 
-# Coerce `caliper` to NULL or a scalar, positive, non-na, numeric
+# Using caliper with "closest_assigned" will not yield the result
+# the user expect. Let's warn him or her.
 ensure_sane_caliper <- function(caliper,
                                 unassigned_method) {
   if (!is.null(caliper) && !is.null(unassigned_method)) {
     unassigned_method <- Rscclust:::coerce_args(unassigned_method,
                                                 c("ignore",
-                                                  "by_nng",
+                                                  "any_neighbor",
                                                   "closest_assigned",
-                                                  "closest_seed",
-                                                  "estimated_radius_closest_seed"))
+                                                  "closest_seed"))
     if (unassigned_method != "closest_seed") {
       Rscclust:::new_warning("Non-NULL `caliper` with `unassigned_method` = \"", unassigned_method, "\".")
     }

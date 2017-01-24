@@ -79,20 +79,22 @@ potential_outcomes <- function(outcomes,
                                targets = NULL,
                                subset = NULL) {
   coerce_double(outcomes)
-  treatments <- Rscclust:::coerce_type_labels(treatments, length(outcomes))
+  num_observations <- length(outcomes)
+  treatments <- Rscclust:::coerce_type_labels(treatments, num_observations)
   all_treatment_conditions <- get_all_treatment_conditions(treatments)
-  Rscclust:::ensure_Rscc_clustering(matching, length(outcomes))
+  Rscclust:::ensure_Rscc_clustering(matching, num_observations)
 
   if (is.null(targets)) {
     targets <- all_treatment_conditions
   }
   ensure_treatment_label_indicators(targets, all_treatment_conditions)
 
-  if (is.logical(subset)) {
-    Rscclust:::ensure_indicators(subset, length(outcomes), TRUE)
-  } else if (!is.null(subset)) {
+  if (is.character(subset)) {
     ensure_treatment_label_indicators(subset, all_treatment_conditions)
+    subset <- Rscclust:::make_type_indicators(subset, treatments)
+    subset <- translate_targets(subset, treatments)
   }
+  subset <- Rscclust:::coerce_data_point_indices(subset, num_observations)
 
   internal_potential_outcomes(outcomes,
                               treatments,
@@ -111,9 +113,10 @@ internal_potential_outcomes <- function(outcomes,
                                         subset) {
   targets <- Rscclust:::make_type_indicators(targets, treatments)
 
-  if (!is.null(subset) && !is.logical(subset)) {
-    subset <- Rscclust:::make_type_indicators(subset, treatments)
-    subset <- translate_targets(subset, treatments)
+  if (is.logical(subset)) {
+    subset <- which(subset) - 1L
+  } else if (is.integer(subset)) {
+    subset <- subset - 1L
   }
 
   ave_pot_outcomes <- .Call("qmc_potential_outcomes",
@@ -195,9 +198,10 @@ treatment_effects <- function(outcomes,
                               subset = NULL,
                               drop = TRUE) {
   coerce_double(outcomes)
-  treatments <- Rscclust:::coerce_type_labels(treatments, length(outcomes))
+  num_observations <- length(outcomes)
+  treatments <- Rscclust:::coerce_type_labels(treatments, num_observations)
   all_treatment_conditions <- get_all_treatment_conditions(treatments)
-  Rscclust:::ensure_Rscc_clustering(matching, length(outcomes))
+  Rscclust:::ensure_Rscc_clustering(matching, num_observations)
 
   if (is.null(contrasts)) {
     targets <- all_treatment_conditions
@@ -206,27 +210,28 @@ treatment_effects <- function(outcomes,
   }
   ensure_treatment_label_indicators(targets, all_treatment_conditions)
 
-  if (is.logical(subset)) {
-    Rscclust:::ensure_indicators(subset, length(outcomes), TRUE)
-  } else if (!is.null(subset)) {
+  if (is.character(subset)) {
     ensure_treatment_label_indicators(subset, all_treatment_conditions)
+    subset <- Rscclust:::make_type_indicators(subset, treatments)
+    subset <- translate_targets(subset, treatments)
   }
+  subset <- Rscclust:::coerce_data_point_indices(subset, num_observations)
 
   Rscclust:::ensure_indicators(drop, 1L)
 
-  po_vector <- internal_potential_outcomes(outcomes = outcomes,
-                                           treatments = treatments,
-                                           matching = matching,
-                                           targets = targets,
-                                           subset = subset)
+  po_vector <- internal_potential_outcomes(outcomes,
+                                           treatments,
+                                           matching,
+                                           targets,
+                                           subset)
 
   po_matrix <- as.matrix(po_vector) %*% t(as.matrix(rep(1, length(po_vector))))
   te <- po_matrix - t(po_matrix)
   dimnames(te) <- list(names(po_vector), names(po_vector))
 
   if (drop && (length(contrasts) == 2)) {
-    te <- te[1, 2]
-    names(te) <- paste0(names(po_vector), collapse = "-")
+    te <- te[as.character(contrasts[1]), as.character(contrasts[2])]
+    names(te) <- paste0(as.character(contrasts[1]), "-", as.character(contrasts[2]))
   }
 
   te

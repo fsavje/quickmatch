@@ -37,7 +37,7 @@ get_all_treatment_conditions <- function(treatments) {
 # Translate treatment labels to indicators for each unit
 # translate_targets(c(TRUE, FALSE, TRUE),
 #                   c(0L, 0L, 1L, 2L, 1L, 0L))
-# > c(TRUE, TRUE, FALSE, TRUE, FALSE, TRUE)
+# > c(1, 2, 4, 6)
 translate_targets <- function(targets,
                               treatments) {
   stopifnot(is.logical(targets),

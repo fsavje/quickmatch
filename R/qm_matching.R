@@ -31,10 +31,10 @@
 #' \code{is.qm_matching} checks whether the provided object
 #' is a valid instance of the \code{qm_matching} class.
 #' It does not check whether the matching it describes is sensible.
-#' See \code{\link[Rscclust]{check_clustering_types}} for a function
+#' See \code{\link[Rscclust]{check_clustering}} for a function
 #' that provides such checks.
 #'
-#' \code{qm_matching} objects are based on integer vectors and indexes
+#' \code{qm_matching} objects are based on integer vectors, and it indexes
 #' matched groups starting with zero. The \code{qm_matching} class
 #' inherits from the \code{\link[Rscclust]{Rscc_clustering}} class in
 #' \code{Rscclust}.

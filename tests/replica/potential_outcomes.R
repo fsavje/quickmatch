@@ -1,16 +1,34 @@
-replica_internal_potential_outcomes <- function(outcomes,
-                                                treatments,
-                                                matching,
-                                                targets = NULL,
-                                                subset = NULL) {
-  targets <- Rscclust:::make_type_indicators(targets, treatments)
+replica_potential_outcomes <- function(outcomes,
+                                       treatments,
+                                       matching,
+                                       targets = NULL,
+                                       subset = NULL) {
+  coerce_double(outcomes)
+  num_observations <- length(outcomes)
+  treatments <- Rscclust:::coerce_type_labels(treatments, num_observations)
+  all_treatment_conditions <- get_all_treatment_conditions(treatments)
+  Rscclust:::ensure_Rscc_clustering(matching, num_observations)
 
-  if (is.null(subset)) {
-    subset <- rep(TRUE, length(outcomes))
-  } else if (!is.logical(subset)) {
+  if (is.null(targets)) {
+    targets <- all_treatment_conditions
+  }
+  ensure_treatment_label_indicators(targets, all_treatment_conditions)
+
+  if (is.character(subset)) {
+    ensure_treatment_label_indicators(subset, all_treatment_conditions)
     subset <- Rscclust:::make_type_indicators(subset, treatments)
     subset <- translate_targets(subset, treatments)
   }
+  subset <- Rscclust:::coerce_data_point_indices(subset, num_observations)
+  if (is.null(subset)) {
+    subset <- rep(TRUE, length(outcomes))
+  } else if (is.integer(subset)) {
+    subset_tmp <- rep(FALSE, num_observations)
+    subset_tmp[subset] <- TRUE
+    subset <- subset_tmp
+  }
+
+  targets <- Rscclust:::make_type_indicators(targets, treatments)
 
   treatment_mean <- aggregate(list(outcomes = outcomes),
                               list(

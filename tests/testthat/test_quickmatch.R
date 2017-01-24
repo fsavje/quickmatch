@@ -21,7 +21,6 @@
 library(quickmatch)
 context("quickmatch")
 
-
 test_quickmatch_against_Rscclust <- function(distances,
                                              treatments,
                                              treatment_constraints,
@@ -30,12 +29,16 @@ test_quickmatch_against_Rscclust <- function(distances,
                                              caliper,
                                              Rscc_type_constraints,
                                              Rscc_primary_data_points) {
-  Rscc_cl <- Rscclust::nng_clustering_types(distance_object = distances,
-                                            type_labels = treatments,
-                                            type_size_constraints = Rscc_type_constraints,
-                                            total_size_constraint = total_size_constraint,
-                                            radius = if(is.null(caliper)) { caliper } else { caliper / 2.0 },
-                                            primary_data_points = Rscc_primary_data_points)
+  Rscc_distances <- distances
+  if (!Rscclust::is.Rscc_distances(Rscc_distances)) {
+    Rscc_distances <- Rscclust::make_distances(data = Rscc_distances)
+  }
+  Rscc_cl <- Rscclust::make_clustering(distance_object = Rscc_distances,
+                                       size_constraint = total_size_constraint,
+                                       type_labels = treatments,
+                                       type_constraints = Rscc_type_constraints,
+                                       primary_data_points = Rscc_primary_data_points,
+                                       seed_radius = if(is.null(caliper)) { caliper } else { caliper / 2.0 })
   class(Rscc_cl) <- c("qm_matching", class(Rscc_cl))
   eval(bquote(expect_identical(quickmatch(distances,
                                           treatments,
@@ -48,6 +51,7 @@ test_quickmatch_against_Rscclust <- function(distances,
 
 
 test_distances <- Rscclust::make_distances(matrix(1:200, ncol = 2))
+test_distances2 <- 1:100
 
 test_treatments1 <- rep(1:2, 50)
 test_treatments2 <- factor(rep(1:2, 50))
@@ -59,11 +63,12 @@ test_treat_constraint2 <- c("a" = 1L, "b" = 1L)
 test_treat_constraint3 <- c("TRUE" = 1L, "FALSE" = 1L)
 test_treat_constraint4 <- c("1" = 3L, "2" = 3L)
 
-test_subset1 <- 1L
+test_subset1 <- "1"
 test_subset2 <- "2"
 test_subset3 <- "a"
 test_subset4 <- "FALSE"
 test_subset5 <- c(rep(TRUE, 50), rep(FALSE, 50))
+test_subset6 <- c(23:26, 30:40)
 
 
 test_that("`quickmatch` returns correct output", {
@@ -84,6 +89,30 @@ test_that("`quickmatch` returns correct output", {
                                    test_treat_constraint1,
                                    NULL)
   test_quickmatch_against_Rscclust(test_distances,
+                                   test_treatments3,
+                                   test_treat_constraint2,
+                                   NULL,
+                                   NULL,
+                                   NULL,
+                                   test_treat_constraint2,
+                                   NULL)
+  test_quickmatch_against_Rscclust(test_distances2,
+                                   test_treatments1,
+                                   test_treat_constraint1,
+                                   NULL,
+                                   NULL,
+                                   NULL,
+                                   test_treat_constraint1,
+                                   NULL)
+  test_quickmatch_against_Rscclust(test_distances2,
+                                   test_treatments2,
+                                   test_treat_constraint1,
+                                   NULL,
+                                   NULL,
+                                   NULL,
+                                   test_treat_constraint1,
+                                   NULL)
+  test_quickmatch_against_Rscclust(test_distances2,
                                    test_treatments3,
                                    test_treat_constraint2,
                                    NULL,
@@ -427,6 +456,30 @@ test_that("`quickmatch` returns correct output", {
                                    12.5,
                                    test_treat_constraint4,
                                    test_subset5)
+  test_quickmatch_against_Rscclust(test_distances,
+                                   test_treatments3,
+                                   test_treat_constraint2,
+                                   NULL,
+                                   test_subset6,
+                                   NULL,
+                                   test_treat_constraint2,
+                                   test_subset6)
+  expect_warning(test_quickmatch_against_Rscclust(test_distances,
+                                                  test_treatments4,
+                                                  test_treat_constraint3,
+                                                  NULL,
+                                                  test_subset6,
+                                                  NULL,
+                                                  test_treat_constraint3,
+                                                  test_subset6))
+  test_quickmatch_against_Rscclust(test_distances,
+                                   test_treatments1,
+                                   test_treat_constraint4,
+                                   NULL,
+                                   test_subset6,
+                                   12.5,
+                                   test_treat_constraint4,
+                                   test_subset6)
   test_quickmatch_against_Rscclust(test_distances,
                                    test_treatments1,
                                    test_treat_constraint1,
