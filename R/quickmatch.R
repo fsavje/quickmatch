@@ -260,7 +260,7 @@ quickmatch <- function(distances,
       }
     } else if (sc_call$primary_unassigned_method %in% c("any_neighbor", "closest_assigned")) {
       sc_call$seed_radius <- as.numeric(caliper) / 4.0
-      warning("It is recommended to use `primary_unassigned_method`==\"closest_seed\" when using `caliper`.")
+      warning("Caliper might perform poorly when `primary_unassigned_method`==\"closest_seed\".")
     }
     if (sc_call$primary_radius != "seed_radius") {
       warning("Caliper is not properly enforced unless `primary_radius`==\"seed_radius\".")

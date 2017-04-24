@@ -119,7 +119,7 @@ test_that("`quickmatch` checks input.", {
   expect_error(t_quickmatch(secondary_radius = "non-exist"))
 
   expect_warning(t_quickmatch(caliper = 10, primary_unassigned_method = "any_neighbor"),
-                 regexp = "It is recommended to use `primary_unassigned_method`==\"closest_seed\" when using `caliper`.")
+                 regexp = "Caliper might perform poorly when `primary_unassigned_method`==\"closest_seed\".")
   expect_warning(t_quickmatch(caliper = 10, secondary_unassigned_method = "closest_assigned"),
                  regexp = "Caliper is not properly enforced when `secondary_unassigned_method`==\"closest_assigned\".")
   expect_warning(t_quickmatch(caliper = 10, primary_radius = "no_radius"),
