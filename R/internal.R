@@ -1,8 +1,8 @@
 # ==============================================================================
-# quickmatch -- Fast Matching in Large Data Sets
+# quickmatch -- Quick Generalized Full Matching
 # https://github.com/fsavje/quickmatch
 #
-# Copyright (C) 2016  Fredrik Savje -- http://fredriksavje.com
+# Copyright (C) 2017  Fredrik Savje -- http://fredriksavje.com
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,31 +19,22 @@
 # ==============================================================================
 
 
-# Get all treatment conditions that is represented in `treatments`
-get_all_treatment_conditions <- function(treatments) {
-  stopifnot(is.factor(treatments) || is.integer(treatments))
-  if (is.factor(treatments)) {
-    levels(treatments)
-  } else if (is.integer(treatments)) {
-    sort(unique(treatments))
-  }
-}
+# Translate character indicators for different treatments to unit indices.
+# get_subset_indicators(c("A", "C"), factor(c("A", "B", "A", "C", "B")))
+# > c(1, 3, 4)
+get_subset_indicators <- function(subset,
+                                  treatments) {
+  stopifnot(is.character(subset),
+            !anyDuplicated(subset),
+            is.factor(treatments),
+            all(subset %in% levels(treatments)))
 
+  subset_indicators <- rep(FALSE, nlevels(treatments))
+  names(subset_indicators) <- levels(treatments)
+  subset_indicators[subset] <- TRUE
+  subset_indicators <- c(FALSE, subset_indicators)
 
-# ==============================================================================
-# C wrappers
-# ==============================================================================
-
-# Translate treatment labels to indicators for each unit
-# translate_targets(c(TRUE, FALSE, TRUE),
-#                   c(0L, 0L, 1L, 2L, 1L, 0L))
-# > c(1, 2, 4, 6)
-translate_targets <- function(targets,
-                              treatments) {
-  stopifnot(is.logical(targets),
-            is.factor(treatments) || is.integer(treatments))
-  .Call("qmc_translate_targets",
-        targets,
-        unclass(treatments),
-        PACKAGE = "quickmatch")
+  .Call(qmc_get_subset_indicators,
+        subset_indicators,
+        unclass(treatments))
 }

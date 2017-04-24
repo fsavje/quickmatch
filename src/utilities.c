@@ -1,8 +1,8 @@
 /* =============================================================================
- * quickmatch -- Fast Matching in Large Data Sets
+ * quickmatch -- Quick Generalized Full Matching
  * https://github.com/fsavje/quickmatch
  *
- * Copyright (C) 2016  Fredrik Savje -- http://fredriksavje.com
+ * Copyright (C) 2017  Fredrik Savje -- http://fredriksavje.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,43 +18,47 @@
  * along with this program. If not, see http://www.gnu.org/licenses/
  * ========================================================================== */
 
-#include "qmc_utilities.h"
-
+#include "utilities.h"
 #include <stddef.h>
 #include <R.h>
 #include <Rinternals.h>
-#include "qmc_Rerror.h"
+#include "error.h"
 
 
 // =============================================================================
 // External function implementations
 // =============================================================================
 
-SEXP qmc_translate_targets(const SEXP R_targets,
-                           const SEXP R_treatments)
+SEXP qmc_get_subset_indicators(const SEXP R_subset,
+                               const SEXP R_treatments)
 {
-	if (!isLogical(R_targets)) {
-		qmc_Rerror("`R_targets` must be logical.");
+	if (!isLogical(R_subset)) {
+		iqmc_error("`R_subset` must be logical.");
 	}
 	if (!isInteger(R_treatments)) {
-		qmc_Rerror("`R_treatments` must be integer.");
+		iqmc_error("`R_treatments` must be integer.");
 	}
 
-	const size_t num_treatments = (size_t) xlength(R_targets);
+	const size_t num_treatments = (size_t) xlength(R_subset);
 	const size_t num_observations = (size_t) xlength(R_treatments);
 
-	const int* const targets = LOGICAL(R_targets);
+	const int* const subset = LOGICAL(R_subset);
 	const int* const treatments = INTEGER(R_treatments);
 
 	SEXP R_out_indices = PROTECT(allocVector(INTSXP, (R_xlen_t) num_observations));
 	int* out_indices = INTEGER(R_out_indices);
 
+	int out_of_bounds = 0;
+	for (size_t i = 0; i < num_observations; ++i) {
+		out_of_bounds += (treatments[i] < 0) + (treatments[i] >= num_treatments);
+	}
+	if (out_of_bounds > 0) {
+		iqmc_error("Treatment out of bounds.");
+	}
+
 	for (int i = 0; i < num_observations; ++i) {
-		if (treatments[i] < 0 || treatments[i] >= num_treatments) {
-			qmc_Rerror("Treatment out of bounds.");
-		}
 		*out_indices = i + 1;
-		out_indices += targets[treatments[i]];
+		out_indices += subset[treatments[i]];
 	}
 
 	SETLENGTH(R_out_indices, out_indices - INTEGER(R_out_indices));

@@ -1,8 +1,8 @@
 # ==============================================================================
-# quickmatch -- Fast Matching in Large Data Sets
+# quickmatch -- Quick Generalized Full Matching
 # https://github.com/fsavje/quickmatch
 #
-# Copyright (C) 2016  Fredrik Savje -- http://fredriksavje.com
+# Copyright (C) 2017  Fredrik Savje -- http://fredriksavje.com
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,84 +21,25 @@
 library(quickmatch)
 context("Input checking in C code")
 
-
 # ==============================================================================
-# qmc_potential_outcomes.c
+# utilities.c
 # ==============================================================================
 
-c_potential_outcomes <- function(outcomes = as.numeric(1:20),
-                                 treatments = rep(1:4, 5L),
-                                 matching = qm_matching(c(rep(0L, 10), rep(1L, 10))),
-                                 targets = c(FALSE, TRUE, TRUE, TRUE, TRUE),
-                                 subset = NULL) {
-  .Call("qmc_potential_outcomes",
-        outcomes,
-        unclass(treatments),
-        matching,
-        targets,
-        subset,
-        PACKAGE = "quickmatch")
+t_qmc_get_subset_indicators <- function(subset_indicators = c(TRUE, FALSE, TRUE),
+                                        treatments = c(0L, 0L, 1L, 2L, 1L, 0L)) {
+  .Call(qmc_get_subset_indicators,
+        subset_indicators,
+        treatments)
 }
 
-test_that("`qmc_potential_outcomes` checks input.", {
-  expect_silent(c_potential_outcomes())
-  expect_silent(c_potential_outcomes(subset = 0:19))
-  expect_silent(c_potential_outcomes(subset = c(1:5, 15:19)))
-  expect_silent(c_potential_outcomes(matching = structure(c(rep(0L, 10), rep(1L, 10)),
-                                                          cluster_count = 2L)))
-  expect_error(c_potential_outcomes(outcomes = "a"),
-               regexp = "`R_outcomes` must be numeric.")
-  expect_error(c_potential_outcomes(treatments = letters[1:20]),
+test_that("`qmc_get_subset_indicators` checks input.", {
+  expect_silent(t_qmc_get_subset_indicators())
+  expect_error(t_qmc_get_subset_indicators(subset_indicators = letters[1:3]),
+               regexp = "`R_subset` must be logical.")
+  expect_error(t_qmc_get_subset_indicators(treatments = letters[1:6]),
                regexp = "`R_treatments` must be integer.")
-  expect_error(c_potential_outcomes(treatments = rep(1:4, 4L)),
-               regexp = "`R_treatments` and `R_outcomes` must be same length.")
-  expect_error(c_potential_outcomes(matching = letters[1:20]),
-               regexp = "`R_matching` must be integer.")
-  expect_error(c_potential_outcomes(matching = qm_matching(c(rep(0L, 9), rep(1L, 9)))),
-               regexp = "`R_matching` and `R_outcomes` must be same length.")
-  expect_error(c_potential_outcomes(matching = c(rep(0L, 10), rep(1L, 10))),
-               regexp = "`R_matching` is not valid `Rscc_clustering` object.")
-  expect_error(c_potential_outcomes(matching = structure(c(rep(0L, 10), rep(1L, 10)),
-                                                         cluster_count = 0L)),
-               regexp = "`R_matching` is empty.")
-  expect_error(c_potential_outcomes(targets = 1:5),
-               regexp = "`R_targets` must be logical.")
-  expect_error(c_potential_outcomes(subset = rep("a", 20)),
-               regexp = "`R_subset` must be NULL or integer.")
-  expect_error(c_potential_outcomes(matching = structure(c(rep(-1L, 10), rep(1L, 10)),
-                                                         cluster_count = 2L)),
-               regexp = "Matching out of bounds.")
-  expect_error(c_potential_outcomes(matching = structure(c(rep(0L, 10), rep(2L, 10)),
-                                                         cluster_count = 2L)),
-               regexp = "Matching out of bounds.")
-  expect_error(c_potential_outcomes(treatments = rep(2:5, 5L)),
+  expect_error(t_qmc_get_subset_indicators(treatments = c(0L, 0L, -1L, 2L, 1L, 0L)),
                regexp = "Treatment out of bounds.")
-  expect_error(c_potential_outcomes(treatments = rep(-1:2, 5L)),
+  expect_error(t_qmc_get_subset_indicators(treatments = c(0L, 0L, 1L, 3L, 1L, 0L)),
                regexp = "Treatment out of bounds.")
 })
-
-
-# ==============================================================================
-# qmc_utilities.c
-# ==============================================================================
-
-c_translate_targets <- function(targets = c(TRUE, FALSE, TRUE),
-                                treatments = c(0L, 0L, 1L, 2L, 1L, 0L)) {
-  .Call("qmc_translate_targets",
-        targets,
-        treatments,
-        PACKAGE = "quickmatch")
-}
-
-test_that("`qmc_translate_targets` checks input.", {
-  expect_silent(c_translate_targets())
-  expect_error(c_translate_targets(targets = letters[1:3]),
-               regexp = "`R_targets` must be logical.")
-  expect_error(c_translate_targets(treatments = letters[1:6]),
-               regexp = "`R_treatments` must be integer.")
-  expect_error(c_translate_targets(treatments = c(0L, 0L, -1L, 2L, 1L, 0L)),
-               regexp = "Treatment out of bounds.")
-  expect_error(c_translate_targets(treatments = c(0L, 0L, 1L, 3L, 1L, 0L)),
-               regexp = "Treatment out of bounds.")
-})
-

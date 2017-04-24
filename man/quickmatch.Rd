@@ -2,113 +2,131 @@
 % Please edit documentation in R/quickmatch.R
 \name{quickmatch}
 \alias{quickmatch}
-\title{Construct matched groups}
+\title{Construct generalized full matchings}
 \usage{
 quickmatch(distances, treatments, treatment_constraints = NULL,
-  total_size_constraint = NULL, subset = NULL, caliper = NULL, ...)
+  size_constraint = NULL, subset = NULL, caliper = NULL, ...)
 }
 \arguments{
-\item{distances}{an \code{Rscc_distances} or vector, matrix or data frame with
-numeric data. This parameter describes the similarity of the
-units that should be matched. If not a \code{Rscc_distances}
-objected if provided, Euclidean distances are calculated on
-the supplied data. See \code{\link[Rscclust]{make_distances}}
-for details on how to construct \code{Rscc_distances} objects.}
+\item{distances}{a \code{\link[distances]{distances}} object or a numeric vector, matrix
+or data frame. The argument describes the similarity of the units to be
+matched. It can either be preprocessed distance information from a
+\code{\link[distances]{distances}} object (recommended), or raw
+covariate data. When called with covariate data, Euclidean distances are
+calculated unless otherwise specified.}
 
-\item{treatments}{integer or factor vector with treatment indicators.}
+\item{treatments}{a factor specifying which treatments the units are assigned to.}
 
-\item{treatment_constraints}{a named integer vector with the treatment constraints.
-If \code{NULL}, the constraints are set
-to requiring one unit of each treatment condition in
-each matched group.}
+\item{treatment_constraints}{a named integer vector with the treatment constraints. If \code{NULL},
+the constraints are set so to requiring one unit of each treatment
+condition in each group.}
 
-\item{total_size_constraint}{an integer with the total required number of units in each
-matched group. Must be greater or equal to the sum of
-\code{treatment_constraints}. If NULL, no constraints other than
-the treatment constraints are imposed.}
+\item{size_constraint}{an integer with the required total number of units in each group. Must be
+greater or equal to the sum of \code{treatment_constraints}. If NULL, no
+constraints other than the treatment constraints are imposed.}
 
-\item{subset}{units to target the matching for. All units indicated by \code{subset}
-are ensured to be assigned to a matched group (disregarding eventual
-\code{caliper} setting). Units not indicated by \code{subset} could
-be left unassigned if they are not necessary to satisfy the matching
+\item{subset}{units to target the matching for. All units indicated by \code{subset} are
+ensured to be assigned to a matched group (disregarding eventual
+\code{caliper} setting). Units not indicated by \code{subset} could be
+left unassigned if they are not necessary to satisfy the matching
 constraints. If \code{NULL}, \code{quickmatch} targets all units and
-ensures that all units are assigned to a group. If \code{subset} is
-a logical vector with the same length as the
-sample size, units indicated with \code{TRUE} will be included.
-If \code{subset} is an integer vector, the units with indices in
-\code{subset} will be included. Indices starts at 1 and
-\code{subset} must be sorted.
-If \code{subset} is a character vector, \code{subset} should contain
-treatment labels, and
-the corresponding units (as given by \code{treatments}) will be
-included.}
+ensures that all units are assigned to a group. If \code{subset} is a
+logical vector with the same length as the sample size, units indicated
+with \code{TRUE} will be targeted. If \code{subset} is an integer vector,
+the units with indices in \code{subset} are targeted. Indices starts at 1
+and \code{subset} must be sorted. If \code{subset} is a character vector,
+it should contain treatment labels, and the corresponding units (as given
+by \code{treatments}) will be targeted.}
 
-\item{caliper}{restrict the maximum allowed distance between units in the matching.}
+\item{caliper}{restrict the maximum within-group distance.}
 
-\item{...}{additional parameters to be sent the underlying
-\code{\link[Rscclust]{make_clustering}} function.}
+\item{...}{additional parameters to be sent either to the
+\code{\link[distances]{distances}} function when \code{distances} contains
+covariate data, or to the underlying \code{\link[scclust]{sc_clustering}}
+function.}
 }
 \value{
 Returns a \code{\link{qm_matching}} object with the matched groups.
 }
 \description{
-\code{quickmatch} constructs matched groups satsifying specified matching
-constraints. Provided distances measuring the similarity of the units in the sample
-and a set of matching constraints, the function constructs a near-optimal
-matching.
+\code{quickmatch} constructs generalized full matchings. Provided distances
+measuring the similarity of the units in the sample and a set of matching
+constraints, the function constructs a near-optimal matching so that units
+assigned to the same group are as similar as possible while satisfying the
+matching constraints.
 }
 \details{
-The \code{treatment_constraints} argument should contain a named vector with all treatment-specific
-constraints. For example, in a sample with treatment conditions "A", "B" and "C", the vector
-\code{c("A" = 1, "B" = 2, "C" = 0)} specifies that each matched group should contain
-at least one unit with treatment "A", at least two units with treatment "B" and any
-number of units with treatment "C". Treatments not specified in the vector defaults to
-zero. For example, the vector \code{c("A" = 1, "B" = 2)} is identical to the previous one.
-When \code{NULL}, the parameter defaults to the unit vector. In our current example, \code{NULL} would
-be shorthand for \code{c("A" = 1, "B" = 1, "C" = 1)}.
+The \code{treatment_constraints} argument should contain a named vector with
+all treatment-specific constraints. For example, in a sample with treatment
+conditions "A", "B" and "C", the vector \code{c("A" = 1, "B" = 2, "C" = 0)}
+specifies that each matched group should contain at least one unit with
+treatment "A", at least two units with treatment "B" and any number of units
+with treatment "C". Treatments not specified in the vector defaults to zero.
+For example, the vector \code{c("A" = 1, "B" = 2)} is identical to the
+previous one. When \code{NULL}, the parameter defaults to requiring at least
+one unit for each treatment. In our current example, \code{NULL} would be
+shorthand for \code{c("A" = 1, "B" = 1, "C" = 1)}.
 
-The \code{total_size_constraint} argument can be used to require the matched groups to
-contain units assigned to any treatment condition in addition to the constraints specified
-in \code{treatment_constraints}. For example, if \code{treatment_constraints = c("A" = 1, "B" = 2)}
-and \code{total_size_constraint = 4}, each match group will contain at least one unit assigned to "A",
-at least two units assigned to "B" and at least four units in total, where the fourth unit can be from
-any treatment condition.
+The \code{size_constraint} argument can be used to constrain the matched
+groups to contain a certain number of units in total (independently of
+treatment assignment). For example, if \code{treatment_constraints =
+c("A" = 1, "B" = 2)} and \code{total_size_constraint = 4}, each matched
+group will contain at least one unit assigned to "A", at least two units
+assigned to "B" and at least four units in total, where the fourth unit can
+be from any treatment condition.
 
-The \code{subset} argument can be used to control which units are included in the
-matching. Under default settings, all units will be assigned to a matched group. In all other cases, the
-argument indicates that some units can safely be ignored when the groups are constructed. This can be useful, for example,
-when one is interested in estimating treatment effects only for a certain type of units (e.g.,
-units assigned to a certain treatment condition such as ATT). It is particularly useful when
-units of interested are not represented in the whole covariate space (i.e., a one-sided overlap problem).
-Without the \code{subset} argument, the function would in such cases try to assign every unit to a group, including units in sparse regions that
-we are not interested in. This could lead to unnecessarily large och diverse matched groups.
+The \code{subset} argument can be used to control which units are included
+in the matching. When \code{subset} is \code{NULL} (the default), all units
+will be assigned to a matched group. When not \code{NULL}, the argument
+indicates that some units can safely be ignored when the groups are
+constructed. This can be useful, for example, when one is interested in
+estimating treatment effects only for a certain type of units (e.g., the
+average treatment effect for the treated, ATT). It is particularly useful
+when units of interested are not represented in the whole covariate space
+(i.e., an one-sided overlap problem). Without the \code{subset} argument,
+the function would in such cases try to assign every unit to a group,
+including units in sparse regions that we are not interested in. This could
+lead to unnecessarily large och diverse matched groups, and specifying units
+of interest with \code{subset} can prevent such matchings.
 
-As an example, assume there is two treatment conditions, "A" and "B", where units assigned to "B" are more
-numerous and tend to have more extreme covariate values. We are, however, only interested in
-estimate the treatment effect for units assigned to "A". By specifying \code{subset = "A"},
-the function ensures that all those units are assigned to a matched group. Some units assigned
-to treatment "B" -- in particular the units with extreme covariate values -- might be left unassigned.
-However, as those units are not of interest, they can safely be ignored, and we avoid groups with
-poor qualities (i.e., groups that stretch over large distances in order to satisfy matching contraints).
+As an example, assume that the units are assigned to either of two treatment
+conditions, "A" and "B". Units assigned to "B" are more numerous and tend to
+have more extreme covariate values. We are, however, only interested in
+estimating the treatment effect for units assigned to "A". By specifying
+\code{subset = "A"}, the function ensures that all those units are assigned
+to a matched group. Some units assigned to treatment "B" -- in particular
+the units with extreme covariate values -- will be left unassigned. However,
+as those units are not of interest, they can safely be ignored, and we
+avoid groups with poor qualities.
 
-The default behavior when \code{subset} is non-NULL is to ignore units to the greatest possible
-extent while satisfying the matching contraints. This tends to minimize within-group
-distances which, in turn, tends to reduce the bias of treatment effect estimators. However, in order to
-reduce variance, it is often beneficial to assign ignored units that are near existing matched groups to those groups.
-This can be achieved using the \code{secondary_unassigned_method} and \code{secondary_radius} arguments
-in the \code{\link[Rscclust]{make_clustering}} function that \code{quickmatch} calls. The \code{subset}
-argument corresponds to the \code{primary_data_points} argument in \code{\link[Rscclust]{make_clustering}}.
-A similar, but more blunt, effect can be achieved by increasing \code{total_size_constraint}.
+The default behavior when \code{subset} is non-NULL is to assign as many
+units as possible without increasing the maximum within-group distance. This
+behavior might, however, increase the average within-group distance in some
+cases. If called with \code{secondary_unassigned_method = "ignore"}, units
+not specified in \code{subset} will be ignored unless they are absolutely
+needed to satisfying the matching constraints. This tends to reduce bias
+since the within-group distances are minimized, but it could increase
+variance since we ignore potentially useful information in the sample. An
+intermediate alternative is to specify an aggresive caliper for the
+secondary units, which is done with the \code{secondary_radius} argument.
+(These arguments are all part of the \code{\link[scclust]{sc_clustering}}
+function that \code{quickmatch} calls. The \code{subset} argument
+corresponds to the \code{primary_data_points} argument in that function.)
 
-The \code{caliper} argument bounds the maximum distance between units assigned to the same matched group.
-This is implemented by restricting the edge weight in the graph used to construct the matched groups. As
-a result, the caliper will affect all groups in the matching and, in general, make it harder for the function
-to find good matchings also when the caliper is not binding. In particular, a too tight \code{caliper} can lead to discarded units that otherwise
-would be assigned to a matched group satisfying both the matching constraints and the caliper. For this reason,
-it is recommended to set \code{caliper} quite high and only use it to avoid particularly poor matches. It strongly
-recommended to use the \code{caliper} argument only when \code{unassigned_method = "closest_seed"} in the
-underlying \code{\link[Rscclust]{make_clustering}} function (which is the default behavior). Other options
-will still restrict the maximum within-group distance, but the bound is no longer guaranteed.
+The \code{caliper} argument constrains the maximum distance between units
+assigned to the same matched group. This is implemented by restricting the
+edge weight in the graph used to construct the matched groups (see
+\code{\link[scclust]{sc_clustering}} for details). As a result, the caliper
+will affect all groups in the matching and, in general, make it harder for
+the function to find good matchings even for groups where the caliper is not
+binding. In particular, a too tight \code{caliper} can lead to discarded
+units that otherwise would be assigned to a group satisfying both the
+matching constraints and the caliper. For this reason, it is recommended
+to set \code{caliper} quite high and only use it to avoid particularly poor
+matches. It strongly recommended to use the \code{caliper} argument only
+when \code{primary_unassigned_method = "closest_seed"} in the underlying
+\code{\link[scclust]{sc_clustering}} function (which is the default
+behavior).
 }
 \examples{
 # Construct example data
@@ -118,7 +136,7 @@ my_data <- data.frame(y = rnorm(100),
                       treatments = factor(sample(rep(c("T1", "T2", "C", "C"), 25))))
 
 # Make distances
-my_distances <- Rscclust::make_distances(my_data, dist_variables = c("x1", "x2"))
+my_distances <- distances(my_data, dist_variables = c("x1", "x2"))
 
 # Make matching with one unit from "T1", "T2" and "C" in each matched group
 quickmatch(my_distances, my_data$treatments)
@@ -131,10 +149,11 @@ quickmatch(my_distances,
 # Require at least six units in total in the groups
 quickmatch(my_distances,
            my_data$treatments,
-           total_size_constraint = 6)
+           treatment_constraints = c("T1" = 1, "T2" = 1, "C" = 2),
+           size_constraint = 6)
 
 # Focus the matching to units assigned to T1 or T2.
-# Each group will contain at least one of each treatment condition,
+# Each group will contain at least one unit of each treatment condition,
 # but some "C" units might be unassigned.
 quickmatch(my_distances,
            my_data$treatments,
@@ -143,14 +162,18 @@ quickmatch(my_distances,
 # Impose caliper
 quickmatch(my_distances,
            my_data$treatments,
-           caliper = 0.5)
+           caliper = 1)
 
+# Call `quickmatch` directly with covariate data (ie., not pre-calculating distances)
+quickmatch(my_data[c("x1", "x2")], my_data$treatments)
+
+}
+\references{
+Savje, Fredrik, Michael J. Higgins and Jasjeet S. Sekhon (2017),
+\sQuote{Generalized Full Matching}, arXiv 1703.03882.
+\url{https://arxiv.org/abs/1703.03882}
 }
 \seealso{
-See \code{\link{potential_outcomes}} and \code{\link{treatment_effects}} for
-         estimators that can be used with the produced matching.
-
-         See \code{\link[Rscclust]{make_clustering}} for the underlying function used to
-         construct the matched groups.
+See \code{\link[scclust]{sc_clustering}} for the underlying function used
+  to construct the matched groups.
 }
-

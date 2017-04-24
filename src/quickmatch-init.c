@@ -1,8 +1,8 @@
 /* =============================================================================
- * quickmatch -- Fast Matching in Large Data Sets
+ * quickmatch -- Quick Generalized Full Matching
  * https://github.com/fsavje/quickmatch
  *
- * Copyright (C) 2016  Fredrik Savje -- http://fredriksavje.com
+ * Copyright (C) 2017  Fredrik Savje -- http://fredriksavje.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,15 @@
  * along with this program. If not, see http://www.gnu.org/licenses/
  * ========================================================================== */
 
-#ifndef QMC_UTILITIES_HG
-#define QMC_UTILITIES_HG
+#include <R_ext/Rdynload.h>
+#include "utilities.h"
 
-#include <R.h>
-#include <Rinternals.h>
+static const R_CallMethodDef callMethods[] = {
+	{"qmc_get_subset_indicators",  (DL_FUNC) &qmc_get_subset_indicators,  2},
+	{NULL,                         NULL,                                  0}
+};
 
-SEXP qmc_translate_targets(SEXP R_targets,
-                           SEXP R_treatments);
-
-#endif // ifndef QMC_UTILITIES_HG
+void R_init_quickmatch(DllInfo *info) {
+	R_registerRoutines(info, NULL, callMethods, NULL, NULL);
+	R_useDynamicSymbols(info, FALSE);
+}

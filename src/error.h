@@ -1,8 +1,8 @@
 /* =============================================================================
- * quickmatch -- Fast Matching in Large Data Sets
+ * quickmatch -- Quick Generalized Full Matching
  * https://github.com/fsavje/quickmatch
  *
- * Copyright (C) 2016  Fredrik Savje -- http://fredriksavje.com
+ * Copyright (C) 2017  Fredrik Savje -- http://fredriksavje.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,15 @@
  * along with this program. If not, see http://www.gnu.org/licenses/
  * ========================================================================== */
 
-#ifndef QMC_RERROR_HG
-#define QMC_RERROR_HG
+#ifndef QMC_ERROR_HG
+#define QMC_ERROR_HG
 
-#define qmc_Rerror(msg) (qmc_Rerror__(msg, __FILE__, __LINE__))
+#define iqmc_error(msg) (iqmc_error__(msg, __FILE__, __LINE__))
 
-void qmc_Rerror__(const char* msg,
+#define iqmc_assert(expression) (void)((expression) || (iqmc_error__("Failed assert: `" #expression "`.", __FILE__, __LINE__), 0))
+
+void iqmc_error__(const char* msg,
                   const char* file,
                   int line);
 
-#endif // ifndef QMC_RERROR_HG
-
+#endif // ifndef QMC_ERROR_HG

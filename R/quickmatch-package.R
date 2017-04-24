@@ -1,8 +1,8 @@
 # ==============================================================================
-# quickmatch -- Fast Matching in Large Data Sets
+# quickmatch -- Quick Generalized Full Matching
 # https://github.com/fsavje/quickmatch
 #
-# Copyright (C) 2016  Fredrik Savje -- http://fredriksavje.com
+# Copyright (C) 2017  Fredrik Savje -- http://fredriksavje.com
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,29 +19,36 @@
 # ==============================================================================
 
 
-#' quickmatch: Fast Matching in Large Data Sets with Complicated Constraints
+#' quickmatch: Quick Generalized Full Matching
 #'
-#' \code{quickmatch} provides matching functions for constructing generalized full matchings
-#' in large samples. It also provides computationally efficient estimators for
-#' treatment effects and potential outcomes in matched groups. See
-#' \code{\link{quickmatch}} for the core matching function. See
-#' \code{\link{treatment_effects}} and \code{\link{potential_outcomes}}
-#' for estimators.
+#' Provides functions for constructing near-optimal generalized full matchings.
+#' Generalized full matching is an extension of the original full matching method
+#' to situations with more intricate study designs. The package is made with
+#' large data sets in mind and derives matchings more than an order of magnitude
+#' quicker than other methods.
 #'
-#' The package is still under development. Please use it with caution.
-#'
-#' More information and the latest version is found here:
+#' See the package's website for more information:
 #' \url{https://github.com/fsavje/quickmatch}.
 #'
-#' Bug reports and suggestions are greatly appreciated. They
-#' are best reported here:
-#' \url{https://github.com/fsavje/quickmatch/issues}.
+#' Bug reports and suggestions are greatly appreciated. They are best reported
+#' here: \url{https://github.com/fsavje/quickmatch/issues}.
+#'
+#' @references
+#' Savje, Fredrik and Michael J. Higgins and Jasjeet S. Sekhon (2017),
+#' \sQuote{Generalized Full Matching}, arXiv 1703.03882.
+#' \url{https://arxiv.org/abs/1703.03882}
 #'
 #' @docType package
 #' @name quickmatch-package
+#'
+#' @import distances
 NULL
 
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("The `quickmatch` package is under development. Please use it with caution.")
-  packageStartupMessage("Bug reports and suggestions are greatly appreciated: https://github.com/fsavje/quickmatch/issues")
+}
+
+#' @useDynLib quickmatch, .registration = TRUE
+.onUnload <- function (libpath) {
+  library.dynam.unload("quickmatch", libpath)
 }

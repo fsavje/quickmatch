@@ -16,7 +16,6 @@
 
 # RStudio files
 .Rproj.user/
-.Rproj.user
 
 # produced vignettes
 vignettes/*.html
@@ -28,10 +27,6 @@ vignettes/*.pdf
 # knitr and R markdown default cache directories
 /*_cache/
 /cache/
-
-# Temporary files created by R markdown
-*.utf8.md
-*.knit.md
 
 # C object files
 *.o
@@ -50,3 +45,10 @@ vignettes/*.pdf
 *.so
 *.so.*
 *.dylib
+
+# Temporary files created by R markdown
+*.utf8.md
+*.knit.md
+.Rproj.user
+
+/local/

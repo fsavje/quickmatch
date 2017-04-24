@@ -1,8 +1,8 @@
 # ==============================================================================
-# quickmatch -- Fast Matching in Large Data Sets
+# quickmatch -- Quick Generalized Full Matching
 # https://github.com/fsavje/quickmatch
 #
-# Copyright (C) 2016  Fredrik Savje -- http://fredriksavje.com
+# Copyright (C) 2017  Fredrik Savje -- http://fredriksavje.com
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,81 +19,83 @@
 # ==============================================================================
 
 
-#' \code{qm_matching} objects
+#' Constructor for qm_matching objects
 #'
-#' Construct and check \code{qm_matching} objects.
-#'
-#' The \code{qm_matching} function constructs a \code{qm_matching} object
-#' from existing matching labels. This is useful when one uses the estimators in
-#' the package with a matching not constructed by the \code{\link{quickmatch}}
-#' function.
-#'
-#' \code{is.qm_matching} checks whether the provided object
-#' is a valid instance of the \code{qm_matching} class.
-#' It does not check whether the matching it describes is sensible.
-#' See \code{\link[Rscclust]{check_clustering}} for a function
-#' that provides such checks.
+#' The \code{qm_matching} function constructs a \code{qm_matching} object from
+#' existing matched group labels. The function does not derive matchings from
+#' sets of data points; see \code{\link{quickmatch}} for that functionality.
 #'
 #' \code{qm_matching} objects are based on integer vectors, and it indexes
-#' matched groups starting with zero. The \code{qm_matching} class
-#' inherits from the \code{\link[Rscclust]{Rscc_clustering}} class in
-#' \code{Rscclust}.
+#' matched groups starting with zero. The \code{qm_matching} class inherits
+#' from the \code{\link[scclust]{scclust}} class.
 #'
+#' @param group_labels
+#'    a vector containing each unit's group label.
+#' @param unassigned_labels
+#'    labels that denote unassigned units. If \code{NULL}, \code{NA} values in
+#'    \code{group_labels} are used to denote unassigned points.
+#' @param ids
+#'    IDs of the units. Should be a vector of the same length as
+#'    \code{group_labels} or \code{NULL}. If \code{NULL}, the IDs are set to
+#'    \code{1:length(group_labels)}.
 #'
-#' @param labels             vector with labels describing the matched groups.
-#'
-#' @param unassigned_labels  labels denoting unassigned data points.
-#'                           \code{NA} values are always considered unassigned.
-#'
-#' @param ids                vector with IDs for the data points. If \code{NULL},
-#'                           the IDs are set to \code{1:length(labels)}.
-#'
-#' @param obj                object to check.
-#'
-#' @return The \code{qm_matching} function returns a \code{qm_matching} object.
-#'
-#'         \code{is.qm_matching} returns \code{TRUE} if \code{obj} is valid,
-#'         otherwise \code{FALSE}.
+#' @return
+#'    Returns a \code{qm_matching} object with the matching described by the
+#'    provided labels.
 #'
 #' @examples
-#' # Ten units in three matched groups
-#' qm_matching(c("A", "B", "B", "C", "B", "C", "A", "A", "C", "C"))
+#' # 10 units in 3 matched groups
+#' matches1 <- qm_matching(c("A", "A", "B", "C", "B",
+#'                           "C", "C", "A", "B", "B"))
 #'
-#' # Label "999" denotes, in this example, units not assigned to a matched group
-#' qm_matching(c("A", "999", "B", "C", "B", "999", "A", "A", "C", "C"),
-#'             unassigned_labels = "999")
+#' # 8 units in 3 matched groups, 2 units unassigned
+#' matches2 <- qm_matching(c(1, 1, 2, 3, 2,
+#'                           NA, 3, 1, NA, 2))
 #'
-#' # Equivalent to previous command
-#' qm_matching(c("A", NA, "B", "C", "B", NA, "A", "A", "C", "C"))
+#' # Custom labels indicating unassiged units
+#' matches3 <- qm_matching(c("A", "A", "B", "C", "NONE",
+#'                           "C", "C", "NONE", "B", "B"),
+#'                         unassigned_labels = "NONE")
 #'
-#' # Custom IDs
-#' qm_matching(c("A", "B", "B", "C", "B", "C", "A", "A", "C", "C"),
-#'             ids = letters[1:10])
+#' # Two different labels indicating unassiged units
+#' matches4 <- qm_matching(c("A", "A", "B", "C", "NONE",
+#'                           "C", "C", "0", "B", "B"),
+#'                         unassigned_labels = c("NONE", "0"))
 #'
-#' # Check whether constructed object is a qm_matching
-#' is.qm_matching(qm_matching(c("A", "B", "B", "C")))
+#' # Custom unit IDs
+#' matches5 <- qm_matching(c("A", "A", "B", "C", "B",
+#'                           "C", "C", "A", "B", "B"),
+#'                         ids = letters[1:10])
 #'
 #' @export
-qm_matching <- function(labels,
+qm_matching <- function(group_labels,
                         unassigned_labels = NULL,
                         ids = NULL) {
-  labels <- Rscclust:::coerce_cluster_labels(labels, unassigned_labels)
-  if (!is.null(ids)) {
-    ids <- Rscclust:::coerce_character(ids, length(labels))
-  }
-
-  out_matching <- Rscclust::Rscc_clustering(cluster_labels = labels,
-                                            unassigned_labels = NULL,
-                                            ids = ids)
-
+  out_matching <- scclust::scclust(cluster_labels = group_labels,
+                                   unassigned_labels = unassigned_labels,
+                                   ids = ids)
   class(out_matching) <- c("qm_matching", class(out_matching))
   out_matching
 }
 
 
-#' @rdname qm_matching
+#' Check qm_matching object
+#'
+#' \code{is.qm_matching} checks whether the provided object is a valid instance
+#' of the \code{\link{qm_matching}} class.
+#'
+#' \code{is.qm_matching} does not check whether the matching itself is sensible
+#' or whether it satisfies some set of constraints. See
+#' \code{\link[scclust]{check_clustering}} for that functionality.
+#'
+#' @param x
+#'    object to check.
+#'
+#' @return
+#'    Returns \code{TRUE} if \code{x} is a valid \code{\link{qm_matching}}
+#'    object, otherwise \code{FALSE}.
+#'
 #' @export
-is.qm_matching <- function(obj) {
-  inherits(obj, "qm_matching") &&
-    Rscclust::is.Rscc_clustering(obj)
+is.qm_matching <- function(x) {
+  inherits(x, "qm_matching") && scclust::is.scclust(x)
 }

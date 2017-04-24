@@ -1,8 +1,8 @@
 /* =============================================================================
- * quickmatch -- Fast Matching in Large Data Sets
+ * quickmatch -- Quick Generalized Full Matching
  * https://github.com/fsavje/quickmatch
  *
- * Copyright (C) 2016  Fredrik Savje -- http://fredriksavje.com
+ * Copyright (C) 2017  Fredrik Savje -- http://fredriksavje.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,16 +18,13 @@
  * along with this program. If not, see http://www.gnu.org/licenses/
  * ========================================================================== */
 
-#ifndef QMC_POTENTIAL_OUTCOMES_HG
-#define QMC_POTENTIAL_OUTCOMES_HG
+#ifndef QMC_UTILITIES_HG
+#define QMC_UTILITIES_HG
 
 #include <R.h>
 #include <Rinternals.h>
 
-SEXP qmc_potential_outcomes(SEXP R_outcomes,
-                            SEXP R_treatments,
-                            SEXP R_matching,
-                            SEXP R_targets,
-                            SEXP R_subset);
+SEXP qmc_get_subset_indicators(SEXP R_subset,
+                               SEXP R_treatments);
 
-#endif // ifndef QMC_POTENTIAL_OUTCOMES_HG
+#endif // ifndef QMC_UTILITIES_HG
