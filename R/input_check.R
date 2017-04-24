@@ -55,7 +55,7 @@ is.numeric_integer <- function(x) {
 
 
 # ==============================================================================
-# Coerce functions
+# Ensure functions
 # ==============================================================================
 
 # Ensure that `distances` is `distances` object
@@ -66,10 +66,36 @@ ensure_distances <- function(distances) {
 }
 
 
+# Ensure `caliper` is NULL or a scalar, positive, non-na, numeric
+ensure_caliper <- function(caliper) {
+  if (!is.null(caliper)) {
+    if (length(caliper) != 1L) {
+      new_error("`", match.call()$caliper, "` must be scalar.")
+    }
+    if (is.na(caliper)) {
+      new_error("`", match.call()$caliper, "` may not be NA.")
+    }
+    if (!is.numeric(caliper)) {
+      new_error("`", match.call()$caliper, "` must be numeric or `NULL`.")
+    }
+    if (caliper <= 0.0) {
+      new_error("`", match.call()$caliper, "` must be positive or `NULL`.")
+    }
+  }
+}
+
+
+# ==============================================================================
+# Coerce functions
+# ==============================================================================
+
 # Coerce `treatments` to factor
 coerce_treatments <- function(treatments,
                               req_length) {
   if (!is.factor(treatments)) {
+    if (!is.vector(treatments)) {
+      new_error("Do not know how to coerce `", match.call()$treatments, "` to factor.")
+    }
     if (!is.integer(treatments) && !is.character(treatments)) {
       new_warning("Coercing `", match.call()$treatments, "` to factor.")
     }
@@ -142,7 +168,7 @@ coerce_size_constraint <- function(size_constraint,
     new_error("`", match.call()$size_constraint, "` must be greater or equal to the sum of the treatment constraints.")
   }
   if (size_constraint > num_data_points) {
-    new_error("`", match.call()$size_constraint, "` may not be great than the number of data points.")
+    new_error("`", match.call()$size_constraint, "` may not be great than the number of units.")
   }
   size_constraint
 }
@@ -165,24 +191,4 @@ coerce_subset <- function(subset,
     subset <- get_subset_indicators(subset, treatments)
   }
   subset
-}
-
-
-# Coerce `caliper` to NULL or a scalar, positive, non-na, numeric
-coerce_caliper <- function(caliper) {
-  if (!is.null(caliper)) {
-    if (!is.numeric(caliper)) {
-      new_error("`", match.call()$caliper, "` must be numeric or `NULL`.")
-    }
-    if (length(caliper) != 1L) {
-      new_error("`", match.call()$caliper, "` must be scalar.")
-    }
-    if (is.na(caliper)) {
-      new_error("`", match.call()$caliper, "` may not be NA.")
-    }
-    if (caliper <= 0.0) {
-      new_error("`", match.call()$caliper, "` must be positive or `NULL`.")
-    }
-  }
-  caliper
 }

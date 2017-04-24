@@ -18,7 +18,6 @@
 # along with this program. If not, see http://www.gnu.org/licenses/
 # ==============================================================================
 
-
 # Translate character indicators for different treatments to unit indices.
 # get_subset_indicators(c("A", "C"), factor(c("A", "B", "A", "C", "B")))
 # > c(1, 3, 4)
@@ -32,9 +31,12 @@ get_subset_indicators <- function(subset,
   subset_indicators <- rep(FALSE, nlevels(treatments))
   names(subset_indicators) <- levels(treatments)
   subset_indicators[subset] <- TRUE
-  subset_indicators <- c(FALSE, subset_indicators)
 
-  .Call(qmc_get_subset_indicators,
-        subset_indicators,
-        unclass(treatments))
+  if (all(subset_indicators)) {
+    return(NULL)
+  } else {
+    return(.Call(qmc_get_subset_indicators,
+                 c(FALSE, subset_indicators),
+                 unclass(treatments)))
+  }
 }

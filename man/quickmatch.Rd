@@ -167,6 +167,11 @@ quickmatch(my_distances,
 # Call `quickmatch` directly with covariate data (ie., not pre-calculating distances)
 quickmatch(my_data[c("x1", "x2")], my_data$treatments)
 
+# Call `quickmatch` directly with covariate data using Mahalanobis distances
+quickmatch(my_data[c("x1", "x2")],
+           my_data$treatments,
+           normalize = "mahalanobize")
+
 }
 \references{
 Savje, Fredrik, Michael J. Higgins and Jasjeet S. Sekhon (2017),

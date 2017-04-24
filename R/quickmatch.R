@@ -188,6 +188,11 @@
 #' # Call `quickmatch` directly with covariate data (ie., not pre-calculating distances)
 #' quickmatch(my_data[c("x1", "x2")], my_data$treatments)
 #'
+#' # Call `quickmatch` directly with covariate data using Mahalanobis distances
+#' quickmatch(my_data[c("x1", "x2")],
+#'            my_data$treatments,
+#'            normalize = "mahalanobize")
+#'
 #' @export
 quickmatch <- function(distances,
                        treatments,
@@ -221,7 +226,7 @@ quickmatch <- function(distances,
                                             num_observations)
 
   subset <- coerce_subset(subset, treatments)
-  caliper <- coerce_caliper(caliper)
+  ensure_caliper(caliper)
 
   sc_call <- dots[names(dots) %in% names(formals(scclust::sc_clustering))]
 
