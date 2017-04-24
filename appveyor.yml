@@ -38,10 +38,12 @@ environment:
   - R_VERSION: devel
     R_ARCH: x64
     PKGTYPE: "binary"
+    RTOOLS_VERSION: 34
 
   - R_VERSION: devel
     R_ARCH: i386
     PKGTYPE: "binary"
+    RTOOLS_VERSION: 34
 
   - R_VERSION: 3.3.2
     R_ARCH: x64
