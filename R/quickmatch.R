@@ -167,7 +167,7 @@
 #'            my_data$treatments,
 #'            treatment_constraints = c("T1" = 1, "T2" = 1, "C" = 2))
 #'
-#' # Require at least six units in total in the groups
+#' # Require groups with at least six units in total
 #' quickmatch(my_distances,
 #'            my_data$treatments,
 #'            treatment_constraints = c("T1" = 1, "T2" = 1, "C" = 2),
@@ -183,7 +183,7 @@
 #' # Impose caliper
 #' quickmatch(my_distances,
 #'            my_data$treatments,
-#'            caliper = 1)
+#'            caliper = 1.2)
 #'
 #' # Call `quickmatch` directly with covariate data (ie., not pre-calculating distances)
 #' quickmatch(my_data[c("x1", "x2")], my_data$treatments)
