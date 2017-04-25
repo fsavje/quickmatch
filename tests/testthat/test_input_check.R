@@ -287,7 +287,7 @@ test_that("`coerce_treatments` coerces correctly.", {
   expect_identical(t_coerce_treatments(t_treatments = letters[1:10]),
                    factor(letters[1:10]))
   expect_warning(expect_identical(t_coerce_treatments(t_treatments = as.numeric(1:10)),
-                   factor(1:10)))
+                                  factor(1:10)))
   expect_warning(expect_identical(t_coerce_treatments(t_treatments = rep(c(TRUE, FALSE), 5L)),
                                   factor(rep(c(TRUE, FALSE), 5L))))
 })

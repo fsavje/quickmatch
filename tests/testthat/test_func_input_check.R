@@ -155,6 +155,7 @@ test_that("`regression_estimator` checks input.", {
   expect_silent(t_regression_estimator())
   expect_silent(t_regression_estimator(covariates = NULL))
   expect_silent(t_regression_estimator(subset = "1"))
+  expect_silent(t_regression_estimator(subset = rep(c(TRUE, FALSE), each = 10)))
   expect_warning(t_regression_estimator(treatments = rep(1:2, each = 10), subset = "1"))
   expect_error(t_regression_estimator(outcomes = unsound_outcomes))
   expect_error(t_regression_estimator(treatments = unsound_treatments))

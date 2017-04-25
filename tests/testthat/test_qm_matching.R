@@ -28,7 +28,6 @@ context("qm_matching")
 
 raw_labels <- c(0L, 0L, 1L, 2L, 1L, 2L, 2L, 0L, 1L, 1L)
 raw_labelsNA <- c(0L, 0L, 1L, 2L, NA, 2L, 2L, NA, 1L, 1L)
-ids <-
 
 cl_obj_simple <- structure(raw_labels,
                            cluster_count = 3L,
@@ -41,14 +40,14 @@ cl_obj_wNA <- structure(raw_labelsNA,
                         class = c("qm_matching", "scclust"))
 
 cl_obj_wID <- structure(raw_labels,
-                           cluster_count = 3L,
-                           ids = letters[1:10],
-                           class = c("qm_matching", "scclust"))
-
-cl_obj_wIDnNA <- structure(raw_labelsNA,
                         cluster_count = 3L,
                         ids = letters[1:10],
                         class = c("qm_matching", "scclust"))
+
+cl_obj_wIDnNA <- structure(raw_labelsNA,
+                           cluster_count = 3L,
+                           ids = letters[1:10],
+                           class = c("qm_matching", "scclust"))
 
 test_that("`qm_matching` returns correct output", {
   expect_identical(qm_matching(c("A", "A", "B", "C", "B", "C", "C", "A", "B", "B")),
@@ -74,19 +73,19 @@ test_that("`qm_matching` returns correct output", {
 
 test_that("`is.qm_matching` returns correct output", {
   expect_true(is.qm_matching(structure(raw_labels,
-                           cluster_count = 3L,
-                           ids = NULL,
-                           class = c("qm_matching", "scclust"))))
+                                       cluster_count = 3L,
+                                       ids = NULL,
+                                       class = c("qm_matching", "scclust"))))
   expect_false(is.qm_matching(structure(raw_labels,
-                           cluster_count = 3L,
-                           ids = NULL,
-                           class = c("qm_matching"))))
+                                        cluster_count = 3L,
+                                        ids = NULL,
+                                        class = c("qm_matching"))))
   expect_false(is.qm_matching(structure(raw_labels,
-                           cluster_count = 3L,
-                           ids = NULL,
-                           class = c("scclust"))))
+                                        cluster_count = 3L,
+                                        ids = NULL,
+                                        class = c("scclust"))))
   expect_false(is.qm_matching(structure(letters[1:10],
-                           cluster_count = 3L,
-                           ids = NULL,
-                           class = c("qm_matching", "scclust"))))
+                                        cluster_count = 3L,
+                                        ids = NULL,
+                                        class = c("qm_matching", "scclust"))))
 })

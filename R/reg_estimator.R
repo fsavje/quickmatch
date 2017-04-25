@@ -103,16 +103,15 @@ regression_estimator <- function(outcomes,
 
   if (is.null(subset)) {
     subset <- rep(TRUE, num_observations)
-  } else {
+  } else if (is.integer(subset)) {
     tmp_subset <- rep(FALSE, num_observations)
     tmp_subset[subset] <- TRUE
     subset <- tmp_subset
   }
 
   # Find matched groups with treatments
-  int_match <- as.integer(matching)
-  subset_match <- unique(int_match[subset])
-  treatment_missing <- !unlist(lapply(split(int_match, treatments, drop = FALSE),
+  subset_match <- unique(as.integer(matching)[subset])
+  treatment_missing <- !unlist(lapply(split(as.integer(matching), treatments, drop = FALSE),
                                       function(x) { all(subset_match %in% unique(x)) }))
   if (any(treatment_missing)) {
     warning("Some matched groups are missing treatment conditions. Corresponding potential outcomes cannot be estimated.")
@@ -121,14 +120,15 @@ regression_estimator <- function(outcomes,
   # Estimation
   match_treat_factor <- interaction(as.integer(matching), treatments)
 
-  subset_total <- sum(subset)
   subset_count <- rep(NA, num_observations)
   split(subset_count, as.integer(matching)) <- lapply(split(subset, as.integer(matching)), sum)
 
   match_treat_count <- rep(NA, num_observations)
   split(match_treat_count, match_treat_factor) <- lapply(split(outcomes, match_treat_factor), length)
 
-  reg_weights <- subset_count / (subset_total * match_treat_count)
+  # No need to normalize with total number of units in `subset` since regression
+  # does it. Not normalizing is numerically more stable.
+  reg_weights <- subset_count / match_treat_count
 
   if (is.null(covariates)) {
     lm_res <- stats::lm(outcomes ~ 0 + treatments, weights = reg_weights)
@@ -153,6 +153,5 @@ regression_estimator <- function(outcomes,
     }
   }
 
-  list(effects = out_means,
-       effect_variances = out_vars)
+  list(effects = out_means, effect_variances = out_vars)
 }

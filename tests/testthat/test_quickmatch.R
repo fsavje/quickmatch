@@ -93,25 +93,25 @@ raw_data <- matrix(c(
 distancesEucl <-  distances(raw_data)
 distancesMaha <-  distances(raw_data, normalize = "mahalanobize")
 treatmentsUse <- c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A", "B", "A", "A", "B", "A", "B", "A", "A", "A", "A", "B", "A",
-                "B", "A", "B", "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "A", "B", "A", "A", "B",
-                "B", "B", "B", "B", "A", "A", "A", "B", "A", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A",
-                "B", "B", "A", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "B", "B", "B", "B", "A", "B", "B", "A", "A", "B", "B", "B", "B",
-                "B", "A", "A", "B", "B", "A", "A", "B", "B", "B", "A", "B", "A", "B", "A", "B", "B", "B", "B", "A", "B", "A", "B", "B", "B", "B",
-                "A", "B", "A", "B", "A", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "B", "B", "A", "B", "A", "B", "B", "B", "A", "A", "B",
-                "A", "B", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "B", "A", "B", "B", "A", "B", "B", "B", "A", "A", "B",
-                "A", "A", "A", "B", "A", "A", "A", "A", "B", "A", "A", "B", "B", "B", "B", "B", "A", "A", "B", "B", "A", "A", "A", "A", "B", "B",
-                "A", "A", "A", "A", "B", "B", "B", "B", "A", "B", "A", "A", "B", "A", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "A", "B",
-                "A", "A", "A", "A", "B", "A", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "A", "B", "A", "A", "B", "A", "B",
-                "B", "B", "B", "B", "B", "B", "A", "B", "B", "B", "B", "A", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B", "A", "A", "A", "A",
-                "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "A", "A", "B", "A", "B", "A", "B", "B", "B", "A", "A", "A", "A", "B", "A", "B",
-                "B", "A", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "A", "A", "B", "B", "A", "B", "B", "B", "A", "B", "A", "A", "A", "B",
-                "B", "A", "A", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B", "A", "B", "A", "B", "B", "B", "B", "A", "B", "A", "B",
-                "B", "A", "A", "A", "B", "B", "B", "A", "A", "B", "A", "A", "A", "B", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A",
-                "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "A", "B", "A", "A", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B",
-                "A", "A", "A", "A", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "A", "A", "A", "B", "A", "B", "A",
-                "A", "B", "B", "A", "B", "A", "A", "A", "B", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "B", "B", "A", "A", "B", "B",
-                "B", "A", "B", "B", "B", "B", "A", "A", "A", "A", "A", "B", "B", "A", "B", "B", "A", "B", "A", "B", "A", "A", "A", "A", "B", "B",
-                "A", "B", "B", "A", "A", "B", "A")
+                   "B", "A", "B", "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "A", "B", "A", "A", "B",
+                   "B", "B", "B", "B", "A", "A", "A", "B", "A", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A",
+                   "B", "B", "A", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "B", "B", "B", "B", "A", "B", "B", "A", "A", "B", "B", "B", "B",
+                   "B", "A", "A", "B", "B", "A", "A", "B", "B", "B", "A", "B", "A", "B", "A", "B", "B", "B", "B", "A", "B", "A", "B", "B", "B", "B",
+                   "A", "B", "A", "B", "A", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "B", "B", "A", "B", "A", "B", "B", "B", "A", "A", "B",
+                   "A", "B", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "B", "A", "B", "B", "A", "B", "B", "B", "A", "A", "B",
+                   "A", "A", "A", "B", "A", "A", "A", "A", "B", "A", "A", "B", "B", "B", "B", "B", "A", "A", "B", "B", "A", "A", "A", "A", "B", "B",
+                   "A", "A", "A", "A", "B", "B", "B", "B", "A", "B", "A", "A", "B", "A", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "A", "B",
+                   "A", "A", "A", "A", "B", "A", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "A", "B", "A", "A", "B", "A", "B",
+                   "B", "B", "B", "B", "B", "B", "A", "B", "B", "B", "B", "A", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B", "A", "A", "A", "A",
+                   "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "A", "A", "B", "A", "B", "A", "B", "B", "B", "A", "A", "A", "A", "B", "A", "B",
+                   "B", "A", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "A", "A", "B", "B", "A", "B", "B", "B", "A", "B", "A", "A", "A", "B",
+                   "B", "A", "A", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B", "A", "B", "A", "B", "B", "B", "B", "A", "B", "A", "B",
+                   "B", "A", "A", "A", "B", "B", "B", "A", "A", "B", "A", "A", "A", "B", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A",
+                   "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "A", "B", "A", "A", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B",
+                   "A", "A", "A", "A", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "A", "A", "A", "B", "A", "B", "A",
+                   "A", "B", "B", "A", "B", "A", "A", "A", "B", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "B", "B", "A", "A", "B", "B",
+                   "B", "A", "B", "B", "B", "B", "A", "A", "A", "A", "A", "B", "B", "A", "B", "B", "A", "B", "A", "B", "A", "A", "A", "A", "B", "B",
+                   "A", "B", "B", "A", "A", "B", "A")
 Alogical <- (treatmentsUse == "A")
 Aindex <- which(Alogical)
 
@@ -206,15 +206,15 @@ test_that("`quickmatch` returns correct output", {
                    t_sc_clustering(primary_data_points = Aindex, secondary_radius = 0.5))
 
   expect_warning(expect_identical(t_quickmatch(seed_radius = 0.5, caliper = 2.0),
-                   t_sc_clustering(seed_radius = 0.5)))
+                                  t_sc_clustering(seed_radius = 0.5)))
   expect_identical(t_quickmatch(caliper = 1.0, primary_unassigned_method = "ignore"),
                    t_sc_clustering(seed_radius = 0.5, primary_unassigned_method = "ignore", secondary_radius = "seed_radius"))
   expect_warning(expect_identical(t_quickmatch(caliper = 1.0, subset = "A", secondary_unassigned_method = "closest_assigned"),
-                   t_sc_clustering(seed_radius = 0.5, primary_data_points = Aindex, secondary_unassigned_method = "closest_assigned", secondary_radius = "seed_radius")))
+                                  t_sc_clustering(seed_radius = 0.5, primary_data_points = Aindex, secondary_unassigned_method = "closest_assigned", secondary_radius = "seed_radius")))
   expect_warning(expect_identical(t_quickmatch(caliper = 1.0, primary_unassigned_method = "closest_assigned"),
-                   t_sc_clustering(seed_radius = 0.25, primary_unassigned_method = "closest_assigned")))
+                                  t_sc_clustering(seed_radius = 0.25, primary_unassigned_method = "closest_assigned")))
   expect_warning(expect_identical(t_quickmatch(caliper = 1.0, primary_radius = "estimated_radius"),
-                   t_sc_clustering(seed_radius = 0.5, primary_radius = "estimated_radius", secondary_radius = "seed_radius")))
+                                  t_sc_clustering(seed_radius = 0.5, primary_radius = "estimated_radius", secondary_radius = "seed_radius")))
   expect_warning(expect_identical(t_quickmatch(caliper = 1.0, subset = "A", secondary_radius = "estimated_radius"),
-                   t_sc_clustering(seed_radius = 0.5, primary_data_points = Aindex, secondary_radius = "estimated_radius")))
+                                  t_sc_clustering(seed_radius = 0.5, primary_data_points = Aindex, secondary_radius = "estimated_radius")))
 })
