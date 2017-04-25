@@ -100,20 +100,20 @@
 #' behavior).
 #'
 #' @param distances
-#'    a \code{\link[distances]{distances}} object or a numeric vector, matrix
+#'    \code{\link[distances]{distances}} object or a numeric vector, matrix
 #'    or data frame. The argument describes the similarity of the units to be
 #'    matched. It can either be preprocessed distance information from a
 #'    \code{\link[distances]{distances}} object (recommended), or raw
 #'    covariate data. When called with covariate data, Euclidean distances are
 #'    calculated unless otherwise specified.
 #' @param treatments
-#'    a factor specifying which treatments the units are assigned to.
+#'    factor specifying which treatments the units are assigned to.
 #' @param treatment_constraints
-#'    a named integer vector with the treatment constraints. If \code{NULL},
+#'    named integer vector with the treatment constraints. If \code{NULL},
 #'    the constraints are set so to requiring one unit of each treatment
 #'    condition in each group.
 #' @param size_constraint
-#'    an integer with the required total number of units in each group. Must be
+#'    integer with the required total number of units in each group. Must be
 #'    greater or equal to the sum of \code{treatment_constraints}. If NULL, no
 #'    constraints other than the treatment constraints are imposed.
 #' @param subset
@@ -201,7 +201,6 @@ quickmatch <- function(distances,
                        subset = NULL,
                        caliper = NULL,
                        ...) {
-
   dots <- eval(substitute(alist(...)))
 
   if (!distances::is.distances(distances)) {

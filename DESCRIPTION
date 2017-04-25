@@ -17,7 +17,9 @@ Depends:
     R (>= 3.2.3),
     distances
 Imports:
-    scclust
+    sandwich,
+    scclust,
+    stats
 Suggests:
     testthat
 NeedsCompilation: yes

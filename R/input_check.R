@@ -66,6 +66,18 @@ ensure_distances <- function(distances) {
 }
 
 
+# Ensure that `matching` is a `scclust` object
+ensure_matching <- function(matching,
+                            req_length = NULL) {
+  if (!scclust::is.scclust(matching)) {
+    new_error("`", match.call()$matching, "` is not a valid matching object.")
+  }
+  if (!is.null(req_length) && (length(matching) != req_length)) {
+    new_error("`", match.call()$matching, "` does not contain `", match.call()$req_length, "` units.")
+  }
+}
+
+
 # Ensure `caliper` is NULL or a scalar, positive, non-na, numeric
 ensure_caliper <- function(caliper) {
   if (!is.null(caliper)) {
@@ -88,6 +100,49 @@ ensure_caliper <- function(caliper) {
 # ==============================================================================
 # Coerce functions
 # ==============================================================================
+
+# Coerce `covariates`
+coerce_covariates <- function(covariates, req_length) {
+  if (!is.null(covariates)) {
+    if (is.data.frame(covariates)) {
+      covariates <- as.matrix(covariates)
+    } else if (is.vector(covariates)) {
+      covariates <- as.matrix(covariates, ncol = 1)
+    }
+    if (!is.matrix(covariates)) {
+      new_error("`", match.call()$covariates, "` must be vector, matrix or data frame.")
+    }
+    covariates <- unname(covariates)
+    if (!is.double(covariates)) {
+      if (is.numeric(covariates)) {
+        storage.mode(covariates) <- "double"
+      } else {
+        new_error("`", match.call()$covariates, "` is not numeric.")
+      }
+    }
+    if (nrow(covariates) != req_length) {
+      new_error("`", match.call()$covariates, "` is not of length `", match.call()$req_length, "`.")
+    }
+  }
+  covariates
+}
+
+
+# Coerce `x` to double
+coerce_double <- function(x, req_length = NULL) {
+  if (!is.double(x)) {
+    if (is.numeric(x)) {
+      x <- as.double(x)
+    } else {
+      new_error("`", match.call()$x, "` is not numeric.")
+    }
+  }
+  if (!is.null(req_length) && (length(x) != req_length)) {
+    new_error("`", match.call()$x, "` is not of length `", match.call()$req_length, "`.")
+  }
+  x
+}
+
 
 # Coerce `treatments` to factor
 coerce_treatments <- function(treatments,

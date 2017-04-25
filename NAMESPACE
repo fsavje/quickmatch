@@ -3,5 +3,6 @@
 export(is.qm_matching)
 export(qm_matching)
 export(quickmatch)
+export(regression_estimator)
 import(distances)
 useDynLib(quickmatch, .registration = TRUE)
