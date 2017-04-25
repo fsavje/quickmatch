@@ -82,6 +82,26 @@ test_that("`ensure_distances` checks input.", {
 
 
 # ==============================================================================
+# ensure_matching
+# ==============================================================================
+
+t_ensure_matching <- function(t_matching = qm_matching(c("A", "A", "B", "C", "B", "C", "C", "A", "B", "B")),
+                              t_req_length = 10L) {
+  ensure_matching(t_matching, t_req_length)
+}
+
+test_that("`ensure_matching` checks input.", {
+  expect_silent(t_ensure_matching())
+  expect_silent(t_ensure_matching(t_req_length = NULL))
+  expect_silent(t_ensure_matching(scclust::scclust(c("A", "A", "B", "C", "B", "C", "C", "A", "B", "B"))))
+  expect_error(t_ensure_matching(t_matching = "a"),
+               regexp = "`t_matching` is not a valid matching object.")
+  expect_error(t_ensure_matching(t_req_length = 5L),
+               regexp = "`t_matching` does not contain `t_req_length` units.")
+})
+
+
+# ==============================================================================
 # ensure_caliper
 # ==============================================================================
 
@@ -105,74 +125,69 @@ test_that("`ensure_caliper` checks input.", {
 
 
 # ==============================================================================
-# coerce_treatments
+# coerce_covariates
 # ==============================================================================
 
-t_coerce_treatments <- function(t_treatments = 1:10,
+t_coerce_covariates <- function(t_covariates = as.numeric(1:10),
                                 t_req_length = 10L) {
-  coerce_treatments(t_treatments, t_req_length)
+  coerce_covariates(t_covariates, t_req_length)
 }
 
-test_that("`coerce_treatments` checks input.", {
-  expect_silent(t_coerce_treatments())
-  expect_silent(t_coerce_treatments(t_treatments = factor(letters[1:10])))
-  expect_silent(t_coerce_treatments(t_treatments = letters[1:10]))
-  expect_warning(t_coerce_treatments(t_treatments = as.numeric(1:10)),
-                 regexp = "Coercing `t_treatments` to factor.")
-  expect_warning(t_coerce_treatments(t_treatments = rep(c(TRUE, FALSE), 5L)),
-                 regexp = "Coercing `t_treatments` to factor.")
-  expect_error(t_coerce_treatments(t_treatments = dist(1:10)),
-               regexp = "Do not know how to coerce `t_treatments` to factor.")
-  expect_error(t_coerce_treatments(t_req_length = 5L),
-               regexp = "Length of `t_treatments` does not match distances object.")
+test_that("`coerce_covariates` checks input.", {
+  expect_silent(t_coerce_covariates())
+  expect_silent(t_coerce_covariates(t_covariates = matrix(as.numeric(1:20), ncol = 2L)))
+  expect_silent(t_coerce_covariates(t_covariates = data.frame(x1 = as.numeric(1:10), x2 = as.numeric(11:20))))
+  expect_silent(t_coerce_covariates(t_covariates = 1:10))
+  expect_silent(t_coerce_covariates(t_covariates = matrix(1:20, ncol = 2L)))
+  expect_silent(t_coerce_covariates(t_covariates = data.frame(x1 = 1:10, x2 = 11:20)))
+
+  expect_error(t_coerce_covariates(t_covariates = dist(1:10)),
+               regexp = "`t_covariates` must be vector, matrix or data frame.")
+  expect_error(t_coerce_covariates(t_covariates = letters[1:10]),
+               regexp = "`t_covariates` is not numeric.")
+  expect_error(t_coerce_covariates(t_req_length = 5L),
+               regexp = "`t_covariates` is not of length `t_req_length`.")
 })
 
-test_that("`coerce_treatments` coerces correctly.", {
-  expect_identical(t_coerce_treatments(),
-                   factor(1:10))
-  expect_identical(t_coerce_treatments(t_treatments = factor(letters[1:10])),
-                   factor(letters[1:10]))
-  expect_identical(t_coerce_treatments(t_treatments = letters[1:10]),
-                   factor(letters[1:10]))
-  expect_warning(expect_identical(t_coerce_treatments(t_treatments = as.numeric(1:10)),
-                   factor(1:10)))
-  expect_warning(expect_identical(t_coerce_treatments(t_treatments = rep(c(TRUE, FALSE), 5L)),
-                                  factor(rep(c(TRUE, FALSE), 5L))))
+test_that("`coerce_covariates` coerces correctly.", {
+  expect_identical(t_coerce_covariates(),
+                   matrix(as.numeric(1:10), ncol = 1L))
+  expect_identical(t_coerce_covariates(t_covariates = matrix(as.numeric(1:20), ncol = 2L)),
+                   matrix(as.numeric(1:20), ncol = 2L))
+  expect_identical(t_coerce_covariates(t_covariates = data.frame(x1 = as.numeric(1:10), x2 = as.numeric(11:20))),
+                   matrix(as.numeric(1:20), ncol = 2L))
+  expect_identical(t_coerce_covariates(t_covariates = 1:10),
+                   matrix(as.numeric(1:10), ncol = 1L))
+  expect_identical(t_coerce_covariates(t_covariates = matrix(1:20, ncol = 2L)),
+                   matrix(as.numeric(1:20), ncol = 2L))
+  expect_identical(t_coerce_covariates(t_covariates = data.frame(x1 = 1:10, x2 = 11:20)),
+                   matrix(as.numeric(1:20), ncol = 2L))
 })
 
 
 # ==============================================================================
-# coerce_treatments
+# coerce_double
 # ==============================================================================
 
-t_coerce_treatment_constraints <- function(t_treatment_constraints = c("A" = 1L, "B" = 2L),
-                                           t_treatment_levels = factor(c("A", "A", "B", "B", "B", "A", "B", "A"))) {
-  coerce_treatment_constraints(t_treatment_constraints, t_treatment_levels)
+t_coerce_double <- function(t_x = 1:10,
+                            t_req_length = NULL) {
+  coerce_double(t_x, t_req_length)
 }
 
-test_that("`coerce_treatment_constraints` checks input.", {
-  expect_silent(t_coerce_treatment_constraints())
-  expect_silent(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1.0, "B" = 2.0)))
-
-  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c(1L, 2L)),
-               regexp = "`t_treatment_constraints` must be named.")
-  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1L, "B" = 2L, "B" = 3L)),
-               regexp = "`t_treatment_constraints` may not contain duplicate names.")
-  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1L, "B" = 2L, "C" = 3L, "D" = 3L)),
-               regexp = "`t_treatment_constraints` contains unknown treatment labels: \"C\", \"D\".")
-  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = "1.0", "B" = "2.0")),
-               regexp = "`t_treatment_constraints` must be integer.")
-  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1L, "B" = NA)),
-               regexp = "`t_treatment_constraints` may not contain NAs.")
-  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1L, "B" = -2L)),
-               regexp = "`t_treatment_constraints` must be non-negative.")
+test_that("`coerce_double` checks input.", {
+  expect_silent(t_coerce_double())
+  expect_silent(t_coerce_double(t_x = as.numeric(1:10)))
+  expect_silent(t_coerce_double(t_req_length = 10))
+  expect_error(t_coerce_double(t_x = letters[1:10]),
+               regexp = "`t_x` is not numeric.")
+  expect_error(t_coerce_double(t_req_length = 8),
+               regexp = "`t_x` is not of length `t_req_length`.")
 })
 
-test_that("`coerce_treatment_constraints` coerces correctly.", {
-  expect_identical(t_coerce_treatment_constraints(),
-                   c("A" = 1L, "B" = 2L))
-  expect_identical(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1.0, "B" = 2.0)),
-                   c("A" = 1L, "B" = 2L))
+test_that("`coerce_double` coerces correctly.", {
+  expect_identical(t_coerce_double(), as.numeric(1:10))
+  expect_identical(t_coerce_double(t_x = as.numeric(1:10)), as.numeric(1:10))
+  expect_identical(t_coerce_double(t_req_length = 10), as.numeric(1:10))
 })
 
 
@@ -238,4 +253,76 @@ test_that("`coerce_subset` coerces correctly.", {
   expect_identical(t_coerce_subset(t_subset = c("A")),
                    c(1L, 2L, 6L, 8L))
   expect_identical(t_coerce_subset(1:5), 1:5)
+})
+
+
+# ==============================================================================
+# coerce_treatments
+# ==============================================================================
+
+t_coerce_treatments <- function(t_treatments = 1:10,
+                                t_req_length = 10L) {
+  coerce_treatments(t_treatments, t_req_length)
+}
+
+test_that("`coerce_treatments` checks input.", {
+  expect_silent(t_coerce_treatments())
+  expect_silent(t_coerce_treatments(t_treatments = factor(letters[1:10])))
+  expect_silent(t_coerce_treatments(t_treatments = letters[1:10]))
+  expect_warning(t_coerce_treatments(t_treatments = as.numeric(1:10)),
+                 regexp = "Coercing `t_treatments` to factor.")
+  expect_warning(t_coerce_treatments(t_treatments = rep(c(TRUE, FALSE), 5L)),
+                 regexp = "Coercing `t_treatments` to factor.")
+  expect_error(t_coerce_treatments(t_treatments = dist(1:10)),
+               regexp = "Do not know how to coerce `t_treatments` to factor.")
+  expect_error(t_coerce_treatments(t_req_length = 5L),
+               regexp = "Length of `t_treatments` does not match distances object.")
+})
+
+test_that("`coerce_treatments` coerces correctly.", {
+  expect_identical(t_coerce_treatments(),
+                   factor(1:10))
+  expect_identical(t_coerce_treatments(t_treatments = factor(letters[1:10])),
+                   factor(letters[1:10]))
+  expect_identical(t_coerce_treatments(t_treatments = letters[1:10]),
+                   factor(letters[1:10]))
+  expect_warning(expect_identical(t_coerce_treatments(t_treatments = as.numeric(1:10)),
+                   factor(1:10)))
+  expect_warning(expect_identical(t_coerce_treatments(t_treatments = rep(c(TRUE, FALSE), 5L)),
+                                  factor(rep(c(TRUE, FALSE), 5L))))
+})
+
+
+# ==============================================================================
+# coerce_treatment_constraints
+# ==============================================================================
+
+t_coerce_treatment_constraints <- function(t_treatment_constraints = c("A" = 1L, "B" = 2L),
+                                           t_treatment_levels = factor(c("A", "A", "B", "B", "B", "A", "B", "A"))) {
+  coerce_treatment_constraints(t_treatment_constraints, t_treatment_levels)
+}
+
+test_that("`coerce_treatment_constraints` checks input.", {
+  expect_silent(t_coerce_treatment_constraints())
+  expect_silent(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1.0, "B" = 2.0)))
+
+  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c(1L, 2L)),
+               regexp = "`t_treatment_constraints` must be named.")
+  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1L, "B" = 2L, "B" = 3L)),
+               regexp = "`t_treatment_constraints` may not contain duplicate names.")
+  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1L, "B" = 2L, "C" = 3L, "D" = 3L)),
+               regexp = "`t_treatment_constraints` contains unknown treatment labels: \"C\", \"D\".")
+  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = "1.0", "B" = "2.0")),
+               regexp = "`t_treatment_constraints` must be integer.")
+  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1L, "B" = NA)),
+               regexp = "`t_treatment_constraints` may not contain NAs.")
+  expect_error(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1L, "B" = -2L)),
+               regexp = "`t_treatment_constraints` must be non-negative.")
+})
+
+test_that("`coerce_treatment_constraints` coerces correctly.", {
+  expect_identical(t_coerce_treatment_constraints(),
+                   c("A" = 1L, "B" = 2L))
+  expect_identical(t_coerce_treatment_constraints(t_treatment_constraints = c("A" = 1.0, "B" = 2.0)),
+                   c("A" = 1L, "B" = 2L))
 })

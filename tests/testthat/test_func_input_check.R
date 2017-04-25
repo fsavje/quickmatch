@@ -49,6 +49,10 @@ sound_unassigned_labels <- c("a", "c")
 unsound_unassigned_labels <- dist(1:10)
 sound_ids <- letters[1:10]
 unsound_ids <- letters[1:5]
+sound_outcomes <- as.numeric(1:20)
+unsound_outcomes <- letters[1:20]
+sound_matching <- quickmatch(sound_distances, sound_treatments)
+unsound_matching <- dist(1:10)
 
 
 # ==============================================================================
@@ -128,4 +132,33 @@ test_that("`quickmatch` checks input.", {
                  regexp = "Caliper is not properly enforced unless `secondary_radius`==\"seed_radius\".")
   expect_warning(t_quickmatch(caliper = 10, seed_radius = 10),
                  regexp = "`caliper` is ignored when `seed_radius` is specified.")
+})
+
+
+# ==============================================================================
+# quickmatch
+# ==============================================================================
+
+t_regression_estimator <- function(outcomes = sound_outcomes,
+                                   treatments = sound_treatments,
+                                   matching = sound_matching,
+                                   covariates = sound_covariates,
+                                   subset = sound_subset) {
+  regression_estimator(outcomes = outcomes,
+                       treatments = treatments,
+                       matching = matching,
+                       covariates = covariates,
+                       subset = subset)
+}
+
+test_that("`regression_estimator` checks input.", {
+  expect_silent(t_regression_estimator())
+  expect_silent(t_regression_estimator(covariates = NULL))
+  expect_silent(t_regression_estimator(subset = "1"))
+  expect_warning(t_regression_estimator(treatments = rep(1:2, each = 10), subset = "1"))
+  expect_error(t_regression_estimator(outcomes = unsound_outcomes))
+  expect_error(t_regression_estimator(treatments = unsound_treatments))
+  expect_error(t_regression_estimator(matching = unsound_matching))
+  expect_error(t_regression_estimator(covariates = unsound_covariates))
+  expect_error(t_regression_estimator(subset = unsound_subset))
 })

@@ -144,58 +144,6 @@ coerce_double <- function(x, req_length = NULL) {
 }
 
 
-# Coerce `treatments` to factor
-coerce_treatments <- function(treatments,
-                              req_length) {
-  if (!is.factor(treatments)) {
-    if (!is.vector(treatments)) {
-      new_error("Do not know how to coerce `", match.call()$treatments, "` to factor.")
-    }
-    if (!is.integer(treatments) && !is.character(treatments)) {
-      new_warning("Coercing `", match.call()$treatments, "` to factor.")
-    }
-    treatments <- as.factor(treatments)
-  }
-  if (length(treatments) != req_length) {
-    new_error("Length of `", match.call()$treatments, "` does not match distances object.")
-  }
-  treatments
-}
-
-
-# Coerce `treatment_constraints` to valid constraints
-coerce_treatment_constraints <- function(treatment_constraints,
-                                         treatment_levels) {
-  if (is.null(names(treatment_constraints))) {
-    new_error("`", match.call()$treatment_constraints, "` must be named.")
-  }
-  if (anyDuplicated(names(treatment_constraints))) {
-    new_error("`", match.call()$treatment_constraints, "` may not contain duplicate names.")
-  }
-  non_exist <- !(names(treatment_constraints) %in% treatment_levels)
-  if (any(non_exist)) {
-    new_error("`", match.call()$treatment_constraints,
-              "` contains unknown treatment labels: ",
-              paste0(paste0("\"", names(treatment_constraints)[non_exist], "\""), collapse = ", "),
-              ".")
-  }
-  if (!is.integer(treatment_constraints)) {
-    if (is.numeric_integer(treatment_constraints)) {
-      storage.mode(treatment_constraints) <- "integer"
-    } else {
-      new_error("`", match.call()$treatment_constraints, "` must be integer.")
-    }
-  }
-  if (any(is.na(treatment_constraints))) {
-    new_error("`", match.call()$treatment_constraints, "` may not contain NAs.")
-  }
-  if (any(treatment_constraints < 0L)) {
-    new_error("`", match.call()$treatment_constraints, "` must be non-negative.")
-  }
-  treatment_constraints
-}
-
-
 # Coerce `size_constraint` to scalar, non-NA integer with default as `sum(type_constraints)`
 coerce_size_constraint <- function(size_constraint,
                                    sum_treatment_constraints,
@@ -246,4 +194,56 @@ coerce_subset <- function(subset,
     subset <- get_subset_indicators(subset, treatments)
   }
   subset
+}
+
+
+# Coerce `treatments` to factor
+coerce_treatments <- function(treatments,
+                              req_length) {
+  if (!is.factor(treatments)) {
+    if (!is.vector(treatments)) {
+      new_error("Do not know how to coerce `", match.call()$treatments, "` to factor.")
+    }
+    if (!is.integer(treatments) && !is.character(treatments)) {
+      new_warning("Coercing `", match.call()$treatments, "` to factor.")
+    }
+    treatments <- as.factor(treatments)
+  }
+  if (length(treatments) != req_length) {
+    new_error("Length of `", match.call()$treatments, "` does not match distances object.")
+  }
+  treatments
+}
+
+
+# Coerce `treatment_constraints` to valid constraints
+coerce_treatment_constraints <- function(treatment_constraints,
+                                         treatment_levels) {
+  if (is.null(names(treatment_constraints))) {
+    new_error("`", match.call()$treatment_constraints, "` must be named.")
+  }
+  if (anyDuplicated(names(treatment_constraints))) {
+    new_error("`", match.call()$treatment_constraints, "` may not contain duplicate names.")
+  }
+  non_exist <- !(names(treatment_constraints) %in% treatment_levels)
+  if (any(non_exist)) {
+    new_error("`", match.call()$treatment_constraints,
+              "` contains unknown treatment labels: ",
+              paste0(paste0("\"", names(treatment_constraints)[non_exist], "\""), collapse = ", "),
+              ".")
+  }
+  if (!is.integer(treatment_constraints)) {
+    if (is.numeric_integer(treatment_constraints)) {
+      storage.mode(treatment_constraints) <- "integer"
+    } else {
+      new_error("`", match.call()$treatment_constraints, "` must be integer.")
+    }
+  }
+  if (any(is.na(treatment_constraints))) {
+    new_error("`", match.call()$treatment_constraints, "` may not contain NAs.")
+  }
+  if (any(treatment_constraints < 0L)) {
+    new_error("`", match.call()$treatment_constraints, "` must be non-negative.")
+  }
+  treatment_constraints
 }

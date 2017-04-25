@@ -110,24 +110,12 @@ regression_estimator <- function(outcomes,
   }
 
   # Find matched groups with treatments
-  treat_match_missing <- stats::aggregate(list(count = outcomes),
-                                          list(treatments = treatments, matching = as.integer(matching)),
-                                          length,
-                                          drop = FALSE)
-  match_subset <- stats::aggregate(list(subset = subset),
-                                   list(matching = as.integer(matching)),
-                                   sum,
-                                   drop = FALSE)
-  treat_match_missing <- merge(treat_match_missing, match_subset, by = "matching")
-  treat_match_missing$missing <- (treat_match_missing$count == 0L) & (treat_match_missing$subset > 0L)
-  treat_match_missing <- stats::aggregate(list(missing = treat_match_missing$missing),
-                                          list(treatments = treat_match_missing$treatments),
-                                          any)
-  treatment_missing <- treat_match_missing$missing
-  names(treatment_missing) <- as.character(treat_match_missing$treatments)
-
+  int_match <- as.integer(matching)
+  subset_match <- unique(int_match[subset])
+  treatment_missing <- !unlist(lapply(split(int_match, treatments, drop = FALSE),
+                                      function(x) { all(subset_match %in% unique(x)) }))
   if (any(treatment_missing)) {
-    warning("Matched group is missing treatment condition. Corresponding potential outcome cannot be estimated.")
+    warning("Some matched groups are missing treatment conditions. Corresponding potential outcomes cannot be estimated.")
   }
 
   # Estimation
