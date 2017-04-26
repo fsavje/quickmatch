@@ -34,7 +34,7 @@
 #' here: \url{https://github.com/fsavje/quickmatch/issues}.
 #'
 #' @references
-#' Savje, Fredrik and Michael J. Higgins and Jasjeet S. Sekhon (2017),
+#' Sävje, Fredrik and Michael J. Higgins and Jasjeet S. Sekhon (2017),
 #' \sQuote{Generalized Full Matching}, arXiv 1703.03882.
 #' \url{https://arxiv.org/abs/1703.03882}
 #'

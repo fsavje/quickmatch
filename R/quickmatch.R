@@ -145,7 +145,7 @@
 #'   to construct the matched groups.
 #'
 #' @references
-#' Savje, Fredrik, Michael J. Higgins and Jasjeet S. Sekhon (2017),
+#' Sävje, Fredrik, Michael J. Higgins and Jasjeet S. Sekhon (2017),
 #' \sQuote{Generalized Full Matching}, arXiv 1703.03882.
 #' \url{https://arxiv.org/abs/1703.03882}
 #'
@@ -229,6 +229,12 @@ quickmatch <- function(distances,
 
   sc_call <- dots[names(dots) %in% names(formals(scclust::sc_clustering))]
 
+  if (!is.null(sc_call$type_labels)) {
+    stop("`type_labels` is ignored, please use the `treatments` parameter instead.")
+  }
+  if (!is.null(sc_call$type_constraints)) {
+    stop("`type_constraints` is ignored, please use the `treatment_constraints` parameter instead.")
+  }
   if (!is.null(sc_call$primary_data_points)) {
     stop("`primary_data_points` is ignored, please use the `subset` parameter instead.")
   }
@@ -259,7 +265,7 @@ quickmatch <- function(distances,
       }
     } else if (sc_call$primary_unassigned_method %in% c("any_neighbor", "closest_assigned")) {
       sc_call$seed_radius <- as.numeric(caliper) / 4.0
-      warning("Caliper might perform poorly when `primary_unassigned_method`==\"closest_seed\".")
+      warning("Caliper might perform poorly unless `primary_unassigned_method`==\"closest_seed\".")
     }
     if (sc_call$primary_radius != "seed_radius") {
       warning("Caliper is not properly enforced unless `primary_radius`==\"seed_radius\".")

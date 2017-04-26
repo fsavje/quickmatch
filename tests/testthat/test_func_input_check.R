@@ -110,7 +110,12 @@ test_that("`quickmatch` checks input.", {
   expect_silent(t_quickmatch(distances = sound_covariates, normalize = "mahalanobize"))
   expect_error(t_quickmatch(distances = sound_covariates, normalize = "non-exist"))
   expect_silent(t_quickmatch(treatment_constraints = NULL))
-  expect_error(t_quickmatch(primary_data_points = 1:20))
+  expect_error(t_quickmatch(type_labels = sound_treatments),
+               regexp = "`type_labels` is ignored, please use the `treatments` parameter instead.")
+  expect_error(t_quickmatch(type_constraints = sound_treatment_constraints),
+               regexp = "`type_constraints` is ignored, please use the `treatment_constraints` parameter instead.")
+  expect_error(t_quickmatch(primary_data_points = 1:20),
+               regexp = "`primary_data_points` is ignored, please use the `subset` parameter instead.")
 
   expect_silent(t_quickmatch(seed_radius = 10))
   expect_silent(t_quickmatch(primary_unassigned_method = "ignore"))
@@ -123,7 +128,7 @@ test_that("`quickmatch` checks input.", {
   expect_error(t_quickmatch(secondary_radius = "non-exist"))
 
   expect_warning(t_quickmatch(caliper = 10, primary_unassigned_method = "any_neighbor"),
-                 regexp = "Caliper might perform poorly when `primary_unassigned_method`==\"closest_seed\".")
+                 regexp = "Caliper might perform poorly unless `primary_unassigned_method`==\"closest_seed\".")
   expect_warning(t_quickmatch(caliper = 10, secondary_unassigned_method = "closest_assigned"),
                  regexp = "Caliper is not properly enforced when `secondary_unassigned_method`==\"closest_assigned\".")
   expect_warning(t_quickmatch(caliper = 10, primary_radius = "no_radius"),
@@ -136,7 +141,7 @@ test_that("`quickmatch` checks input.", {
 
 
 # ==============================================================================
-# quickmatch
+# regression_estimator
 # ==============================================================================
 
 t_regression_estimator <- function(outcomes = sound_outcomes,
