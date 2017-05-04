@@ -44,10 +44,6 @@
 #' @import distances
 NULL
 
-.onAttach <- function(libname, pkgname) {
-  packageStartupMessage("The `quickmatch` package is under development. Please use it with caution.")
-}
-
 #' @useDynLib quickmatch, .registration = TRUE
 .onUnload <- function (libpath) {
   library.dynam.unload("quickmatch", libpath)
