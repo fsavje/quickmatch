@@ -163,6 +163,38 @@ test_that("`matching_weights` checks input.", {
 
 
 # ==============================================================================
+# covariate_balance
+# ==============================================================================
+
+t_covariate_balance <- function(treatments = sound_treatments,
+                                covariates = sound_covariates,
+                                matching = sound_matching,
+                                subset = sound_subset,
+                                normalize = TRUE,
+                                all_differences = FALSE) {
+  covariate_balance(treatments = treatments,
+                    covariates = covariates,
+                    matching = matching,
+                    subset = subset,
+                    normalize = normalize,
+                    all_differences = all_differences)
+}
+
+test_that("`matching_weights` checks input.", {
+  expect_silent(t_covariate_balance())
+  expect_error(t_covariate_balance(treatments = unsound_treatments))
+  expect_error(t_covariate_balance(covariates = unsound_covariates))
+  expect_error(t_covariate_balance(matching = unsound_matching))
+  expect_error(t_covariate_balance(subset = unsound_subset))
+  expect_error(t_covariate_balance(normalize = "A"))
+  expect_error(t_covariate_balance(all_differences = "A"))
+
+  expect_error(t_covariate_balance(covariates = NULL),
+               regexp = "`covariates` is NULL.")
+})
+
+
+# ==============================================================================
 # regression_estimator
 # ==============================================================================
 
