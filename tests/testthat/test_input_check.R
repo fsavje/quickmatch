@@ -166,6 +166,47 @@ test_that("`coerce_covariates` coerces correctly.", {
 
 
 # ==============================================================================
+# coerce_logical
+# ==============================================================================
+
+t_coerce_logical <- function(t_x = c(TRUE, FALSE, TRUE),
+                             t_req_length = NULL) {
+  coerce_logical(t_x, t_req_length)
+}
+
+test_that("`coerce_logical` checks input.", {
+  expect_silent(t_coerce_logical())
+  expect_silent(t_coerce_logical(t_x = TRUE))
+  expect_silent(t_coerce_logical(t_x = "TRUE"))
+  expect_silent(t_coerce_logical(t_x = "T"))
+  expect_silent(t_coerce_logical(t_x = T))
+  expect_silent(t_coerce_logical(t_x = c(1, 0)))
+  expect_silent(t_coerce_logical(t_req_length = 3))
+
+  expect_error(t_coerce_logical(t_x = dist(1:10)),
+               regexp = "Do not know how to coerce `t_x` to logical.")
+  expect_error(t_coerce_logical(t_x = c(TRUE, FALSE, NA)),
+               regexp = "`t_x` may not be NA.")
+  expect_error(t_coerce_logical(t_x = c(TRUE, FALSE, NA)),
+               regexp = "`t_x` may not be NA.")
+  expect_error(t_coerce_logical(t_x = c("TRUE", "FALSE", "A")),
+               regexp = "Do not know how to coerce `t_x` to logical.")
+  expect_error(t_coerce_logical(t_req_length = 2),
+               regexp = "`t_x` is not of length `t_req_length`.")
+})
+
+test_that("`coerce_double` coerces correctly.", {
+  expect_identical(t_coerce_logical(), c(TRUE, FALSE, TRUE))
+  expect_identical(t_coerce_logical(t_x = TRUE), TRUE)
+  expect_identical(t_coerce_logical(t_x = "TRUE"), TRUE)
+  expect_identical(t_coerce_logical(t_x = "T"), TRUE)
+  expect_identical(t_coerce_logical(t_x = T), TRUE)
+  expect_identical(t_coerce_logical(t_x = c(1, 0)), c(TRUE, FALSE))
+  expect_identical(t_coerce_logical(t_req_length = 3), c(TRUE, FALSE, TRUE))
+})
+
+
+# ==============================================================================
 # coerce_double
 # ==============================================================================
 

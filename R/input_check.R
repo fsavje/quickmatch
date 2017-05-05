@@ -101,6 +101,27 @@ ensure_caliper <- function(caliper) {
 # Coerce functions
 # ==============================================================================
 
+# Coerce `x` to logical
+coerce_logical <- function(x, req_length = NULL) {
+  if (!is.vector(x)) {
+    new_error("Do not know how to coerce `", match.call()$x, "` to logical.")
+  }
+  if (any(is.na(x))) {
+    new_error("`", match.call()$x, "` may not be NA.")
+  }
+  if (!is.logical(x)) {
+    x <- as.logical(x)
+    if (any(is.na(x))) {
+      new_error("Do not know how to coerce `", match.call()$x, "` to logical.")
+    }
+  }
+  if (!is.null(req_length) && (length(x) != req_length)) {
+    new_error("`", match.call()$x, "` is not of length `", match.call()$req_length, "`.")
+  }
+  x
+}
+
+
 # Coerce `covariates` to numeric matrix
 coerce_covariates <- function(covariates, req_length) {
   if (!is.null(covariates)) {
