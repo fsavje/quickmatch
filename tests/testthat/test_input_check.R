@@ -269,6 +269,7 @@ test_that("`coerce_treatments` checks input.", {
   expect_silent(t_coerce_treatments())
   expect_silent(t_coerce_treatments(t_treatments = factor(letters[1:10])))
   expect_silent(t_coerce_treatments(t_treatments = letters[1:10]))
+  expect_silent(t_coerce_treatments(t_req_length = NULL))
   expect_warning(t_coerce_treatments(t_treatments = as.numeric(1:10)),
                  regexp = "Coercing `t_treatments` to factor.")
   expect_warning(t_coerce_treatments(t_treatments = rep(c(TRUE, FALSE), 5L)),
@@ -286,6 +287,8 @@ test_that("`coerce_treatments` coerces correctly.", {
                    factor(letters[1:10]))
   expect_identical(t_coerce_treatments(t_treatments = letters[1:10]),
                    factor(letters[1:10]))
+  expect_identical(t_coerce_treatments(t_req_length = NULL),
+                   factor(1:10))
   expect_warning(expect_identical(t_coerce_treatments(t_treatments = as.numeric(1:10)),
                                   factor(1:10)))
   expect_warning(expect_identical(t_coerce_treatments(t_treatments = rep(c(TRUE, FALSE), 5L)),

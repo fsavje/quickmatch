@@ -101,7 +101,7 @@ ensure_caliper <- function(caliper) {
 # Coerce functions
 # ==============================================================================
 
-# Coerce `covariates`
+# Coerce `covariates` to numeric matrix
 coerce_covariates <- function(covariates, req_length) {
   if (!is.null(covariates)) {
     if (is.data.frame(covariates)) {
@@ -199,7 +199,7 @@ coerce_subset <- function(subset,
 
 # Coerce `treatments` to factor
 coerce_treatments <- function(treatments,
-                              req_length) {
+                              req_length = NULL) {
   if (!is.factor(treatments)) {
     if (!is.vector(treatments)) {
       new_error("Do not know how to coerce `", match.call()$treatments, "` to factor.")
@@ -209,7 +209,7 @@ coerce_treatments <- function(treatments,
     }
     treatments <- as.factor(treatments)
   }
-  if (length(treatments) != req_length) {
+  if (!is.null(req_length) && (length(treatments) != req_length)) {
     new_error("Length of `", match.call()$treatments, "` does not match distances object.")
   }
   treatments
