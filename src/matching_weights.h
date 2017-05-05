@@ -18,17 +18,15 @@
  * along with this program. If not, see http://www.gnu.org/licenses/
  * ========================================================================== */
 
-#include <R_ext/Rdynload.h>
-#include "matching_weights.h"
-#include "utilities.h"
+#ifndef QMC_MATCHING_WEIGHTS_HG
+#define QMC_MATCHING_WEIGHTS_HG
 
-static const R_CallMethodDef callMethods[] = {
-	{"qmc_matching_weights",       (DL_FUNC) &qmc_matching_weights,       4},
-	{"qmc_get_subset_indicators",  (DL_FUNC) &qmc_get_subset_indicators,  2},
-	{NULL,                         NULL,                                  0}
-};
+#include <R.h>
+#include <Rinternals.h>
 
-void R_init_quickmatch(DllInfo *info) {
-	R_registerRoutines(info, NULL, callMethods, NULL, NULL);
-	R_useDynamicSymbols(info, FALSE);
-}
+SEXP qmc_matching_weights(SEXP R_treatments,
+                          SEXP R_num_treatments,
+                          SEXP R_matching,
+                          SEXP R_subset);
+
+#endif // ifndef QMC_MATCHING_WEIGHTS_HG

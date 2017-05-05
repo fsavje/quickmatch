@@ -58,7 +58,7 @@ SEXP qmc_get_subset_indicators(const SEXP R_subset,
 
 	for (int i = 0; i < num_observations; ++i) {
 		*out_indices = i + 1;
-		out_indices += subset[treatments[i]];
+		out_indices += (subset[treatments[i]] != 0);
 	}
 
 	SETLENGTH(R_out_indices, out_indices - INTEGER(R_out_indices));

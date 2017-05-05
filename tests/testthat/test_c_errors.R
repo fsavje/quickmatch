@@ -22,6 +22,67 @@ library(quickmatch)
 context("Input checking in C code")
 
 # ==============================================================================
+# matching_weights.c
+# ==============================================================================
+
+t_qmc_matching_weights <- function(treatments = c(1L, 1L, 2L, 3L, 2L, 1L, 3L),
+                                   num_treatments = 3L,
+                                   matching = qm_matching(c("A", "B", "A", "A", "B", "B", "B")),
+                                   subset = NULL) {
+  .Call(qmc_matching_weights,
+        treatments,
+        num_treatments,
+        matching,
+        subset)
+}
+
+test_that("`qmc_matching_weights` checks input.", {
+  expect_silent(t_qmc_matching_weights())
+  expect_silent(t_qmc_matching_weights(matching = qm_matching(c("A", "B", "A", "A", "B", NA, "B")),
+                                       subset = c(1L, 4L)))
+  expect_silent(t_qmc_matching_weights(subset = c(1L, 4L, 7L)))
+  expect_silent(t_qmc_matching_weights(subset = c(FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE)))
+
+  expect_error(t_qmc_matching_weights(treatments = letters[1:7]),
+               regexp = "`R_treatments` must be integer.")
+  expect_error(t_qmc_matching_weights(num_treatments = "a"),
+               regexp = "`R_num_treatments` must be integer.")
+  expect_error(t_qmc_matching_weights(num_treatments = 1L),
+               regexp = "Must be at least two treatment conditions.")
+  expect_error(t_qmc_matching_weights(matching = structure(c("A", "B", "A", "A", "B", "B", "B"), "cluster_count" = 2L, class = c("qm_matching", "scclust"))),
+               regexp = "`R_matching` must be integer.")
+  expect_error(t_qmc_matching_weights(matching = structure(c(0L, 1L, 0L, 0L, 1L, 1L, 1L), class = c("qm_matching", "scclust"))),
+               regexp = "`R_matching` is not valid `scclust` object.")
+  expect_error(t_qmc_matching_weights(matching = structure(c(0L, 1L, 0L, 0L, 1L, 1L, 1L), "cluster_count" = 0L, class = c("qm_matching", "scclust"))),
+               regexp = "`R_matching` is empty.")
+  expect_error(t_qmc_matching_weights(matching = structure(c(0L, 1L, 0L, 0L, 1L, 1L), "cluster_count" = 2L, class = c("qm_matching", "scclust"))),
+               regexp = "`R_matching` and `R_treatments` must be same length.")
+  expect_error(t_qmc_matching_weights(subset = "X"),
+               regexp = "`R_subset` must be NULL, integer or logical.")
+  expect_error(t_qmc_matching_weights(subset = c(FALSE, TRUE, FALSE, TRUE, FALSE, FALSE)),
+               regexp = "`R_subset` and `R_treatments` must be same length when `R_subset` is logical.")
+  expect_error(t_qmc_matching_weights(treatments = c(1L, 0L, 2L, 3L, 2L, 1L, 3L)),
+               regexp = "Treatment out of bounds.")
+  expect_error(t_qmc_matching_weights(treatments = c(1L, 1L, 2L, 3L, 2L, -1L, 3L)),
+               regexp = "Treatment out of bounds.")
+  expect_error(t_qmc_matching_weights(treatments = c(1L, 1L, 2L, 3L, 2L, 4L, 3L)),
+               regexp = "Treatment out of bounds.")
+  expect_error(t_qmc_matching_weights(matching = structure(c(0L, -1L, 0L, 0L, 1L, 1L, 1L), "cluster_count" = 2L, class = c("qm_matching", "scclust"))),
+               regexp = "Matching out of bounds.")
+  expect_error(t_qmc_matching_weights(matching = structure(c(0L, 1L, 0L, 0L, 2L, 1L, 1L), "cluster_count" = 2L, class = c("qm_matching", "scclust"))),
+               regexp = "Matching out of bounds.")
+  expect_error(t_qmc_matching_weights(subset = c(1L, 0L)),
+               regexp = "Subset out of bounds.")
+  expect_error(t_qmc_matching_weights(subset = c(1L, -1L)),
+               regexp = "Subset out of bounds.")
+  expect_error(t_qmc_matching_weights(subset = c(1L, 8L)),
+               regexp = "Subset out of bounds.")
+  expect_warning(t_qmc_matching_weights(matching = qm_matching(c("A", "B", "A", "A", "B", NA, "B"))),
+                 regexp = "Some units in subset are unmatched. They will be ignored.")
+})
+
+
+# ==============================================================================
 # utilities.c
 # ==============================================================================
 

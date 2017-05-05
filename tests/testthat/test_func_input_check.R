@@ -141,6 +141,28 @@ test_that("`quickmatch` checks input.", {
 
 
 # ==============================================================================
+# matching_weights
+# ==============================================================================
+
+t_matching_weights <- function(treatments = sound_treatments,
+                               matching = sound_matching,
+                               subset = sound_subset) {
+  matching_weights(treatments = treatments,
+                   matching = matching,
+                   subset = subset)
+}
+
+test_that("`matching_weights` checks input.", {
+  expect_silent(t_matching_weights())
+  expect_silent(t_matching_weights(subset = "1"))
+  expect_silent(t_matching_weights(subset = rep(c(TRUE, FALSE), each = 10)))
+  expect_error(t_matching_weights(treatments = unsound_treatments))
+  expect_error(t_matching_weights(matching = unsound_matching))
+  expect_error(t_matching_weights(subset = unsound_subset))
+})
+
+
+# ==============================================================================
 # regression_estimator
 # ==============================================================================
 

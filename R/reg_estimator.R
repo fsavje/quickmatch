@@ -97,51 +97,28 @@ regression_estimator <- function(outcomes,
   outcomes <- coerce_double(outcomes)
   num_observations <- length(outcomes)
   treatments <- coerce_treatments(treatments, num_observations)
-  ensure_matching(matching, num_observations)
   covariates <- coerce_covariates(covariates, num_observations)
-  subset <- coerce_subset(subset, treatments)
 
-  if (is.null(subset)) {
-    subset <- rep(TRUE, num_observations)
-  } else if (is.integer(subset)) {
-    tmp_subset <- rep(FALSE, num_observations)
-    tmp_subset[subset] <- TRUE
-    subset <- tmp_subset
-  }
+  mwres <- matching_weights(treatments, matching, subset)
 
-  # Find matched groups with treatments
-  subset_match <- unique(as.integer(matching)[subset])
-  treatment_missing <- !unlist(lapply(split(as.integer(matching), treatments, drop = FALSE),
-                                      function(x) { all(subset_match %in% unique(x)) }))
-  if (any(treatment_missing)) {
+  if (any(mwres$treatment_missing)) {
     warning("Some matched groups are missing treatment conditions. Corresponding potential outcomes cannot be estimated.")
   }
 
-  # Estimation
-  match_treat_factor <- interaction(as.integer(matching), treatments)
-
-  subset_count <- rep(NA, num_observations)
-  split(subset_count, as.integer(matching)) <- lapply(split(subset, as.integer(matching)), sum)
-
-  match_treat_count <- rep(NA, num_observations)
-  split(match_treat_count, match_treat_factor) <- lapply(split(outcomes, match_treat_factor), length)
-
   # No need to normalize with total number of units in `subset` since regression
   # does it. Not normalizing is numerically more stable.
-  reg_weights <- subset_count / match_treat_count
-
   if (is.null(covariates)) {
-    lm_res <- stats::lm(outcomes ~ 0 + treatments, weights = reg_weights)
+    lm_res <- stats::lm(outcomes ~ 0 + treatments, weights = mwres$unit_weights)
   } else {
-    lm_res <- stats::lm(outcomes ~ 0 + treatments + covariates, weights = reg_weights)
+    lm_res <- stats::lm(outcomes ~ 0 + treatments + covariates, weights = mwres$unit_weights)
   }
 
   coef <- lm_res$coefficients[1:nlevels(treatments)]
   coef_var <- sandwich::vcovHC(lm_res, type = "HC1")[1:nlevels(treatments), 1:nlevels(treatments)]
 
-  coef[treatment_missing] <- NA
-  coef_var[treatment_missing, ] <- NA
-  coef_var[, treatment_missing] <- NA
+  coef[mwres$treatment_missing] <- NA
+  coef_var[mwres$treatment_missing, ] <- NA
+  coef_var[, mwres$treatment_missing] <- NA
 
   out_means <- out_vars <- matrix(NA, nrow = nlevels(treatments), ncol = nlevels(treatments))
   dimnames(out_means) <- dimnames(out_vars) <- list(levels(treatments), levels(treatments))
