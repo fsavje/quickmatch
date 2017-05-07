@@ -107,7 +107,7 @@ covariate_balance <- function(treatments,
       warning("Some matched groups are missing treatment conditions. Corresponding balance measures cannot be derived.")
     }
     cov_tr_mean <- t(apply(covariates, 2, function(cov) {
-      sapply(split(cov * mwres$unit_weights, treatments), sum)
+      sapply(split(cov * mwres$unit_weights, treatments), sum, na.rm = TRUE)
     }))
     cov_tr_mean <- cov_tr_mean / mwres$total_subset_count
     cov_tr_mean[, mwres$treatment_missing] <- NA

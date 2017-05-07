@@ -61,7 +61,7 @@ replica_matching_weights <- function(treatments,
 
 match_count <- function(x) {
   out_count <- rep(NA, length(x))
-  for (i in unique(x)) out_count[x == i] <- sum(x == i)
+  for (i in unique(x)) out_count[x == i] <- sum(x == i, na.rm = TRUE)
   out_count
 }
 
@@ -227,6 +227,57 @@ test_that("`matching_weights` subset", {
   expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
 })
 
+test_matching <- quickmatch(distances(cov), treatment2, subset = "B")
+target <- (treatment2 == "B")
+tot_count <- rep(NA, 500)
+tmp_int_match <- as.integer(test_matching)
+for (i in unique(tmp_int_match)) {
+  tot_count[tmp_int_match == i] <- sum(target[tmp_int_match == i], na.rm = TRUE)
+}
+unit_weight <- rep(NA, 500)
+unit_weight[treatment2 == "A"] <- match_count(as.integer(test_matching)[treatment2 == "A"])
+unit_weight[treatment2 == "B"] <- match_count(as.integer(test_matching)[treatment2 == "B"])
+unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatment2 == "C"])
+unit_weight <- tot_count / unit_weight
+
+ref_list <- list("unit_weights" = unit_weight,
+                 "total_subset_count" = as.numeric(sum(target)),
+                 "treatment_missing" = rep(FALSE, 3L))
+
+test_that("`matching_weights` subset", {
+  expect_identical(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
+  expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
+  expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
+})
+
+test_matching <- quickmatch(distances(cov), treatment2, subset = "B", secondary_unassigned_method = "ignore")
+target <- (treatment2 == "B")
+tot_count <- rep(NA, 500)
+tmp_int_match <- as.integer(test_matching)
+for (i in unique(tmp_int_match)) {
+  tot_count[tmp_int_match == i] <- sum(target[tmp_int_match == i], na.rm = TRUE)
+}
+unit_weight <- rep(NA, 500)
+unit_weight[treatment2 == "A"] <- match_count(as.integer(test_matching)[treatment2 == "A"])
+unit_weight[treatment2 == "B"] <- match_count(as.integer(test_matching)[treatment2 == "B"])
+unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatment2 == "C"])
+unit_weight <- tot_count / unit_weight
+
+ref_list <- list("unit_weights" = unit_weight,
+                 "total_subset_count" = as.numeric(sum(target)),
+                 "treatment_missing" = rep(FALSE, 3L))
+
+test_that("`matching_weights` subset", {
+  expect_identical(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
+  expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
+  expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
+})
 
 
 test_matching <- quickmatch(distances(cov), treatment2, treatment_constraints = c("A" = 1L, "B" = 1L))

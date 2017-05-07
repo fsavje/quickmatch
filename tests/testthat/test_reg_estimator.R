@@ -23,7 +23,7 @@ context("reg_estimator")
 
 match_count <- function(x) {
   out_count <- rep(NA, length(x))
-  for (i in unique(x)) out_count[x == i] <- sum(x == i)
+  for (i in unique(x)) out_count[x == i] <- sum(x == i, na.rm = TRUE)
   out_count
 }
 
@@ -346,6 +346,142 @@ df2$tot_count <- NA
 tmp_int_match <- as.integer(matching2)
 for (i in unique(tmp_int_match)) {
   df2$tot_count[tmp_int_match == i] <- sum(target[tmp_int_match == i])
+}
+df2$unit_weight <- NA
+df2$unit_weight[df2$treat2 == "A"] <- match_count(as.integer(matching2)[df2$treat2 == "A"])
+df2$unit_weight[df2$treat2 == "B"] <- match_count(as.integer(matching2)[df2$treat2 == "B"])
+df2$unit_weight[df2$treat2 == "C"] <- match_count(as.integer(matching2)[df2$treat2 == "C"])
+df2$unit_weight <- df2$tot_count / (df2$unit_weight * sum(target))
+
+lm_res <- stats::lm(y ~ 0 + treat2, data = df2, weights = unit_weight)
+coef_var <- sandwich::vcovHC(lm_res, type = "HC1")
+
+control_effects <- matrix(c(0, lm_res$coefficients[1] - lm_res$coefficients[2], lm_res$coefficients[1] - lm_res$coefficients[3],
+                            lm_res$coefficients[2] - lm_res$coefficients[1], 0, lm_res$coefficients[2] - lm_res$coefficients[3],
+                            lm_res$coefficients[3] - lm_res$coefficients[1], lm_res$coefficients[3] - lm_res$coefficients[2], 0),
+                          ncol = 3, byrow = TRUE)
+control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], coef_var[1,1] + coef_var[3,3] - 2 * coef_var[1,3],
+                              coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], 0, coef_var[2,2] + coef_var[3,3] - 2 * coef_var[2,3],
+                              coef_var[1,1] + coef_var[3,3] - 2 * coef_var[1,3], coef_var[2,2] + coef_var[3,3] - 2 * coef_var[2,3], 0),
+                            ncol = 3, byrow = TRUE)
+dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
+dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
+
+test_that("`regression_estimator` three treatments + subset", {
+  expect_silent(package_result1 <- regression_estimator(df2$y, df2$treat2, matching2, subset = "B"))
+  expect_silent(package_result2 <- regression_estimator(df2$y, df2$treat2, matching2, subset = target))
+  expect_silent(package_result3 <- regression_estimator(df2$y, df2$treat2, matching2, subset = which(target)))
+  expect_equal(package_result1$effects, control_effects)
+  expect_equal(package_result1$effect_variances, control_variances)
+  expect_equal(package_result2$effects, control_effects)
+  expect_equal(package_result2$effect_variances, control_variances)
+  expect_equal(package_result3$effects, control_effects)
+  expect_equal(package_result3$effect_variances, control_variances)
+})
+
+
+lm_res <- stats::lm(y ~ 0 + treat2 + x1 + x2, data = df2, weights = unit_weight)
+coef_var <- sandwich::vcovHC(lm_res, type = "HC1")
+
+control_effects <- matrix(c(0, lm_res$coefficients[1] - lm_res$coefficients[2], lm_res$coefficients[1] - lm_res$coefficients[3],
+                            lm_res$coefficients[2] - lm_res$coefficients[1], 0, lm_res$coefficients[2] - lm_res$coefficients[3],
+                            lm_res$coefficients[3] - lm_res$coefficients[1], lm_res$coefficients[3] - lm_res$coefficients[2], 0),
+                          ncol = 3, byrow = TRUE)
+control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], coef_var[1,1] + coef_var[3,3] - 2 * coef_var[1,3],
+                              coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], 0, coef_var[2,2] + coef_var[3,3] - 2 * coef_var[2,3],
+                              coef_var[1,1] + coef_var[3,3] - 2 * coef_var[1,3], coef_var[2,2] + coef_var[3,3] - 2 * coef_var[2,3], 0),
+                            ncol = 3, byrow = TRUE)
+dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
+dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
+
+test_that("`regression_estimator` three treatments + covariates + subset", {
+  expect_silent(package_result1 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = "B"))
+  expect_silent(package_result2 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = target))
+  expect_silent(package_result3 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = which(target)))
+  expect_equal(package_result1$effects, control_effects)
+  expect_equal(package_result1$effect_variances, control_variances)
+  expect_equal(package_result2$effects, control_effects)
+  expect_equal(package_result2$effect_variances, control_variances)
+  expect_equal(package_result3$effects, control_effects)
+  expect_equal(package_result3$effect_variances, control_variances)
+})
+
+
+df2 <- df[c("y", "x1", "x2", "treat2")]
+matching2 <- quickmatch(distances(df2[c("x1", "x2")]), df2$treat2, subset = "B")
+target <- df2$treat2 == "B"
+df2$tot_count <- NA
+tmp_int_match <- as.integer(matching2)
+for (i in unique(tmp_int_match)) {
+  df2$tot_count[tmp_int_match == i] <- sum(target[tmp_int_match == i], na.rm = TRUE)
+}
+df2$unit_weight <- NA
+df2$unit_weight[df2$treat2 == "A"] <- match_count(as.integer(matching2)[df2$treat2 == "A"])
+df2$unit_weight[df2$treat2 == "B"] <- match_count(as.integer(matching2)[df2$treat2 == "B"])
+df2$unit_weight[df2$treat2 == "C"] <- match_count(as.integer(matching2)[df2$treat2 == "C"])
+df2$unit_weight <- df2$tot_count / (df2$unit_weight * sum(target))
+
+lm_res <- stats::lm(y ~ 0 + treat2, data = df2, weights = unit_weight)
+coef_var <- sandwich::vcovHC(lm_res, type = "HC1")
+
+control_effects <- matrix(c(0, lm_res$coefficients[1] - lm_res$coefficients[2], lm_res$coefficients[1] - lm_res$coefficients[3],
+                            lm_res$coefficients[2] - lm_res$coefficients[1], 0, lm_res$coefficients[2] - lm_res$coefficients[3],
+                            lm_res$coefficients[3] - lm_res$coefficients[1], lm_res$coefficients[3] - lm_res$coefficients[2], 0),
+                          ncol = 3, byrow = TRUE)
+control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], coef_var[1,1] + coef_var[3,3] - 2 * coef_var[1,3],
+                              coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], 0, coef_var[2,2] + coef_var[3,3] - 2 * coef_var[2,3],
+                              coef_var[1,1] + coef_var[3,3] - 2 * coef_var[1,3], coef_var[2,2] + coef_var[3,3] - 2 * coef_var[2,3], 0),
+                            ncol = 3, byrow = TRUE)
+dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
+dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
+
+test_that("`regression_estimator` three treatments + subset", {
+  expect_silent(package_result1 <- regression_estimator(df2$y, df2$treat2, matching2, subset = "B"))
+  expect_silent(package_result2 <- regression_estimator(df2$y, df2$treat2, matching2, subset = target))
+  expect_silent(package_result3 <- regression_estimator(df2$y, df2$treat2, matching2, subset = which(target)))
+  expect_equal(package_result1$effects, control_effects)
+  expect_equal(package_result1$effect_variances, control_variances)
+  expect_equal(package_result2$effects, control_effects)
+  expect_equal(package_result2$effect_variances, control_variances)
+  expect_equal(package_result3$effects, control_effects)
+  expect_equal(package_result3$effect_variances, control_variances)
+})
+
+
+lm_res <- stats::lm(y ~ 0 + treat2 + x1 + x2, data = df2, weights = unit_weight)
+coef_var <- sandwich::vcovHC(lm_res, type = "HC1")
+
+control_effects <- matrix(c(0, lm_res$coefficients[1] - lm_res$coefficients[2], lm_res$coefficients[1] - lm_res$coefficients[3],
+                            lm_res$coefficients[2] - lm_res$coefficients[1], 0, lm_res$coefficients[2] - lm_res$coefficients[3],
+                            lm_res$coefficients[3] - lm_res$coefficients[1], lm_res$coefficients[3] - lm_res$coefficients[2], 0),
+                          ncol = 3, byrow = TRUE)
+control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], coef_var[1,1] + coef_var[3,3] - 2 * coef_var[1,3],
+                              coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], 0, coef_var[2,2] + coef_var[3,3] - 2 * coef_var[2,3],
+                              coef_var[1,1] + coef_var[3,3] - 2 * coef_var[1,3], coef_var[2,2] + coef_var[3,3] - 2 * coef_var[2,3], 0),
+                            ncol = 3, byrow = TRUE)
+dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
+dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
+
+test_that("`regression_estimator` three treatments + covariates + subset", {
+  expect_silent(package_result1 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = "B"))
+  expect_silent(package_result2 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = target))
+  expect_silent(package_result3 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = which(target)))
+  expect_equal(package_result1$effects, control_effects)
+  expect_equal(package_result1$effect_variances, control_variances)
+  expect_equal(package_result2$effects, control_effects)
+  expect_equal(package_result2$effect_variances, control_variances)
+  expect_equal(package_result3$effects, control_effects)
+  expect_equal(package_result3$effect_variances, control_variances)
+})
+
+
+df2 <- df[c("y", "x1", "x2", "treat2")]
+matching2 <- quickmatch(distances(df2[c("x1", "x2")]), df2$treat2, subset = "B", secondary_unassigned_method = "ignore")
+target <- df2$treat2 == "B"
+df2$tot_count <- NA
+tmp_int_match <- as.integer(matching2)
+for (i in unique(tmp_int_match)) {
+  df2$tot_count[tmp_int_match == i] <- sum(target[tmp_int_match == i], na.rm = TRUE)
 }
 df2$unit_weight <- NA
 df2$unit_weight[df2$treat2 == "A"] <- match_count(as.integer(matching2)[df2$treat2 == "A"])

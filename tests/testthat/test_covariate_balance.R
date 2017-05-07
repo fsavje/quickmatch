@@ -190,6 +190,20 @@ test_that("`covariate_balance` matching 2", {
 })
 
 
+test_matching <- quickmatch(distances(cov), treatment2, subset = "A", secondary_unassigned_method = "ignore")
+
+test_that("`covariate_balance` matching 2", {
+  expect_equal(covariate_balance(treatment2, cov, test_matching, subset = "A", normalize = TRUE, all_differences = TRUE),
+               replica_covariate_balance(treatment2, cov, test_matching, norm_treat2, subset = "A"))
+  expect_equal(covariate_balance(treatment2, cov, test_matching, subset = "A", normalize = TRUE, all_differences = FALSE),
+               replica_covariate_balance(treatment2, cov, test_matching, norm_treat2, subset = "A")$max_diffs)
+  expect_equal(covariate_balance(treatment2, cov, test_matching, subset = "A", normalize = FALSE, all_differences = TRUE),
+               replica_covariate_balance(treatment2, cov, test_matching, rep(1, 5), subset = "A"))
+  expect_equal(covariate_balance(treatment2, cov, test_matching, subset = "A", normalize = FALSE, all_differences = FALSE),
+               replica_covariate_balance(treatment2, cov, test_matching, rep(1, 5), subset = "A")$max_diffs)
+})
+
+
 test_matching <- quickmatch(distances(cov), treatment2, treatment_constraints = c("A" = 1L, "B" = 1L))
 
 test_that("`covariate_balance` matching 2", {

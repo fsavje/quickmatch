@@ -152,7 +152,7 @@ SEXP qmc_matching_weights(const SEXP R_treatments,
 	for (uint32_t t = 0; t < num_treatments; ++t) {
 		const size_t t_add = t * num_groups;
 		treatment_missing[t] = 0;
-		block_treatment_weight[t_add] = 0.0; // Unassigned units
+		block_treatment_weight[t_add] = NA_REAL; // Unassigned units
 		for (size_t g = 1; g < num_groups; ++g) {
 			if (subset_count[g] == 0) {
 				block_treatment_weight[t_add + g] = 0.0;
