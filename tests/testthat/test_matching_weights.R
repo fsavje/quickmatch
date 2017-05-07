@@ -24,7 +24,7 @@ context("matching_weights")
 replica_matching_weights <- function(treatments,
                                      matching,
                                      subset = NULL) {
-  treatments <- coerce_treatments(treatments)
+  treatments <- coerce_treatments(treatments, check_NA = FALSE)
   num_observations <- length(treatments)
   ensure_matching(matching, num_observations)
   subset <- coerce_subset(subset, treatments)

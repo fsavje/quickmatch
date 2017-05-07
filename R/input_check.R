@@ -220,15 +220,19 @@ coerce_subset <- function(subset,
 
 # Coerce `treatments` to factor
 coerce_treatments <- function(treatments,
-                              req_length = NULL) {
+                              req_length = NULL,
+                              check_NA = TRUE) {
   if (!is.factor(treatments)) {
     if (!is.vector(treatments)) {
       new_error("Do not know how to coerce `", match.call()$treatments, "` to factor.")
     }
-    if (!is.integer(treatments) && !is.character(treatments)) {
+    if (!is.integer(treatments) && !is.logical(treatments) && !is.character(treatments)) {
       new_warning("Coercing `", match.call()$treatments, "` to factor.")
     }
     treatments <- as.factor(treatments)
+  }
+  if (check_NA && any(is.na(treatments))) {
+    new_error("`", match.call()$treatments, "` may not contain NAs.")
   }
   if (!is.null(req_length) && (length(treatments) != req_length)) {
     new_error("Length of `", match.call()$treatments, "` does not match distances object.")

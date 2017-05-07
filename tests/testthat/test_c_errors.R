@@ -67,6 +67,8 @@ test_that("`qmc_matching_weights` checks input.", {
                regexp = "Treatment out of bounds.")
   expect_error(t_qmc_matching_weights(treatments = c(1L, 1L, 2L, 3L, 2L, 4L, 3L)),
                regexp = "Treatment out of bounds.")
+  expect_error(t_qmc_matching_weights(treatments = c(1L, 1L, 2L, 3L, 2L, NA, 3L)),
+               regexp = "Treatment out of bounds.")
   expect_error(t_qmc_matching_weights(matching = structure(c(0L, -1L, 0L, 0L, 1L, 1L, 1L), "cluster_count" = 2L, class = c("qm_matching", "scclust"))),
                regexp = "Matching out of bounds.")
   expect_error(t_qmc_matching_weights(matching = structure(c(0L, 1L, 0L, 0L, 2L, 1L, 1L), "cluster_count" = 2L, class = c("qm_matching", "scclust"))),

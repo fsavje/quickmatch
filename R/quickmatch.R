@@ -211,7 +211,7 @@ quickmatch <- function(distances,
   ensure_distances(distances)
 
   num_observations <- length(distances)
-  treatments <- coerce_treatments(treatments, num_observations)
+  treatments <- coerce_treatments(treatments, num_observations, FALSE)
 
   if (is.null(treatment_constraints)) {
     treatment_constraints <- rep(1L, nlevels(treatments))
