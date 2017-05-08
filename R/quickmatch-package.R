@@ -44,6 +44,13 @@
 #' @import distances
 NULL
 
+.onAttach <- function(libname, pkgname) {
+  packageStartupMessage("Please cite the `quickblock` package as:")
+  packageStartupMessage("   Savje, Fredrik, Michael J. Higgins and Jasjeet S. Sekhon (2017),")
+  packageStartupMessage("   \"Generalized Full Matching\", arXiv 1703.03882.")
+  packageStartupMessage("   https://arxiv.org/abs/1703.03882")
+}
+
 #' @useDynLib quickmatch, .registration = TRUE
 .onUnload <- function (libpath) {
   library.dynam.unload("quickmatch", libpath)
