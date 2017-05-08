@@ -163,6 +163,9 @@ test_that("`covariate_balance` matching 2", {
 
 
 test_matching <- quickmatch(distances(cov), treatment1)
+target_logical <- (treatment1 == "B")
+target_indices <- which(target_logical)
+target_indices_mix <- c(rev(target_indices[11:length(target_indices)]), target_indices[1:10])
 
 test_that("`covariate_balance` matching 1", {
   expect_equal(covariate_balance(treatment1, cov, test_matching, subset = "B", normalize = TRUE, all_differences = TRUE),
@@ -172,6 +175,33 @@ test_that("`covariate_balance` matching 1", {
   expect_equal(covariate_balance(treatment1, cov, test_matching, subset = "B", normalize = FALSE, all_differences = TRUE),
                replica_covariate_balance(treatment1, cov, test_matching, rep(1, 5), subset = "B"))
   expect_equal(covariate_balance(treatment1, cov, test_matching, subset = "B", normalize = FALSE, all_differences = FALSE),
+               replica_covariate_balance(treatment1, cov, test_matching, rep(1, 5), subset = "B")$max_diffs)
+
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_logical, normalize = TRUE, all_differences = TRUE),
+               replica_covariate_balance(treatment1, cov, test_matching, norm_treat1, subset = "B"))
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_logical, normalize = TRUE, all_differences = FALSE),
+               replica_covariate_balance(treatment1, cov, test_matching, norm_treat1, subset = "B")$max_diffs)
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_logical, normalize = FALSE, all_differences = TRUE),
+               replica_covariate_balance(treatment1, cov, test_matching, rep(1, 5), subset = "B"))
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_logical, normalize = FALSE, all_differences = FALSE),
+               replica_covariate_balance(treatment1, cov, test_matching, rep(1, 5), subset = "B")$max_diffs)
+
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_indices, normalize = TRUE, all_differences = TRUE),
+               replica_covariate_balance(treatment1, cov, test_matching, norm_treat1, subset = "B"))
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_indices, normalize = TRUE, all_differences = FALSE),
+               replica_covariate_balance(treatment1, cov, test_matching, norm_treat1, subset = "B")$max_diffs)
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_indices, normalize = FALSE, all_differences = TRUE),
+               replica_covariate_balance(treatment1, cov, test_matching, rep(1, 5), subset = "B"))
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_indices, normalize = FALSE, all_differences = FALSE),
+               replica_covariate_balance(treatment1, cov, test_matching, rep(1, 5), subset = "B")$max_diffs)
+
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_indices_mix, normalize = TRUE, all_differences = TRUE),
+               replica_covariate_balance(treatment1, cov, test_matching, norm_treat1, subset = "B"))
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_indices_mix, normalize = TRUE, all_differences = FALSE),
+               replica_covariate_balance(treatment1, cov, test_matching, norm_treat1, subset = "B")$max_diffs)
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_indices_mix, normalize = FALSE, all_differences = TRUE),
+               replica_covariate_balance(treatment1, cov, test_matching, rep(1, 5), subset = "B"))
+  expect_equal(covariate_balance(treatment1, cov, test_matching, subset = target_indices_mix, normalize = FALSE, all_differences = FALSE),
                replica_covariate_balance(treatment1, cov, test_matching, rep(1, 5), subset = "B")$max_diffs)
 })
 

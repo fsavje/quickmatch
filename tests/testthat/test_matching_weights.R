@@ -178,9 +178,11 @@ test_that("`matching_weights` subset", {
   expect_identical(replica_matching_weights(treatment1, test_matching, "B"), ref_list)
   expect_identical(replica_matching_weights(treatment1, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment1, test_matching, which(target)), ref_list)
+  expect_identical(replica_matching_weights(treatment1, test_matching, rev(which(target))), ref_list)
   expect_identical(matching_weights(treatment1, test_matching, "B"), ref_list)
   expect_identical(matching_weights(treatment1, test_matching, target), ref_list)
   expect_identical(matching_weights(treatment1, test_matching, which(target)), ref_list)
+  expect_identical(matching_weights(treatment1, test_matching, rev(which(target))), ref_list)
 })
 
 
@@ -222,9 +224,11 @@ test_that("`matching_weights` subset", {
   expect_identical(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
 
 test_matching <- quickmatch(distances(cov), treatment2, subset = "B")
@@ -248,9 +252,11 @@ test_that("`matching_weights` subset", {
   expect_identical(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
 
 test_matching <- quickmatch(distances(cov), treatment2, subset = "B", secondary_unassigned_method = "ignore")
@@ -274,9 +280,11 @@ test_that("`matching_weights` subset", {
   expect_identical(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
 
 
@@ -318,7 +326,9 @@ test_that("`matching_weights` subset", {
   expect_identical(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
