@@ -39,7 +39,7 @@
 #' shorthand for \code{c("A" = 1, "B" = 1, "C" = 1)}.
 #'
 #' The \code{size_constraint} argument can be used to constrain the matched
-#' groups to contain a certain number of units in total (independently of
+#' groups to contain at least a certain number of units in total (independently of
 #' treatment assignment). For example, if \code{treatment_constraints =
 #' c("A" = 1, "B" = 2)} and \code{total_size_constraint = 4}, each matched
 #' group will contain at least one unit assigned to "A", at least two units
@@ -57,8 +57,8 @@
 #' (i.e., an one-sided overlap problem). Without the \code{subset} argument,
 #' the function would in such cases try to assign every unit to a group,
 #' including units in sparse regions that we are not interested in. This could
-#' lead to unnecessarily large och diverse matched groups, and specifying units
-#' of interest with \code{subset} can prevent such matchings.
+#' lead to unnecessarily large and diverse matched groups. We can avoid such
+#' situations by specifying in \code{subset} that some units safely can be ignored.
 #'
 #' As an example, assume that the units are assigned to either of two treatment
 #' conditions, "A" and "B". Units assigned to "B" are more numerous and tend to
@@ -78,9 +78,9 @@
 #' needed to satisfying the matching constraints. This tends to reduce bias
 #' since the within-group distances are minimized, but it could increase
 #' variance since we ignore potentially useful information in the sample. An
-#' intermediate alternative is to specify an aggresive caliper for the
+#' intermediate alternative is to specify an aggressive caliper for the
 #' secondary units, which is done with the \code{secondary_radius} argument.
-#' (These arguments are all part of the \code{\link[scclust]{sc_clustering}}
+#' (These arguments are part of the \code{\link[scclust]{sc_clustering}}
 #' function that \code{quickmatch} calls. The \code{subset} argument
 #' corresponds to the \code{primary_data_points} argument in that function.)
 #'
@@ -103,7 +103,7 @@
 #'    \code{\link[distances]{distances}} object or a numeric vector, matrix
 #'    or data frame. The argument describes the similarity of the units to be
 #'    matched. It can either be preprocessed distance information from a
-#'    \code{\link[distances]{distances}} object (recommended), or raw
+#'    \code{\link[distances]{distances}} object, or raw
 #'    covariate data. When called with covariate data, Euclidean distances are
 #'    calculated unless otherwise specified.
 #' @param treatments
@@ -154,22 +154,22 @@
 #' my_data <- data.frame(y = rnorm(100),
 #'                       x1 = runif(100),
 #'                       x2 = runif(100),
-#'                       treatments = factor(sample(rep(c("T1", "T2", "C", "C"), 25))))
+#'                       treatment = factor(sample(rep(c("T1", "T2", "C"), c(25, 25, 50)))))
 #'
 #' # Make distances
 #' my_distances <- distances(my_data, dist_variables = c("x1", "x2"))
 #'
 #' # Make matching with one unit from "T1", "T2" and "C" in each matched group
-#' quickmatch(my_distances, my_data$treatments)
+#' quickmatch(my_distances, my_data$treatment)
 #'
-#' # Require at least two "C" in the groups
+#' # Require at least two "C" in each group
 #' quickmatch(my_distances,
-#'            my_data$treatments,
+#'            my_data$treatment,
 #'            treatment_constraints = c("T1" = 1, "T2" = 1, "C" = 2))
 #'
 #' # Require groups with at least six units in total
 #' quickmatch(my_distances,
-#'            my_data$treatments,
+#'            my_data$treatment,
 #'            treatment_constraints = c("T1" = 1, "T2" = 1, "C" = 2),
 #'            size_constraint = 6)
 #'
@@ -177,20 +177,20 @@
 #' # Each group will contain at least one unit of each treatment condition,
 #' # but some "C" units might be unassigned.
 #' quickmatch(my_distances,
-#'            my_data$treatments,
+#'            my_data$treatment,
 #'            subset = c("T1", "T2"))
 #'
 #' # Impose caliper
 #' quickmatch(my_distances,
-#'            my_data$treatments,
-#'            caliper = 1.2)
+#'            my_data$treatment,
+#'            caliper = 0.25)
 #'
 #' # Call `quickmatch` directly with covariate data (ie., not pre-calculating distances)
-#' quickmatch(my_data[c("x1", "x2")], my_data$treatments)
+#' quickmatch(my_data[c("x1", "x2")], my_data$treatment)
 #'
 #' # Call `quickmatch` directly with covariate data using Mahalanobis distances
 #' quickmatch(my_data[c("x1", "x2")],
-#'            my_data$treatments,
+#'            my_data$treatment,
 #'            normalize = "mahalanobize")
 #'
 #' @export

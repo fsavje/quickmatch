@@ -18,20 +18,20 @@ the matched groups.}
 \item{covariates}{vector, matrix or data frame with covariates to include in the estimation.
 If \code{NULL}, no covariates are included.}
 
-\item{subset}{units to target the estimation for. If \code{NULL}, the estimate will
-pertain to all units in the sample (i.e., ATE). A non-null value
-specificies a subset of units that the estimate should pertain to (e.g.,
+\item{subset}{units to target the estimation for. If \code{NULL}, the effect is estimated
+for all units in the sample (i.e., ATE). A non-null value
+specifies a subset of units that the effect should be estimated for (e.g.,
 ATT or ATC). If \code{subset} is a logical vector with the same length as
-the sample size, units indicated with \code{TRUE} will be included. If
+the sample size, units indicated with \code{TRUE} will be targeted. If
 \code{subset} is an integer vector, the units with indices in \code{subset}
-are included. Indices starts at 1 and \code{subset} must be sorted. If
+are targeted. If
 \code{subset} is a character vector, it should contain treatment labels,
-and the corresponding units (as given by \code{treatments}) will be
-included in the estimation.}
+and the effect for the corresponding units (as given by \code{treatments}) will be
+estimated.}
 }
 \value{
-Returns estimated treatment effects. A list with two numeric matrix with
-   all estimated treatment effects and their estimated variances is returned.
+A list with two numeric matrices with all estimated treatment effects
+   and their estimated variances is returned.
    The first matrix (\code{effects}) contains estimated treatment effects.
    Rows in this matrix indicate minuends in the treatment effect contrast and
    columns indicate subtrahends. For example, in the matrix:
@@ -43,37 +43,87 @@ Returns estimated treatment effects. A list with two numeric matrix with
    }
    the estimated treatment effect between conditions \eqn{a} and \eqn{b} is
    \eqn{4.5}, and the estimated treatment effect between conditions \eqn{c}
-   and \eqn{b} is \eqn{-1.0}. Or in symbols: \eqn{E[Y(a) - Y(b)] = 4.5} and
-   \eqn{E[Y(c) - Y(b)] = -1.0}.
+   and \eqn{b} is \eqn{-1.0}. Or in symbols \eqn{E[Y(a) - Y(b) | S] = 4.5} and
+   \eqn{E[Y(c) - Y(b) | S] = -1.0} where \eqn{S} is the condition set indicated
+   by the \code{subset} parameter.
 
    The second matrix (\code{effect_variances}) contains estimates of
    variances of the corresponding effect estimators.
 }
 \description{
-\code{regression_estimator} estimates treatment effects from matched groups.
+\code{regression_estimator} estimates treatment effects in matched samples.
 Provided a matching, outcomes and treatment indicators, the function returns
 point estimates of the average treatment effects for the units in the sample
-and variance estimates for those effects. It is also possible to estimate
-treatment effects for subsets of the units. For example, one can estimate the
-effects for units assigned to a certain treatment condition (e.g., ATT).
+and estimates of the variance of those effects. It is also possible to
+estimate treatment effects for subsets of the units. For example, one can
+estimate the effects for units assigned to a certain treatment condition
+(e.g., ATT).
+}
+\details{
+\code{regression_estimator} estimates treatment effects using weighted
+regression. The function first derives unit-level weights implied by the
+matching. In detail, let \eqn{S(g)} be the number of unit indicated by
+\code{subset} in group \eqn{g} (or the total number of units in the group
+if \code{subset} is \code{NULL}). Let \eqn{T} be the total number of units
+indicated by \code{subset} in sample (or the sample size if \code{subset}
+is \code{NULL}). Let \eqn{A(t, g)} be the number of units assigned to treatment \eqn{t} in group \eqn{g}. The weight for a unit in group
+\eqn{g} that is assigned to treatment \eqn{t} is given by:
+
+\deqn{\frac{S(g)}{T \times A(t, g)}.}{S(g) / [T * A(t, g)].}
+
+For example, consider a matched group with one treated unit and two control
+units when we are interested in the average effect of the treated (ATT) and
+we have 50 treated units in total (\eqn{T=50}). For all three units in the
+group, we have \eqn{S(g)=1}. For the treated unit we have \eqn{A(t, g)=1},
+so its weight becomes \eqn{1/50}. The two control units have \eqn{A(t, g)=2},
+so their weights are both \eqn{1/100}.
+
+These weights are such that the difference between the weighted outcome
+averages of two treatment conditions is the same as the average within-group
+difference-in-means between the two conditions.
+
+The function uses the derived weights in a weighted least squares regression
+(using the \code{\link[stats]{lm}} function) with indicator variables for the treatment
+conditions. Optionally, covariates can be added to the regression as well (e.g., a common
+recommendation is to include the covariates used to construct the matching).
+Standard errors are estimated with the heteroskedasticity-robust estimates derived
+using the "HC1" estimator in the \code{\link[sandwich]{vcovHC}} function.
+Units assigned a weight of zero is excluded from the estimation.
 }
 \examples{
 # Construct example data
 my_data <- data.frame(y = rnorm(100),
                       x1 = runif(100),
                       x2 = runif(100),
-                      treatments = factor(sample(rep(c("T1", "T2", "C", "C"), 25))))
+                      treatment = factor(sample(rep(c("T1", "T2", "C"), c(25, 25, 50)))))
 
 # Make distances
 my_distances <- distances(my_data, dist_variables = c("x1", "x2"))
 
 # Make matching
-my_matching <- quickmatch(my_distances, my_data$treatments)
+my_matching <- quickmatch(my_distances, my_data$treatment)
 
-# ATE
-regression_estimator(my_data$y, my_data$treatments, my_matching, my_data[c("x1", "x2")])
+# ATE without covariates
+regression_estimator(my_data$y,
+                     my_data$treatment,
+                     my_matching)
+
+# ATE with covariates
+regression_estimator(my_data$y,
+                     my_data$treatment,
+                     my_matching,
+                     my_data[c("x1", "x2")])
 
 # ATT for T1
-regression_estimator(my_data$y, my_data$treatments, my_matching, my_data[c("x1", "x2")], "T1")
+regression_estimator(my_data$y,
+                     my_data$treatment,
+                     my_matching,
+                     my_data[c("x1", "x2")],
+                     subset = "T1")
 
+}
+\references{
+Stuart, Elizabeth A. (2010),
+   \sQuote{Matching Methods for Causal Inference: A Review and a Look Forward}.
+   Statistical Science, 25(1), 1–21. https://doi.org/10.1214/09-STS313
 }

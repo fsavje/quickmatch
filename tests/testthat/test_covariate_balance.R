@@ -84,7 +84,7 @@ replica_covariate_balance <- function(treatments,
                  "4" = max(abs(diff_mats[["4"]]), na.rm = TRUE),
                  "5" = max(abs(diff_mats[["5"]]), na.rm = TRUE))
 
-  list(diff_mats = diff_mats,
+  list(all_diffs = diff_mats,
        max_diffs = max_diffs)
 }
 

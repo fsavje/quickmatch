@@ -27,6 +27,8 @@
 #' large data sets in mind and derives matchings more than an order of magnitude
 #' quicker than other methods.
 #'
+#' See \code{\link{quickmatch}} for the main matching function.
+#'
 #' See the package's website for more information:
 #' \url{https://github.com/fsavje/quickmatch}.
 #'
