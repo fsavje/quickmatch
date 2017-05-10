@@ -1,17 +1,17 @@
 Package: quickmatch
 Type: Package
 Title: Quick Generalized Full Matching
-Version: 0.1.1
+Version: 0.1.1.9001
 Date: 2017-05-09
 Authors@R: c(
     person("Fredrik", "Savje", email = "fredrik.savje@berkeley.edu", role = c("aut", "cre")),
     person("Jasjeet", "Sekhon", role = "aut"),
     person("Michael", "Higgins", role = "aut"))
 Description:
-    Provides functions for constructing near-optimal generalized full matchings.
+    Provides functions for constructing near-optimal generalized full matching.
     Generalized full matching is an extension of the original full matching method
     to situations with more intricate study designs. The package is made with
-    large data sets in mind and derives matchings more than an order of magnitude
+    large data sets in mind and derives matches more than an order of magnitude
     quicker than other methods.
 Depends:
     R (>= 3.2.3),

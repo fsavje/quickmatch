@@ -54,8 +54,7 @@ Returns the mean difference between treatment groups in the matched sample
 }
 \description{
 \code{covariate_balance} derives measures of covariate balance between
-treatment groups in matched samples. Provided a set of covariates and assigned
-treatments for a sample of units, the function calculates the normalized mean
+treatment groups in matched samples. The function calculates the normalized mean
 differences between all pairs of treatment conditions for each covariate.
 }
 \details{

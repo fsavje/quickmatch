@@ -52,12 +52,11 @@ A list with two numeric matrices with all estimated treatment effects
 }
 \description{
 \code{regression_estimator} estimates treatment effects in matched samples.
-Provided a matching, outcomes and treatment indicators, the function returns
-point estimates of the average treatment effects for the units in the sample
-and estimates of the variance of those effects. It is also possible to
-estimate treatment effects for subsets of the units. For example, one can
-estimate the effects for units assigned to a certain treatment condition
-(e.g., ATT).
+The function expects the user to provide the outcomes, treatment indicators, and
+a matching object. The function returns point estimates of the average treatment
+effects and variance estimates. It is possible to estimate treatment effects for
+subsets of the observations, such as estimates of the average treatment effect for
+the treated.
 }
 \details{
 \code{regression_estimator} estimates treatment effects using weighted

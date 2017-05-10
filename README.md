@@ -30,41 +30,24 @@ and install [Xcode](https://itunes.apple.com/us/app/xcode/id497799835).
 ## Example
 
 ```R
+# Load package
+library("quickmatch")
+
 # Construct example data
 my_data <- data.frame(y = rnorm(100),
                       x1 = runif(100),
                       x2 = runif(100),
-                      treatments = factor(sample(rep(c("T1", "T2", "C", "C"), 25))))
+                      treatment = factor(sample(rep(c("T", "C"), c(25, 75)))))
 
 # Make distances
 my_distances <- distances(my_data, dist_variables = c("x1", "x2"))
 
-# Make matching with one unit from "T1", "T2" and "C" in each matched group
-quickmatch(my_distances, my_data$treatments)
+# Make matching to estimate ATT
+my_matching <- quickmatch(my_distances, my_data$treatment, subset = "T")
 
-# Require at least two "C" in the groups
-quickmatch(my_distances,
-           my_data$treatments,
-           treatment_constraints = c("T1" = 1, "T2" = 1, "C" = 2))
+# Calculate covariate balance
+covariate_balance(my_data$treatment, my_data[c("x1", "x2")], my_matching, subset = "T")
 
-# Require groups with at least six units in total
-quickmatch(my_distances,
-           my_data$treatments,
-           treatment_constraints = c("T1" = 1, "T2" = 1, "C" = 2),
-           size_constraint = 6)
-
-# Focus the matching to units assigned to T1 or T2.
-# Each group will contain at least one unit of each treatment condition,
-# but some "C" units might be unassigned.
-quickmatch(my_distances,
-           my_data$treatments,
-           subset = c("T1", "T2"))
-
-# Impose caliper
-quickmatch(my_distances,
-           my_data$treatments,
-           caliper = 1.2)
-
-# Call `quickmatch` directly with covariate data (ie., not pre-calculating distances)
-quickmatch(my_data[c("x1", "x2")], my_data$treatments)
+# Estimate ATT
+regression_estimator(my_data$y, my_data$treatment, my_matching, subset = "T")
 ```
