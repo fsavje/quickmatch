@@ -2,7 +2,7 @@
 # quickmatch -- Quick Generalized Full Matching
 # https://github.com/fsavje/quickmatch
 #
-# Copyright (C) 2017  Fredrik Savje -- http://fredriksavje.com
+# Copyright (C) 2017  Fredrik Savje and Jasjeet S. Sekhon
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +21,7 @@
 #' Covariate balance in matched sample
 #'
 #' \code{covariate_balance} derives measures of covariate balance between
-#' treatment groups in matched samples. Provided a set of covariates and assigned
-#' treatments for a sample of units, the function calculates the normalized mean
+#' treatment groups in matched samples. The function calculates the normalized mean
 #' differences between all pairs of treatment conditions for each covariate.
 #'
 #' \code{covariate_balance} calculates covariate balance by first deriving the

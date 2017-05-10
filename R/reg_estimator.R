@@ -2,7 +2,7 @@
 # quickmatch -- Quick Generalized Full Matching
 # https://github.com/fsavje/quickmatch
 #
-# Copyright (C) 2017  Fredrik Savje -- http://fredriksavje.com
+# Copyright (C) 2017  Fredrik Savje and Jasjeet S. Sekhon
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,12 +21,11 @@
 #' Regression-based average treatment effect estimator
 #'
 #' \code{regression_estimator} estimates treatment effects in matched samples.
-#' Provided a matching, outcomes and treatment indicators, the function returns
-#' point estimates of the average treatment effects for the units in the sample
-#' and estimates of the variance of those effects. It is also possible to
-#' estimate treatment effects for subsets of the units. For example, one can
-#' estimate the effects for units assigned to a certain treatment condition
-#' (e.g., ATT).
+#' The function expects the user to provide the outcomes, treatment indicators, and
+#' a matching object. The function returns point estimates of the average treatment
+#' effects and variance estimates. It is possible to estimate treatment effects for
+#' subsets of the observations, such as estimates of the average treatment effect for
+#' the treated.
 #'
 #' \code{regression_estimator} estimates treatment effects using weighted
 #' regression. The function first derives unit-level weights implied by the

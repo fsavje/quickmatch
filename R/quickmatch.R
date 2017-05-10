@@ -2,7 +2,7 @@
 # quickmatch -- Quick Generalized Full Matching
 # https://github.com/fsavje/quickmatch
 #
-# Copyright (C) 2017  Fredrik Savje -- http://fredriksavje.com
+# Copyright (C) 2017  Fredrik Savje and Jasjeet S. Sekhon
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,11 +21,10 @@
 
 #' Construct generalized full matchings
 #'
-#' \code{quickmatch} constructs generalized full matchings. Provided distances
-#' measuring the similarity of the units in the sample and a set of matching
-#' constraints, the function constructs a near-optimal matching so that units
-#' assigned to the same group are as similar as possible while satisfying the
-#' matching constraints.
+#' \code{quickmatch} constructs generalized full matchings. The function constructs a
+#' near-optimal matching so that units assigned to the same group are as similar as
+#' possible. The function expects the user to provide distances measuring the
+#' similarity of the units and a set of matching constraints. 
 #'
 #' The \code{treatment_constraints} argument should contain a named vector with
 #' all treatment-specific constraints. For example, in a sample with treatment
