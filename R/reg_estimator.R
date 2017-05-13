@@ -145,9 +145,11 @@ regression_estimator <- function(outcomes,
   outcomes <- coerce_double(outcomes)
   num_observations <- length(outcomes)
   treatments <- coerce_treatments(treatments, num_observations)
+  ensure_matching(matching, num_observations)
   covariates <- coerce_covariates(covariates, num_observations)
+  subset <- coerce_subset(subset, treatments)
 
-  mwres <- matching_weights(treatments, matching, subset)
+  mwres <- internal_matching_weights(treatments, matching, subset)
 
   if (any(mwres$treatment_missing)) {
     warning("Some matched groups are missing treatment conditions. Corresponding potential outcomes cannot be estimated.")

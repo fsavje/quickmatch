@@ -40,3 +40,18 @@ get_subset_indicators <- function(subset,
                  unclass(treatments)))
   }
 }
+
+
+internal_matching_weights <- function(treatments,
+                                      matching,
+                                      subset = NULL) {
+  stopifnot(is.factor(treatments),
+            scclust::is.scclust(matching),
+            length(matching) == length(treatments),
+            is.null(subset) || is.logical(subset) || is.integer(subset))
+  .Call(qmc_matching_weights,
+        unclass(treatments),
+        nlevels(treatments),
+        matching,
+        subset)
+}

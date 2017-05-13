@@ -19,15 +19,17 @@
 # ==============================================================================
 
 library(quickmatch)
-context("matching_weights")
+context("internal_matching_weights")
 
 replica_matching_weights <- function(treatments,
                                      matching,
                                      subset = NULL) {
-  treatments <- coerce_treatments(treatments, check_NA = FALSE)
+  stopifnot(is.factor(treatments),
+            scclust::is.scclust(matching),
+            length(matching) == length(treatments),
+            is.null(subset) || is.logical(subset) || is.integer(subset))
+
   num_observations <- length(treatments)
-  ensure_matching(matching, num_observations)
-  subset <- coerce_subset(subset, treatments)
 
   if (is.null(subset)) {
     subset <- rep(TRUE, num_observations)
@@ -100,7 +102,7 @@ cov <- c(0.0205, -0.3570, -0.1800,  1.6027,  0.6040,  0.0446,  1.1410,  0.6459, 
          0.0961, -0.5849, -0.2429,  0.5242,  0.7977, -0.2923,  0.4917, -0.6212, -2.3871, -2.0155, -1.1342,  0.3785, -0.2179, -0.0241, -0.1828,
          0.8068, -0.0506, -0.8762, -1.3112,  0.6008,  1.5089)
 
-treatment1 <- c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A", "B", "A", "A", "B", "A", "B", "A", "A", "A", "A", "B", "A",
+treatment1 <- factor(c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A", "B", "A", "A", "B", "A", "B", "A", "A", "A", "A", "B", "A",
                 "B", "A", "B", "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "A", "B", "A", "A", "B",
                 "B", "B", "B", "B", "A", "A", "A", "B", "A", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A",
                 "B", "B", "A", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "B", "B", "B", "B", "A", "B", "B", "A", "A", "B", "B", "B", "B",
@@ -119,9 +121,9 @@ treatment1 <- c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A",
                 "A", "A", "A", "A", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "A", "A", "A", "B", "A", "B", "A",
                 "A", "B", "B", "A", "B", "A", "A", "A", "B", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "B", "B", "A", "A", "B", "B",
                 "B", "A", "B", "B", "B", "B", "A", "A", "A", "A", "A", "B", "B", "A", "B", "B", "A", "B", "A", "B", "A", "A", "A", "A", "B", "B",
-                "A", "B", "B", "A", "A", "B", "A")
+                "A", "B", "B", "A", "A", "B", "A"))
 
-treatment2 <- c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A", "B", "A", "A", "B", "A", "B", "A", "A", "A", "A", "B", "A",
+treatment2 <- factor(c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A", "B", "A", "A", "B", "A", "B", "A", "A", "A", "A", "B", "A",
                 "A", "C", "A", "A", "C", "A", "A", "A", "A", "A", "C", "C", "A", "A", "C", "C", "A", "C", "C", "A", "C", "C", "C", "A", "A", "C",
                 "B", "A", "B", "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "A", "B", "A", "A", "B",
                 "C", "C", "C", "C", "A", "A", "A", "C", "A", "C", "C", "A", "A", "A", "C", "C", "C", "C", "A", "A", "C", "C", "C", "A", "A", "A",
@@ -140,7 +142,7 @@ treatment2 <- c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A",
                 "A", "B", "B", "A", "B", "A", "A", "A", "B", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "B", "B", "A", "A", "B", "B",
                 "C", "C", "A", "C", "A", "A", "C", "C", "C", "C", "A", "A", "C", "C", "C", "C", "C", "A", "C", "C", "A", "A", "C", "C", "C", "C",
                 "B", "A", "B", "B", "B", "B", "A", "A", "A", "A", "A", "B", "B", "A", "B", "B", "A", "B", "A", "B", "A", "A", "A", "A", "B", "B",
-                "A", "B", "B", "A", "A", "B", "A")
+                "A", "B", "B", "A", "A", "B", "A"))
 
 test_matching <- quickmatch(distances(cov), treatment1)
 tot_count <- match_count(as.integer(test_matching))
@@ -153,9 +155,9 @@ ref_list <- list("unit_weights" = unit_weight,
                  "total_subset_count" = 500,
                  "treatment_missing" = rep(FALSE, 2L))
 
-test_that("`matching_weights` vanilla", {
+test_that("`internal_matching_weights` vanilla", {
   expect_identical(replica_matching_weights(treatment1, test_matching, NULL), ref_list)
-  expect_identical(matching_weights(treatment1, test_matching, NULL), ref_list)
+  expect_identical(internal_matching_weights(treatment1, test_matching, NULL), ref_list)
 })
 
 test_matching <- quickmatch(distances(cov), treatment1)
@@ -174,15 +176,13 @@ ref_list <- list("unit_weights" = unit_weight,
                  "total_subset_count" = as.numeric(sum(target)),
                  "treatment_missing" = rep(FALSE, 2L))
 
-test_that("`matching_weights` subset", {
-  expect_identical(replica_matching_weights(treatment1, test_matching, "B"), ref_list)
+test_that("`internal_matching_weights` subset", {
   expect_identical(replica_matching_weights(treatment1, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment1, test_matching, which(target)), ref_list)
   expect_identical(replica_matching_weights(treatment1, test_matching, rev(which(target))), ref_list)
-  expect_identical(matching_weights(treatment1, test_matching, "B"), ref_list)
-  expect_identical(matching_weights(treatment1, test_matching, target), ref_list)
-  expect_identical(matching_weights(treatment1, test_matching, which(target)), ref_list)
-  expect_identical(matching_weights(treatment1, test_matching, rev(which(target))), ref_list)
+  expect_identical(internal_matching_weights(treatment1, test_matching, target), ref_list)
+  expect_identical(internal_matching_weights(treatment1, test_matching, which(target)), ref_list)
+  expect_identical(internal_matching_weights(treatment1, test_matching, rev(which(target))), ref_list)
 })
 
 
@@ -198,9 +198,9 @@ ref_list <- list("unit_weights" = unit_weight,
                  "total_subset_count" = 500,
                  "treatment_missing" = rep(FALSE, 3L))
 
-test_that("`matching_weights` vanilla", {
+test_that("`internal_matching_weights` vanilla", {
   expect_identical(replica_matching_weights(treatment2, test_matching, NULL), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, NULL), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, NULL), ref_list)
 })
 
 test_matching <- quickmatch(distances(cov), treatment2)
@@ -220,15 +220,13 @@ ref_list <- list("unit_weights" = unit_weight,
                  "total_subset_count" = as.numeric(sum(target)),
                  "treatment_missing" = rep(FALSE, 3L))
 
-test_that("`matching_weights` subset", {
-  expect_identical(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
+test_that("`internal_matching_weights` subset", {
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, target), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
 
 test_matching <- quickmatch(distances(cov), treatment2, subset = "B")
@@ -248,15 +246,13 @@ ref_list <- list("unit_weights" = unit_weight,
                  "total_subset_count" = as.numeric(sum(target)),
                  "treatment_missing" = rep(FALSE, 3L))
 
-test_that("`matching_weights` subset", {
-  expect_identical(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
+test_that("`internal_matching_weights` subset", {
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, target), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
 
 test_matching <- quickmatch(distances(cov), treatment2, subset = "B", secondary_unassigned_method = "ignore")
@@ -276,15 +272,13 @@ ref_list <- list("unit_weights" = unit_weight,
                  "total_subset_count" = as.numeric(sum(target)),
                  "treatment_missing" = rep(FALSE, 3L))
 
-test_that("`matching_weights` subset", {
-  expect_identical(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
+test_that("`internal_matching_weights` subset", {
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, target), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
 
 
@@ -300,9 +294,9 @@ ref_list <- list("unit_weights" = unit_weight,
                  "total_subset_count" = 500,
                  "treatment_missing" = c(FALSE, FALSE, TRUE))
 
-test_that("`matching_weights` vanilla", {
+test_that("`internal_matching_weights` vanilla", {
   expect_identical(replica_matching_weights(treatment2, test_matching, NULL), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, NULL), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, NULL), ref_list)
 })
 
 test_matching <- quickmatch(distances(cov), treatment2, treatment_constraints = c("B" = 1L, "C" = 1L))
@@ -322,13 +316,11 @@ ref_list <- list("unit_weights" = unit_weight,
                  "total_subset_count" = as.numeric(sum(target)),
                  "treatment_missing" = c(TRUE, FALSE, FALSE))
 
-test_that("`matching_weights` subset", {
-  expect_identical(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
+test_that("`internal_matching_weights` subset", {
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, target), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(internal_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })

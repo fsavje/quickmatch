@@ -142,6 +142,10 @@ covariate_balance <- function(treatments,
   if (is.null(covariates)) {
     stop("`covariates` is NULL.")
   }
+  if (!is.null(matching)) {
+    ensure_matching(matching, num_observations)
+    subset <- coerce_subset(subset, treatments)
+  }
   normalize <- coerce_logical(normalize, 1L)
   all_differences <- coerce_logical(all_differences, 1L)
 
@@ -150,7 +154,7 @@ covariate_balance <- function(treatments,
       sapply(split(cov, treatments), mean)
     }))
   } else {
-    mwres <- matching_weights(treatments, matching, subset)
+    mwres <- internal_matching_weights(treatments, matching, subset)
     if (any(mwres$treatment_missing)) {
       warning("Some matched groups are missing treatment conditions. Corresponding balance measures cannot be derived.")
     }

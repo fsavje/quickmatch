@@ -223,7 +223,7 @@ quickmatch <- function(distances,
                                             sum(treatment_constraints),
                                             num_observations)
 
-  subset <- coerce_subset(subset, treatments)
+  subset <- coerce_subset(subset, treatments, FALSE)
   ensure_caliper(caliper)
 
   sc_call <- dots[names(dots) %in% names(formals(scclust::sc_clustering))]

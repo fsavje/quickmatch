@@ -19,7 +19,7 @@
 # ==============================================================================
 
 library(quickmatch)
-context("Internal functions")
+context("get_subset_indicators")
 
 treatments <- factor(c("A", "C", "B", "A", "A", "C", "B", "A", "B", "A"))
 

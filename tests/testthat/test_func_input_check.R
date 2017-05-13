@@ -180,7 +180,7 @@ t_covariate_balance <- function(treatments = sound_treatments,
                     all_differences = all_differences)
 }
 
-test_that("`matching_weights` checks input.", {
+test_that("`covariate_balance` checks input.", {
   expect_silent(t_covariate_balance())
   expect_error(t_covariate_balance(treatments = unsound_treatments))
   expect_error(t_covariate_balance(covariates = unsound_covariates))
