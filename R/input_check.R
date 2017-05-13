@@ -200,7 +200,10 @@ coerce_size_constraint <- function(size_constraint,
 
 # Coerce `subset` to indicator vector if character
 coerce_subset <- function(subset,
-                          treatments) {
+                          treatments,
+                          check_NA = TRUE) {
+  stopifnot(is.factor(treatments))
+
   if (is.character(subset)) {
     if (anyDuplicated(subset)) {
       new_error("`", match.call()$subset, "` may not contain duplicates.")
@@ -213,6 +216,33 @@ coerce_subset <- function(subset,
                 ".")
     }
     subset <- get_subset_indicators(subset, treatments)
+  } else if (is.logical(subset)) {
+    if (check_NA && anyNA(subset)) {
+      new_error("`", match.call()$subset, "` may not contain NAs.")
+    }
+    if (check_NA && !any(subset)) {
+      new_error("`", match.call()$subset, "` cannot be all `FALSE`.")
+    }
+    if (length(subset) != length(treatments)) {
+      new_error("`", match.call()$subset, "` is not of the same length as `", match.call()$treatments, "`.")
+    }
+  } else if (!is.null(subset)) {
+    if (!is.integer(subset)) {
+      if (is.numeric_integer(subset)) {
+        storage.mode(subset) <- "integer"
+      } else {
+        new_error("`", match.call()$subset, "` must be integer, logical, character or NULL.")
+      }
+    }
+    if (check_NA && anyDuplicated(subset)) {
+      new_error("`", match.call()$subset, "` may not contain duplicates.")
+    }
+    if (check_NA && anyNA(subset)) {
+      new_error("`", match.call()$subset, "` may not contain NAs.")
+    }
+    if (length(subset) == 0) {
+      new_error("`", match.call()$subset, "` cannot be empty.")
+    }
   }
   subset
 }

@@ -274,26 +274,69 @@ test_that("`coerce_size_constraint` coerces correctly.", {
 # coerce_subset
 # ==============================================================================
 
-t_coerce_subset <- function(t_subset = c("A", "B"),
-                            t_treatments = factor(c("A", "A", "B", "B", "B", "A", "B", "A"))) {
-  coerce_subset(t_subset, t_treatments)
+t_coerce_subset <- function(t_subset = NULL,
+                            t_treatments = factor(c("A", "A", "B", "B", "B", "A", "B", "A")),
+                            t_check_NA = TRUE) {
+  coerce_subset(t_subset, t_treatments, t_check_NA)
 }
 
 test_that("`coerce_subset` checks input.", {
   expect_silent(t_coerce_subset())
-  expect_silent(t_coerce_subset(t_subset = c("A")))
-  expect_silent(t_coerce_subset(1:5))
+  expect_silent(t_coerce_subset(t_subset = c("A", "B")))
+  expect_silent(t_coerce_subset(t_subset = "A"))
+  expect_silent(t_coerce_subset(t_subset = c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE)))
+  expect_silent(t_coerce_subset(t_subset = 1:5))
+  expect_silent(t_coerce_subset(t_subset = c(1L, 4L)))
+  expect_silent(t_coerce_subset(t_subset = as.numeric(1:5)))
+
+  expect_silent(t_coerce_subset(t_subset = c(TRUE, FALSE, TRUE, TRUE, NA, TRUE, FALSE, FALSE), t_check_NA = FALSE))
+  expect_silent(t_coerce_subset(t_subset = rep(FALSE, 8), t_check_NA = FALSE))
+  expect_silent(t_coerce_subset(t_subset = c(1L, 3L, 4L, 1L, 7L), t_check_NA = FALSE))
+  expect_silent(t_coerce_subset(t_subset = c(1L, 3L, 4L, NA, 7L), t_check_NA = FALSE))
+
   expect_error(t_coerce_subset(t_subset = c("A", "B", "A")),
                regexp = "`t_subset` may not contain duplicates.")
   expect_error(t_coerce_subset(t_subset = c("A", "B", "C", "D")),
                regexp = "`t_subset` contains unknown treatment labels: \"C\", \"D\".")
+  expect_error(t_coerce_subset(t_subset = c(TRUE, FALSE, TRUE, TRUE, NA, TRUE, FALSE, FALSE)),
+               regexp = "`t_subset` may not contain NAs.")
+  expect_error(t_coerce_subset(t_subset = rep(FALSE, 8)),
+               regexp = "`t_subset` cannot be all `FALSE`.")
+  expect_error(t_coerce_subset(t_subset = c(TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE)),
+               regexp = "`t_subset` is not of the same length as `t_treatments`.")
+  expect_error(t_coerce_subset(t_subset = seq(0.5, 8.5)),
+               regexp = "`t_subset` must be integer, logical, character or NULL.")
+  expect_error(t_coerce_subset(t_subset = c(1L, 3L, 4L, 1L, 7L)),
+               regexp = "`t_subset` may not contain duplicates.")
+  expect_error(t_coerce_subset(t_subset = c(1L, 3L, 4L, NA, 7L)),
+               regexp = "`t_subset` may not contain NAs.")
+  expect_error(t_coerce_subset(t_subset = integer()),
+               regexp = "`t_subset` cannot be empty.")
 })
 
 test_that("`coerce_subset` coerces correctly.", {
-  expect_identical(t_coerce_subset(), NULL)
-  expect_identical(t_coerce_subset(t_subset = c("A")),
+  expect_identical(t_coerce_subset(),
+                   NULL)
+  expect_identical(t_coerce_subset(t_subset = c("A", "B")),
+                   NULL)
+  expect_identical(t_coerce_subset(t_subset = "A"),
                    c(1L, 2L, 6L, 8L))
-  expect_identical(t_coerce_subset(1:5), 1:5)
+  expect_identical(t_coerce_subset(t_subset = c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE)),
+                   c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE))
+  expect_identical(t_coerce_subset(t_subset = 1:5),
+                   1:5)
+  expect_identical(t_coerce_subset(t_subset = c(1L, 4L)),
+                   c(1L, 4L))
+  expect_identical(t_coerce_subset(t_subset = as.numeric(1:5)),
+                   1:5)
+  expect_identical(t_coerce_subset(t_subset = c(TRUE, FALSE, TRUE, TRUE, NA, TRUE, FALSE, FALSE), t_check_NA = FALSE),
+                   c(TRUE, FALSE, TRUE, TRUE, NA, TRUE, FALSE, FALSE))
+  expect_identical(t_coerce_subset(t_subset = rep(FALSE, 8), t_check_NA = FALSE),
+                   rep(FALSE, 8))
+  expect_identical(t_coerce_subset(t_subset = c(1L, 3L, 4L, NA, 7L), t_check_NA = FALSE),
+                   c(1L, 3L, 4L, NA, 7L))
+  expect_identical(t_coerce_subset(t_subset = c(1L, 3L, 4L, 1L, 7L), t_check_NA = FALSE),
+                   c(1L, 3L, 4L, 1L, 7L))
 })
 
 
@@ -334,7 +377,7 @@ test_that("`coerce_treatments` coerces correctly.", {
   expect_identical(t_coerce_treatments(t_req_length = NULL),
                    factor(1:10))
   expect_identical(t_coerce_treatments(t_treatments = rep(c(TRUE, FALSE), 5L)),
-                                  factor(rep(c(TRUE, FALSE), 5L)))
+                   factor(rep(c(TRUE, FALSE), 5L)))
   expect_identical(t_coerce_treatments(t_treatments = c("A", "B", "A", NA, "B", "A", "B", "A", NA, "B"), t_check_NA = FALSE),
                    factor(c("A", "B", "A", NA, "B", "A", "B", "A", NA, "B")))
   expect_warning(expect_identical(t_coerce_treatments(t_treatments = as.numeric(1:10)),
