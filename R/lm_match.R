@@ -29,7 +29,7 @@
 #'
 #' \code{lm_match} estimates treatment effects using weighted
 #' regression. The function first derives unit-level weights implied by the
-#' matching. In detail, let \eqn{S(g)} be the number of unit indicated by
+#' matching. In detail, let \eqn{S(g)} be the number of units indicated by
 #' \code{target} in group \eqn{g} (or the total number of units in the group
 #' if \code{target} is \code{NULL}). Let \eqn{T} be the total number of units
 #' indicated by \code{target} in sample (or the sample size if \code{target}
@@ -43,19 +43,16 @@
 #' we have 50 treated units in total (\eqn{T=50}). For all three units in the
 #' group, we have \eqn{S(g)=1}. For the treated unit we have \eqn{A(t, g)=1},
 #' so its weight becomes \eqn{1/50}. The two control units have \eqn{A(t, g)=2},
-#' so their weights are both \eqn{1/100}.
-#'
-#' These weights are such that the difference between the weighted outcome
-#' averages of two treatment conditions is the same as the average within-group
-#' difference-in-means between the two conditions.
+#' so their weights are both \eqn{1/100}. See \code{\link{matching_weights}} for
+#' more details.
 #'
 #' The function uses the derived weights in a weighted least squares regression
 #' (using the \code{\link[stats]{lm}} function) with indicator variables for the treatment
-#' conditions. Optionally, covariates can be added to the regression as well (e.g., a common
+#' conditions. Optionally, covariates can be added to the regression (e.g., a common
 #' recommendation is to include the covariates used to construct the matching).
 #' Standard errors are estimated with the heteroskedasticity-robust estimates derived
 #' using the "HC1" estimator in the \code{\link[sandwich]{vcovHC}} function.
-#' Units assigned a weight of zero is excluded from the estimation.
+#' Units not assigned to matched groups are excluded from the estimation.
 #'
 #' @param outcomes
 #'    numeric vector with observed outcomes.
@@ -151,9 +148,14 @@ lm_match <- function(outcomes,
 
   mwres <- internal_matching_weights(treatments, matching, target)
 
-  if (any(mwres$treatment_missing)) {
+  if (sum(!mwres$treatment_missing) <= 1) {
+    stop("Less than two potential outcomes can be estimated.")
+  } else if (any(mwres$treatment_missing)) {
     warning("Some matched groups are missing treatment conditions. Corresponding potential outcomes cannot be estimated.")
   }
+
+  # If weight is zero, set to NA
+  mwres$unit_weights[mwres$unit_weights <= .Machine$double.eps] <- NA
 
   # No need to normalize with total number of units in `target` since regression
   # does it. Not normalizing is numerically more stable.
@@ -162,23 +164,18 @@ lm_match <- function(outcomes,
   } else {
     lm_res <- stats::lm(outcomes ~ 0 + treatments + covariates, weights = mwres$unit_weights)
   }
+  var_res <- sandwich::vcovHC(lm_res, type = "HC1")
 
-  coef <- lm_res$coefficients[1:nlevels(treatments)]
-  coef_var <- sandwich::vcovHC(lm_res, type = "HC1")[1:nlevels(treatments), 1:nlevels(treatments)]
+  est_treat <- which(!mwres$treatment_missing)
+  out_te <- out_te_vars <- matrix(NA, nrow = nlevels(treatments), ncol = nlevels(treatments))
+  dimnames(out_te) <- dimnames(out_te_vars) <- list(levels(treatments), levels(treatments))
 
-  coef[mwres$treatment_missing] <- NA
-  coef_var[mwres$treatment_missing, ] <- NA
-  coef_var[, mwres$treatment_missing] <- NA
-
-  out_means <- out_vars <- matrix(NA, nrow = nlevels(treatments), ncol = nlevels(treatments))
-  dimnames(out_means) <- dimnames(out_vars) <- list(levels(treatments), levels(treatments))
-
-  for (i in 1:nlevels(treatments)) {
-    for (j in 1:nlevels(treatments)) {
-      out_means[i, j] <- coef[i] - coef[j]
-      out_vars[i, j] <- coef_var[i, i] + coef_var[j, j] - 2 * coef_var[i, j]
+  for (i in 1:length(est_treat)) {
+    for (j in 1:length(est_treat)) {
+      out_te[est_treat[i], est_treat[j]] <- lm_res$coefficients[i] - lm_res$coefficients[j]
+      out_te_vars[est_treat[i], est_treat[j]] <- var_res[i, i] + var_res[j, j] - 2 * var_res[i, j]
     }
   }
 
-  list(effects = out_means, effect_variances = out_vars)
+  list(effects = out_te, effect_variances = out_te_vars)
 }

@@ -173,11 +173,33 @@ treatmentsUse2 <- c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", 
                     "B", "A", "B", "B", "B", "B", "A", "A", "A", "A", "A", "B", "B", "A", "B", "B", "A", "B", "A", "B", "A", "A", "A", "A", "B", "B",
                     "A", "B", "B", "A", "A", "B", "A")
 
+treatmentsUse3 <- c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A", "B", "D", "A", "B", "A", "B", "A", "A", "A", "A", "B", "A",
+                    "A", "C", "A", "A", "C", "A", "A", "A", "A", "A", "C", "C", "A", "A", "C", "C", "A", "C", "C", "A", "C", "C", "C", "A", "A", "C",
+                    "B", "A", "B", "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "A", "B", "A", "A", "B",
+                    "C", "C", "C", "C", "A", "A", "A", "C", "A", "C", "C", "A", "A", "A", "C", "C", "C", "C", "A", "A", "C", "C", "C", "A", "A", "A",
+                    "A", "A", "A", "A", "C", "C", "C", "C", "A", "C", "A", "A", "C", "A", "A", "A", "A", "A", "A", "C", "C", "A", "A", "C", "A", "C",
+                    "C", "C", "C", "C", "C", "C", "A", "C", "C", "C", "C", "A", "C", "A", "A", "C", "C", "C", "A", "A", "A", "C", "A", "A", "A", "A",
+                    "D", "B", "B", "B", "B", "B", "B", "B", "B", "B", "A", "A", "B", "A", "B", "A", "B", "B", "B", "A", "A", "A", "A", "B", "A", "B",
+                    "A", "A", "A", "C", "A", "D", "A", "A", "C", "A", "A", "C", "C", "C", "C", "C", "A", "A", "C", "C", "A", "A", "A", "A", "C", "C",
+                    "B", "A", "A", "A", "A", "A", "A", "D", "B", "A", "A", "B", "A", "A", "B", "B", "A", "B", "B", "B", "A", "B", "A", "A", "A", "B",
+                    "B", "A", "A", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B", "A", "B", "A", "B", "B", "B", "B", "A", "B", "A", "B",
+                    "C", "A", "A", "C", "C", "A", "A", "C", "C", "C", "A", "C", "A", "C", "A", "C", "C", "C", "C", "A", "C", "A", "C", "C", "C", "C",
+                    "A", "C", "A", "C", "A", "A", "A", "A", "A", "A", "C", "A", "A", "A", "A", "C", "C", "A", "C", "A", "C", "C", "C", "A", "A", "C",
+                    "B", "A", "A", "A", "B", "B", "B", "A", "A", "B", "A", "A", "A", "B", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A",
+                    "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "A", "B", "A", "A", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B",
+                    "A", "A", "A", "A", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "D", "A", "B", "A", "A", "A", "A", "B", "A", "B", "A",
+                    "A", "A", "D", "A", "C", "A", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "A", "C", "A", "A", "C", "A", "C",
+                    "A", "B", "B", "A", "B", "A", "A", "A", "B", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "B", "B", "A", "A", "B", "B",
+                    "C", "C", "A", "C", "A", "A", "C", "C", "C", "C", "A", "A", "C", "C", "C", "C", "C", "A", "C", "C", "A", "A", "C", "C", "C", "C",
+                    "B", "A", "B", "B", "B", "B", "A", "A", "A", "A", "A", "B", "B", "A", "B", "B", "A", "B", "A", "B", "A", "A", "A", "A", "B", "B",
+                    "A", "B", "B", "A", "A", "B", "A")
+
 df <- data.frame(y = outcomes,
                  x1 = raw_data[1:500],
                  x2 = raw_data[501:1000],
                  treat1 = treatmentsUse,
-                 treat2 = treatmentsUse2)
+                 treat2 = treatmentsUse2,
+                 treat3 = treatmentsUse3)
 
 df1 <- df[c("y", "x1", "x2", "treat1")]
 matching1 <- quickmatch(distances(df1[c("x1", "x2")]), df1$treat1)
@@ -573,7 +595,7 @@ df2$tot_count <- match_count(as.integer(matching2))
 df2$unit_weight <- NA
 df2$unit_weight[df2$treat2 == "A"] <- match_count(as.integer(matching2)[df2$treat2 == "A"])
 df2$unit_weight[df2$treat2 == "B"] <- match_count(as.integer(matching2)[df2$treat2 == "B"])
-df2$unit_weight[df2$treat2 == "C"] <- match_count(as.integer(matching2)[df2$treat2 == "C"])
+df2$unit_weight[df2$treat2 == "C"] <- NA
 df2$unit_weight <- df2$tot_count / (df2$unit_weight * 500)
 
 lm_res <- stats::lm(y ~ 0 + treat2, data = df2, weights = unit_weight)
@@ -613,6 +635,62 @@ dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
 
 test_that("`lm_match` three treatments + missing treatment + covariates", {
   expect_warning(package_result <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")]))
+  expect_equal(package_result$effects, control_effects)
+  expect_equal(package_result$effect_variances, control_variances)
+})
+
+
+df2 <- df[c("y", "x1", "x2", "treat3")]
+matching2 <- quickmatch(distances(df2[c("x1", "x2")]), df2$treat3, treatment_constraints = c("B" = 1L, "C" = 1L))
+df2$tot_count <- match_count(as.integer(matching2))
+df2$unit_weight <- NA
+df2$unit_weight[df2$treat3 == "A"] <- NA
+df2$unit_weight[df2$treat3 == "B"] <- match_count(as.integer(matching2)[df2$treat3 == "B"])
+df2$unit_weight[df2$treat3 == "C"] <- match_count(as.integer(matching2)[df2$treat3 == "C"])
+df2$unit_weight[df2$treat3 == "D"] <- NA
+df2$unit_weight <- df2$tot_count / (df2$unit_weight * 500)
+
+lm_res <- stats::lm(y ~ 0 + treat3, data = df2, weights = unit_weight)
+coef_var <- sandwich::vcovHC(lm_res, type = "HC1")
+
+control_effects <- matrix(c(NA, NA, NA, NA,
+                            NA, 0, lm_res$coefficients[1] - lm_res$coefficients[2], NA,
+                            NA, lm_res$coefficients[2] - lm_res$coefficients[1], 0, NA,
+                            NA, NA, NA, NA),
+                          ncol = 4, byrow = TRUE)
+control_variances <- matrix(c(NA, NA, NA, NA,
+                              NA, 0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], NA,
+                              NA, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], 0, NA,
+                              NA, NA, NA, NA),
+                            ncol = 4, byrow = TRUE)
+dimnames(control_effects) <- list(c("A", "B", "C", "D"), c("A", "B", "C", "D"))
+dimnames(control_variances) <- list(c("A", "B", "C", "D"), c("A", "B", "C", "D"))
+
+test_that("`lm_match` four treatments + missing treatment in matched group", {
+  expect_warning(package_result <- lm_match(df2$y, df2$treat3, matching2))
+  expect_equal(package_result$effects, control_effects)
+  expect_equal(package_result$effect_variances, control_variances)
+})
+
+
+lm_res <- stats::lm(y ~ 0 + treat3 + x1 + x2, data = df2, weights = unit_weight)
+coef_var <- sandwich::vcovHC(lm_res, type = "HC1")
+
+control_effects <- matrix(c(NA, NA, NA, NA,
+                            NA, 0, lm_res$coefficients[1] - lm_res$coefficients[2], NA,
+                            NA, lm_res$coefficients[2] - lm_res$coefficients[1], 0, NA,
+                            NA, NA, NA, NA),
+                          ncol = 4, byrow = TRUE)
+control_variances <- matrix(c(NA, NA, NA, NA,
+                              NA, 0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], NA,
+                              NA, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,2], 0, NA,
+                              NA, NA, NA, NA),
+                            ncol = 4, byrow = TRUE)
+dimnames(control_effects) <- list(c("A", "B", "C", "D"), c("A", "B", "C", "D"))
+dimnames(control_variances) <- list(c("A", "B", "C", "D"), c("A", "B", "C", "D"))
+
+test_that("`lm_match` four treatments + missing treatment + covariates", {
+  expect_warning(package_result <- lm_match(df2$y, df2$treat3, matching2, df2[c("x1", "x2")]))
   expect_equal(package_result$effects, control_effects)
   expect_equal(package_result$effect_variances, control_variances)
 })

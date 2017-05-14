@@ -265,7 +265,7 @@ coerce_treatments <- function(treatments,
     new_error("`", match.call()$treatments, "` may not contain NAs.")
   }
   if (!is.null(req_length) && (length(treatments) != req_length)) {
-    new_error("Length of `", match.call()$treatments, "` does not match distances object.")
+    new_error("Length of `", match.call()$treatments, "` is incorrect.")
   }
   treatments
 }

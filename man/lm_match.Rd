@@ -60,7 +60,7 @@ the treated.
 \details{
 \code{lm_match} estimates treatment effects using weighted
 regression. The function first derives unit-level weights implied by the
-matching. In detail, let \eqn{S(g)} be the number of unit indicated by
+matching. In detail, let \eqn{S(g)} be the number of units indicated by
 \code{target} in group \eqn{g} (or the total number of units in the group
 if \code{target} is \code{NULL}). Let \eqn{T} be the total number of units
 indicated by \code{target} in sample (or the sample size if \code{target}
@@ -74,19 +74,16 @@ units when we are interested in the average effect of the treated (ATT) and
 we have 50 treated units in total (\eqn{T=50}). For all three units in the
 group, we have \eqn{S(g)=1}. For the treated unit we have \eqn{A(t, g)=1},
 so its weight becomes \eqn{1/50}. The two control units have \eqn{A(t, g)=2},
-so their weights are both \eqn{1/100}.
-
-These weights are such that the difference between the weighted outcome
-averages of two treatment conditions is the same as the average within-group
-difference-in-means between the two conditions.
+so their weights are both \eqn{1/100}. See \code{\link{matching_weights}} for
+more details.
 
 The function uses the derived weights in a weighted least squares regression
 (using the \code{\link[stats]{lm}} function) with indicator variables for the treatment
-conditions. Optionally, covariates can be added to the regression as well (e.g., a common
+conditions. Optionally, covariates can be added to the regression (e.g., a common
 recommendation is to include the covariates used to construct the matching).
 Standard errors are estimated with the heteroskedasticity-robust estimates derived
 using the "HC1" estimator in the \code{\link[sandwich]{vcovHC}} function.
-Units assigned a weight of zero is excluded from the estimation.
+Units not assigned to matched groups are excluded from the estimation.
 }
 \examples{
 # Construct example data

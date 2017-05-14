@@ -202,15 +202,15 @@ test_that("`covariate_balance` checks input.", {
 # ==============================================================================
 
 t_lm_match <- function(outcomes = sound_outcomes,
-                                   treatments = sound_treatments,
-                                   matching = sound_matching,
-                                   covariates = sound_covariates,
-                                   target = sound_target) {
+                       treatments = sound_treatments,
+                       matching = sound_matching,
+                       covariates = sound_covariates,
+                       target = sound_target) {
   lm_match(outcomes = outcomes,
-                       treatments = treatments,
-                       matching = matching,
-                       covariates = covariates,
-                       target = target)
+           treatments = treatments,
+           matching = matching,
+           covariates = covariates,
+           target = target)
 }
 
 test_that("`lm_match` checks input.", {
@@ -218,7 +218,13 @@ test_that("`lm_match` checks input.", {
   expect_silent(t_lm_match(covariates = NULL))
   expect_silent(t_lm_match(target = "1"))
   expect_silent(t_lm_match(target = rep(c(TRUE, FALSE), each = 10)))
-  expect_warning(t_lm_match(treatments = rep(1:2, each = 10), target = "1"))
+  expect_error(t_lm_match(treatments = rep(1:2, each = 10), target = "1"),
+               regexp = "Less than two potential outcomes can be estimated.")
+  expect_warning(t_lm_match(outcomes = 1:6,
+                            matching = qm_matching(c("A", "A", "A", "B", "B", "B")),
+                            treatments = c("T1", "T2", "T3", "T1", "T2", "T2"),
+                            covariates = NULL),
+                 regexp = "Some matched groups are missing treatment conditions. Corresponding potential outcomes cannot be estimated.")
   expect_error(t_lm_match(outcomes = unsound_outcomes))
   expect_error(t_lm_match(treatments = unsound_treatments))
   expect_error(t_lm_match(matching = unsound_matching))

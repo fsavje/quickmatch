@@ -19,7 +19,7 @@
 # ==============================================================================
 
 
-#' Construct generalized full matchings
+#' Derive generalized full matchings
 #'
 #' \code{quickmatch} constructs generalized full matchings. The function constructs a
 #' near-optimal matching so that units assigned to the same group are as similar as

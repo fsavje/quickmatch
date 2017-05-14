@@ -362,7 +362,7 @@ test_that("`coerce_treatments` checks input.", {
   expect_error(t_coerce_treatments(t_treatments = dist(1:10)),
                regexp = "Do not know how to coerce `t_treatments` to factor.")
   expect_error(t_coerce_treatments(t_req_length = 5L),
-               regexp = "Length of `t_treatments` does not match distances object.")
+               regexp = "Length of `t_treatments` is incorrect.")
   expect_error(t_coerce_treatments(t_treatments = c("A", "B", "A", NA, "B", "A", "B", "A", NA, "B")),
                regexp = "`t_treatments` may not contain NAs.")
 })

@@ -2,7 +2,7 @@
 % Please edit documentation in R/quickmatch.R
 \name{quickmatch}
 \alias{quickmatch}
-\title{Construct generalized full matchings}
+\title{Derive generalized full matchings}
 \usage{
 quickmatch(distances, treatments, treatment_constraints = NULL,
   size_constraint = NULL, target = NULL, caliper = NULL, ...)

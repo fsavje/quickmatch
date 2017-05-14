@@ -110,7 +110,6 @@ matching_weights <- function(treatments,
 
   if (any(mwres$treatment_missing)) {
     warning("Some matched groups are missing treatment conditions. No weights exist for corresponding units.")
-    mwres$unit_weights[as.integer(treatments) %in% which(mwres$treatment_missing)] <- NA
   }
 
   mwres$unit_weights / mwres$total_target_count

@@ -13,7 +13,7 @@ covariate_balance(treatments, covariates, matching = NULL, target = NULL,
 \item{covariates}{vector, matrix or data frame with covariates to derive balance for.}
 
 \item{matching}{\code{\link{qm_matching}} or \code{\link[scclust]{scclust}} object with
-the matched groups. If \code{NULL}, balance is derived in the unmatched
+the matched groups. If \code{NULL}, balance is derived for the unmatched
 sample.}
 
 \item{target}{units to target the balance measures for. If \code{NULL}, the measures
@@ -48,9 +48,11 @@ Returns the mean difference between treatment groups in the matched sample
      c \tab -0.5 \tab -0.2 \tab 0.0\cr
    }
    reports that the mean difference for the corresponding covariate between
-   treatment "a" and "b" is 30\% of a sample standard deviation. The maximum
-   (in absolute values) difference is also reported in a vector. In this
-   example, the maximum is 0.5. When \code{all_differences == FALSE}, only
+   treatments "a" and "b" is 30\% of a sample standard deviation. The maximum
+   (in absolute value) difference is also reported in a separate vector. In this
+   example, the maximum is 0.5.
+
+   When \code{all_differences == FALSE}, only
    the maximum differences are reported.
 }
 \description{
@@ -60,7 +62,7 @@ differences between all pairs of treatment conditions for each covariate.
 }
 \details{
 \code{covariate_balance} calculates covariate balance by first deriving the
-(normalized) mean difference between treatment condition of each covariate in
+(normalized) mean difference between all treatment conditions of each covariate in
 each matched group, and then aggregating the differences by a weighted average.
 The \code{target} parameter decides the weights for the averaging. When the
 average treatment effect (ATE) is of interest (i.e., \code{target == NULL}),
@@ -70,7 +72,7 @@ in each matched group will decide its weight. For example, if we are interested
 in the average treatment effect of the treated (ATT), the weight of a group
 will be proportional to the number of treated units in that group. The
 reweighting of the groups captures that we are prepared to accept greater
-imbalances in groups that contain few units of interest.
+imbalances in groups with few units of interest.
 
 By default, the differences are normalized by the sample standard deviation
 of the corresponding covariate (see the \code{normalize} parameter). In more

@@ -55,6 +55,10 @@ replica_matching_weights <- function(treatments,
   match_treat_count <- rep(NA, num_observations)
   split(match_treat_count, match_treat_factor) <- lapply(split(as.integer(matching), match_treat_factor), length)
 
+  for (tna in which(treatment_missing)) {
+    match_treat_count[as.integer(treatments) == tna] <- NA
+  }
+
   list("unit_weights" = target_count / match_treat_count,
        "total_target_count" = total_target_count,
        "treatment_missing" = treatment_missing)
@@ -287,7 +291,7 @@ tot_count <- match_count(as.integer(test_matching))
 unit_weight <- rep(NA, 500)
 unit_weight[treatment2 == "A"] <- match_count(as.integer(test_matching)[treatment2 == "A"])
 unit_weight[treatment2 == "B"] <- match_count(as.integer(test_matching)[treatment2 == "B"])
-unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatment2 == "C"])
+unit_weight[treatment2 == "C"] <- NA
 unit_weight <- tot_count / unit_weight
 
 ref_list <- list("unit_weights" = unit_weight,
@@ -307,7 +311,7 @@ for (i in unique(tmp_int_match)) {
   tot_count[tmp_int_match == i] <- sum(target[tmp_int_match == i])
 }
 unit_weight <- rep(NA, 500)
-unit_weight[treatment2 == "A"] <- match_count(as.integer(test_matching)[treatment2 == "A"])
+unit_weight[treatment2 == "A"] <- NA
 unit_weight[treatment2 == "B"] <- match_count(as.integer(test_matching)[treatment2 == "B"])
 unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatment2 == "C"])
 unit_weight <- tot_count / unit_weight

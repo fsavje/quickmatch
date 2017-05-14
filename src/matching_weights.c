@@ -158,9 +158,18 @@ SEXP qmc_matching_weights(const SEXP R_treatments,
 				block_treatment_weight[t_add + g] = 0.0;
 			} else if (treatment_count[t_add + g] == 0) { // target_count[g] > 0
 				treatment_missing[t] = 1;
-				block_treatment_weight[t_add + g] = NA_REAL;
+				break;
 			} else { // target_count[g] > 0 && treatment_count[t_add + g] > 0
 				block_treatment_weight[t_add + g] = ((double) target_count[g]) / ((double) treatment_count[t_add + g]);
+			}
+		}
+	}
+
+	for (uint32_t t = 0; t < num_treatments; ++t) {
+		if (treatment_missing[t] == 1) {
+			const size_t t_add = t * num_groups;
+			for (size_t g = 1; g < num_groups; ++g) {
+				block_treatment_weight[t_add + g] = NA_REAL;
 			}
 		}
 	}
