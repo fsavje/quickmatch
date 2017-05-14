@@ -2,6 +2,7 @@
 
 export(covariate_balance)
 export(is.qm_matching)
+export(matching_weights)
 export(qm_matching)
 export(quickmatch)
 export(regression_estimator)

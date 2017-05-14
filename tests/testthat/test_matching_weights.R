@@ -19,17 +19,15 @@
 # ==============================================================================
 
 library(quickmatch)
-context("internal_matching_weights")
+context("matching_weights")
 
 replica_matching_weights <- function(treatments,
                                      matching,
                                      subset = NULL) {
-  stopifnot(is.factor(treatments),
-            scclust::is.scclust(matching),
-            length(matching) == length(treatments),
-            is.null(subset) || is.logical(subset) || is.integer(subset))
-
+  treatments <- coerce_treatments(treatments, check_NA = FALSE)
   num_observations <- length(treatments)
+  ensure_matching(matching, num_observations)
+  subset <- coerce_subset(subset, treatments)
 
   if (is.null(subset)) {
     subset <- rep(TRUE, num_observations)
@@ -55,9 +53,11 @@ replica_matching_weights <- function(treatments,
   match_treat_count <- rep(NA, num_observations)
   split(match_treat_count, match_treat_factor) <- lapply(split(as.integer(matching), match_treat_factor), length)
 
-  list("unit_weights" = subset_count / match_treat_count,
-       "total_subset_count" = total_subset_count,
-       "treatment_missing" = treatment_missing)
+  for (tna in which(treatment_missing)) {
+    match_treat_count[as.integer(treatments) == tna] <- NA
+  }
+
+  subset_count / (match_treat_count * total_subset_count)
 }
 
 
@@ -102,47 +102,47 @@ cov <- c(0.0205, -0.3570, -0.1800,  1.6027,  0.6040,  0.0446,  1.1410,  0.6459, 
          0.0961, -0.5849, -0.2429,  0.5242,  0.7977, -0.2923,  0.4917, -0.6212, -2.3871, -2.0155, -1.1342,  0.3785, -0.2179, -0.0241, -0.1828,
          0.8068, -0.0506, -0.8762, -1.3112,  0.6008,  1.5089)
 
-treatment1 <- factor(c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A", "B", "A", "A", "B", "A", "B", "A", "A", "A", "A", "B", "A",
-                       "B", "A", "B", "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "A", "B", "A", "A", "B",
-                       "B", "B", "B", "B", "A", "A", "A", "B", "A", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A",
-                       "B", "B", "A", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "B", "B", "B", "B", "A", "B", "B", "A", "A", "B", "B", "B", "B",
-                       "B", "A", "A", "B", "B", "A", "A", "B", "B", "B", "A", "B", "A", "B", "A", "B", "B", "B", "B", "A", "B", "A", "B", "B", "B", "B",
-                       "A", "B", "A", "B", "A", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "B", "B", "A", "B", "A", "B", "B", "B", "A", "A", "B",
-                       "A", "B", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "B", "A", "B", "B", "A", "B", "B", "B", "A", "A", "B",
-                       "A", "A", "A", "B", "A", "A", "A", "A", "B", "A", "A", "B", "B", "B", "B", "B", "A", "A", "B", "B", "A", "A", "A", "A", "B", "B",
-                       "A", "A", "A", "A", "B", "B", "B", "B", "A", "B", "A", "A", "B", "A", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "A", "B",
-                       "A", "A", "A", "A", "B", "A", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "A", "B", "A", "A", "B", "A", "B",
-                       "B", "B", "B", "B", "B", "B", "A", "B", "B", "B", "B", "A", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B", "A", "A", "A", "A",
-                       "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "A", "A", "B", "A", "B", "A", "B", "B", "B", "A", "A", "A", "A", "B", "A", "B",
-                       "B", "A", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "A", "A", "B", "B", "A", "B", "B", "B", "A", "B", "A", "A", "A", "B",
-                       "B", "A", "A", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B", "A", "B", "A", "B", "B", "B", "B", "A", "B", "A", "B",
-                       "B", "A", "A", "A", "B", "B", "B", "A", "A", "B", "A", "A", "A", "B", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A",
-                       "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "A", "B", "A", "A", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B",
-                       "A", "A", "A", "A", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "A", "A", "A", "B", "A", "B", "A",
-                       "A", "B", "B", "A", "B", "A", "A", "A", "B", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "B", "B", "A", "A", "B", "B",
-                       "B", "A", "B", "B", "B", "B", "A", "A", "A", "A", "A", "B", "B", "A", "B", "B", "A", "B", "A", "B", "A", "A", "A", "A", "B", "B",
-                       "A", "B", "B", "A", "A", "B", "A"))
+treatment1 <- c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A", "B", "A", "A", "B", "A", "B", "A", "A", "A", "A", "B", "A",
+                "B", "A", "B", "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "A", "B", "A", "A", "B",
+                "B", "B", "B", "B", "A", "A", "A", "B", "A", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A",
+                "B", "B", "A", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "B", "B", "B", "B", "A", "B", "B", "A", "A", "B", "B", "B", "B",
+                "B", "A", "A", "B", "B", "A", "A", "B", "B", "B", "A", "B", "A", "B", "A", "B", "B", "B", "B", "A", "B", "A", "B", "B", "B", "B",
+                "A", "B", "A", "B", "A", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "B", "B", "A", "B", "A", "B", "B", "B", "A", "A", "B",
+                "A", "B", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "B", "A", "B", "B", "A", "B", "B", "B", "A", "A", "B",
+                "A", "A", "A", "B", "A", "A", "A", "A", "B", "A", "A", "B", "B", "B", "B", "B", "A", "A", "B", "B", "A", "A", "A", "A", "B", "B",
+                "A", "A", "A", "A", "B", "B", "B", "B", "A", "B", "A", "A", "B", "A", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "A", "B",
+                "A", "A", "A", "A", "B", "A", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "A", "B", "A", "A", "B", "A", "B",
+                "B", "B", "B", "B", "B", "B", "A", "B", "B", "B", "B", "A", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B", "A", "A", "A", "A",
+                "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "A", "A", "B", "A", "B", "A", "B", "B", "B", "A", "A", "A", "A", "B", "A", "B",
+                "B", "A", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "A", "A", "B", "B", "A", "B", "B", "B", "A", "B", "A", "A", "A", "B",
+                "B", "A", "A", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B", "A", "B", "A", "B", "B", "B", "B", "A", "B", "A", "B",
+                "B", "A", "A", "A", "B", "B", "B", "A", "A", "B", "A", "A", "A", "B", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A",
+                "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "A", "B", "A", "A", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B",
+                "A", "A", "A", "A", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "A", "A", "A", "B", "A", "B", "A",
+                "A", "B", "B", "A", "B", "A", "A", "A", "B", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "B", "B", "A", "A", "B", "B",
+                "B", "A", "B", "B", "B", "B", "A", "A", "A", "A", "A", "B", "B", "A", "B", "B", "A", "B", "A", "B", "A", "A", "A", "A", "B", "B",
+                "A", "B", "B", "A", "A", "B", "A")
 
-treatment2 <- factor(c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A", "B", "A", "A", "B", "A", "B", "A", "A", "A", "A", "B", "A",
-                       "A", "C", "A", "A", "C", "A", "A", "A", "A", "A", "C", "C", "A", "A", "C", "C", "A", "C", "C", "A", "C", "C", "C", "A", "A", "C",
-                       "B", "A", "B", "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "A", "B", "A", "A", "B",
-                       "C", "C", "C", "C", "A", "A", "A", "C", "A", "C", "C", "A", "A", "A", "C", "C", "C", "C", "A", "A", "C", "C", "C", "A", "A", "A",
-                       "A", "A", "A", "A", "C", "C", "C", "C", "A", "C", "A", "A", "C", "A", "A", "A", "A", "A", "A", "C", "C", "A", "A", "C", "A", "C",
-                       "C", "C", "C", "C", "C", "C", "A", "C", "C", "C", "C", "A", "C", "A", "A", "C", "C", "C", "A", "A", "A", "C", "A", "A", "A", "A",
-                       "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "A", "A", "B", "A", "B", "A", "B", "B", "B", "A", "A", "A", "A", "B", "A", "B",
-                       "A", "A", "A", "C", "A", "A", "A", "A", "C", "A", "A", "C", "C", "C", "C", "C", "A", "A", "C", "C", "A", "A", "A", "A", "C", "C",
-                       "B", "A", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "A", "A", "B", "B", "A", "B", "B", "B", "A", "B", "A", "A", "A", "B",
-                       "B", "A", "A", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B", "A", "B", "A", "B", "B", "B", "B", "A", "B", "A", "B",
-                       "C", "A", "A", "C", "C", "A", "A", "C", "C", "C", "A", "C", "A", "C", "A", "C", "C", "C", "C", "A", "C", "A", "C", "C", "C", "C",
-                       "A", "C", "A", "C", "A", "A", "A", "A", "A", "A", "C", "A", "A", "A", "A", "C", "C", "A", "C", "A", "C", "C", "C", "A", "A", "C",
-                       "B", "A", "A", "A", "B", "B", "B", "A", "A", "B", "A", "A", "A", "B", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A",
-                       "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "A", "B", "A", "A", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B",
-                       "A", "A", "A", "A", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "A", "A", "A", "B", "A", "B", "A",
-                       "A", "A", "A", "A", "C", "A", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "A", "C", "A", "A", "C", "A", "C",
-                       "A", "B", "B", "A", "B", "A", "A", "A", "B", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "B", "B", "A", "A", "B", "B",
-                       "C", "C", "A", "C", "A", "A", "C", "C", "C", "C", "A", "A", "C", "C", "C", "C", "C", "A", "C", "C", "A", "A", "C", "C", "C", "C",
-                       "B", "A", "B", "B", "B", "B", "A", "A", "A", "A", "A", "B", "B", "A", "B", "B", "A", "B", "A", "B", "A", "A", "A", "A", "B", "B",
-                       "A", "B", "B", "A", "A", "B", "A"))
+treatment2 <- c("B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "B", "B", "A", "B", "A", "A", "B", "A", "B", "A", "A", "A", "A", "B", "A",
+                "A", "C", "A", "A", "C", "A", "A", "A", "A", "A", "C", "C", "A", "A", "C", "C", "A", "C", "C", "A", "C", "C", "C", "A", "A", "C",
+                "B", "A", "B", "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "A", "A", "A", "A", "B", "B", "A", "A", "A", "B", "A", "A", "B",
+                "C", "C", "C", "C", "A", "A", "A", "C", "A", "C", "C", "A", "A", "A", "C", "C", "C", "C", "A", "A", "C", "C", "C", "A", "A", "A",
+                "A", "A", "A", "A", "C", "C", "C", "C", "A", "C", "A", "A", "C", "A", "A", "A", "A", "A", "A", "C", "C", "A", "A", "C", "A", "C",
+                "C", "C", "C", "C", "C", "C", "A", "C", "C", "C", "C", "A", "C", "A", "A", "C", "C", "C", "A", "A", "A", "C", "A", "A", "A", "A",
+                "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "A", "A", "B", "A", "B", "A", "B", "B", "B", "A", "A", "A", "A", "B", "A", "B",
+                "A", "A", "A", "C", "A", "A", "A", "A", "C", "A", "A", "C", "C", "C", "C", "C", "A", "A", "C", "C", "A", "A", "A", "A", "C", "C",
+                "B", "A", "A", "A", "A", "A", "A", "B", "B", "A", "A", "B", "A", "A", "B", "B", "A", "B", "B", "B", "A", "B", "A", "A", "A", "B",
+                "B", "A", "A", "B", "B", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B", "A", "B", "A", "B", "B", "B", "B", "A", "B", "A", "B",
+                "C", "A", "A", "C", "C", "A", "A", "C", "C", "C", "A", "C", "A", "C", "A", "C", "C", "C", "C", "A", "C", "A", "C", "C", "C", "C",
+                "A", "C", "A", "C", "A", "A", "A", "A", "A", "A", "C", "A", "A", "A", "A", "C", "C", "A", "C", "A", "C", "C", "C", "A", "A", "C",
+                "B", "A", "A", "A", "B", "B", "B", "A", "A", "B", "A", "A", "A", "B", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A",
+                "A", "B", "B", "A", "A", "A", "A", "A", "B", "A", "B", "A", "A", "B", "A", "A", "B", "A", "A", "B", "B", "B", "A", "A", "A", "B",
+                "A", "A", "A", "A", "B", "B", "B", "B", "A", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "A", "A", "A", "B", "A", "B", "A",
+                "A", "A", "A", "A", "C", "A", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "A", "C", "A", "A", "C", "A", "C",
+                "A", "B", "B", "A", "B", "A", "A", "A", "B", "B", "A", "A", "B", "B", "B", "B", "A", "A", "B", "A", "B", "B", "A", "A", "B", "B",
+                "C", "C", "A", "C", "A", "A", "C", "C", "C", "C", "A", "A", "C", "C", "C", "C", "C", "A", "C", "C", "A", "A", "C", "C", "C", "C",
+                "B", "A", "B", "B", "B", "B", "A", "A", "A", "A", "A", "B", "B", "A", "B", "B", "A", "B", "A", "B", "A", "A", "A", "A", "B", "B",
+                "A", "B", "B", "A", "A", "B", "A")
 
 test_matching <- quickmatch(distances(cov), treatment1)
 tot_count <- match_count(as.integer(test_matching))
@@ -151,13 +151,11 @@ unit_weight[treatment1 == "A"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight[treatment1 == "B"] <- match_count(as.integer(test_matching)[treatment1 == "B"])
 unit_weight <- tot_count / unit_weight
 
-ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = 500,
-                 "treatment_missing" = rep(FALSE, 2L))
+ref_list <- unit_weight / 500
 
-test_that("`internal_matching_weights` vanilla", {
+test_that("`matching_weights` vanilla", {
   expect_identical(replica_matching_weights(treatment1, test_matching, NULL), ref_list)
-  expect_identical(internal_matching_weights(treatment1, test_matching, NULL), ref_list)
+  expect_identical(matching_weights(treatment1, test_matching, NULL), ref_list)
 })
 
 test_matching <- quickmatch(distances(cov), treatment1)
@@ -172,17 +170,17 @@ unit_weight[treatment1 == "A"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight[treatment1 == "B"] <- match_count(as.integer(test_matching)[treatment1 == "B"])
 unit_weight <- tot_count / unit_weight
 
-ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = as.numeric(sum(target)),
-                 "treatment_missing" = rep(FALSE, 2L))
+ref_list <- unit_weight / as.numeric(sum(target))
 
-test_that("`internal_matching_weights` subset", {
+test_that("`matching_weights` subset", {
+  expect_identical(replica_matching_weights(treatment1, test_matching, "B"), ref_list)
   expect_identical(replica_matching_weights(treatment1, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment1, test_matching, which(target)), ref_list)
   expect_identical(replica_matching_weights(treatment1, test_matching, rev(which(target))), ref_list)
-  expect_identical(internal_matching_weights(treatment1, test_matching, target), ref_list)
-  expect_identical(internal_matching_weights(treatment1, test_matching, which(target)), ref_list)
-  expect_identical(internal_matching_weights(treatment1, test_matching, rev(which(target))), ref_list)
+  expect_identical(matching_weights(treatment1, test_matching, "B"), ref_list)
+  expect_identical(matching_weights(treatment1, test_matching, target), ref_list)
+  expect_identical(matching_weights(treatment1, test_matching, which(target)), ref_list)
+  expect_identical(matching_weights(treatment1, test_matching, rev(which(target))), ref_list)
 })
 
 
@@ -194,13 +192,11 @@ unit_weight[treatment2 == "B"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatment2 == "C"])
 unit_weight <- tot_count / unit_weight
 
-ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = 500,
-                 "treatment_missing" = rep(FALSE, 3L))
+ref_list <- unit_weight / 500
 
-test_that("`internal_matching_weights` vanilla", {
-  expect_identical(replica_matching_weights(treatment2, test_matching, NULL), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, NULL), ref_list)
+test_that("`matching_weights` vanilla", {
+  expect_equal(replica_matching_weights(treatment2, test_matching, NULL), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, NULL), ref_list)
 })
 
 test_matching <- quickmatch(distances(cov), treatment2)
@@ -216,17 +212,17 @@ unit_weight[treatment2 == "B"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatment2 == "C"])
 unit_weight <- tot_count / unit_weight
 
-ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = as.numeric(sum(target)),
-                 "treatment_missing" = rep(FALSE, 3L))
+ref_list <- unit_weight / as.numeric(sum(target))
 
-test_that("`internal_matching_weights` subset", {
-  expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+test_that("`matching_weights` subset", {
+  expect_equal(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, target), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
 
 test_matching <- quickmatch(distances(cov), treatment2, subset = "B")
@@ -242,17 +238,17 @@ unit_weight[treatment2 == "B"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatment2 == "C"])
 unit_weight <- tot_count / unit_weight
 
-ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = as.numeric(sum(target)),
-                 "treatment_missing" = rep(FALSE, 3L))
+ref_list <- unit_weight / as.numeric(sum(target))
 
-test_that("`internal_matching_weights` subset", {
-  expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+test_that("`matching_weights` subset", {
+  expect_equal(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, target), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
 
 test_matching <- quickmatch(distances(cov), treatment2, subset = "B", secondary_unassigned_method = "ignore")
@@ -268,17 +264,17 @@ unit_weight[treatment2 == "B"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatment2 == "C"])
 unit_weight <- tot_count / unit_weight
 
-ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = as.numeric(sum(target)),
-                 "treatment_missing" = rep(FALSE, 3L))
+ref_list <- unit_weight / as.numeric(sum(target))
 
-test_that("`internal_matching_weights` subset", {
-  expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+test_that("`matching_weights` subset", {
+  expect_equal(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, target), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, target), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
 
 
@@ -287,16 +283,14 @@ tot_count <- match_count(as.integer(test_matching))
 unit_weight <- rep(NA, 500)
 unit_weight[treatment2 == "A"] <- match_count(as.integer(test_matching)[treatment2 == "A"])
 unit_weight[treatment2 == "B"] <- match_count(as.integer(test_matching)[treatment2 == "B"])
-unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatment2 == "C"])
+unit_weight[treatment2 == "C"] <- NA
 unit_weight <- tot_count / unit_weight
 
-ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = 500,
-                 "treatment_missing" = c(FALSE, FALSE, TRUE))
+ref_list <- unit_weight / 500
 
-test_that("`internal_matching_weights` vanilla", {
-  expect_identical(replica_matching_weights(treatment2, test_matching, NULL), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, NULL), ref_list)
+test_that("`matching_weights` vanilla", {
+  expect_equal(replica_matching_weights(treatment2, test_matching, NULL), ref_list)
+  expect_warning(expect_identical(matching_weights(treatment2, test_matching, NULL), ref_list))
 })
 
 test_matching <- quickmatch(distances(cov), treatment2, treatment_constraints = c("B" = 1L, "C" = 1L))
@@ -307,20 +301,20 @@ for (i in unique(tmp_int_match)) {
   tot_count[tmp_int_match == i] <- sum(target[tmp_int_match == i])
 }
 unit_weight <- rep(NA, 500)
-unit_weight[treatment2 == "A"] <- match_count(as.integer(test_matching)[treatment2 == "A"])
+unit_weight[treatment2 == "A"] <- NA
 unit_weight[treatment2 == "B"] <- match_count(as.integer(test_matching)[treatment2 == "B"])
 unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatment2 == "C"])
 unit_weight <- tot_count / unit_weight
 
-ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = as.numeric(sum(target)),
-                 "treatment_missing" = c(TRUE, FALSE, FALSE))
+ref_list <- unit_weight / as.numeric(sum(target))
 
-test_that("`internal_matching_weights` subset", {
-  expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, target), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, which(target)), ref_list)
-  expect_identical(internal_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+test_that("`matching_weights` subset", {
+  expect_equal(replica_matching_weights(treatment2, test_matching, "B"), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, target), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
+  expect_equal(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
+  expect_warning(expect_identical(matching_weights(treatment2, test_matching, "B"), ref_list))
+  expect_warning(expect_identical(matching_weights(treatment2, test_matching, target), ref_list))
+  expect_warning(expect_identical(matching_weights(treatment2, test_matching, which(target)), ref_list))
+  expect_warning(expect_identical(matching_weights(treatment2, test_matching, rev(which(target))), ref_list))
 })

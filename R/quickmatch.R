@@ -24,7 +24,7 @@
 #' \code{quickmatch} constructs generalized full matchings. The function constructs a
 #' near-optimal matching so that units assigned to the same group are as similar as
 #' possible. The function expects the user to provide distances measuring the
-#' similarity of the units and a set of matching constraints. 
+#' similarity of the units and a set of matching constraints.
 #'
 #' The \code{treatment_constraints} argument should contain a named vector with
 #' all treatment-specific constraints. For example, in a sample with treatment

@@ -159,6 +159,9 @@ test_that("`matching_weights` checks input.", {
   expect_error(t_matching_weights(treatments = unsound_treatments))
   expect_error(t_matching_weights(matching = unsound_matching))
   expect_error(t_matching_weights(subset = unsound_subset))
+
+  expect_warning(t_matching_weights(treatments = c("A", "B", "A", "B"), matching = qm_matching(c("1", "1", "1", "2"))),
+                 regexp = "Some matched groups are missing treatment conditions. No weights exist for corresponding units.")
 })
 
 
