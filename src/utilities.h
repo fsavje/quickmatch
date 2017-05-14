@@ -24,7 +24,7 @@
 #include <R.h>
 #include <Rinternals.h>
 
-SEXP qmc_get_subset_indicators(SEXP R_subset,
+SEXP qmc_get_target_indicators(SEXP R_target,
                                SEXP R_treatments);
 
 #endif // ifndef QMC_UTILITIES_HG

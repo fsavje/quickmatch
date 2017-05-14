@@ -19,24 +19,24 @@
 # ==============================================================================
 
 library(quickmatch)
-context("get_subset_indicators")
+context("get_target_indicators")
 
 treatments <- factor(c("A", "C", "B", "A", "A", "C", "B", "A", "B", "A"))
 
-test_that("`get_subset_indicators` checks input.", {
-  expect_silent(get_subset_indicators(c("A", "B", "C"), treatments))
-  expect_silent(get_subset_indicators(c("A", "C"), treatments))
-  expect_error(get_subset_indicators(1:3, treatments))
-  expect_error(get_subset_indicators(c("A", "B", "A"), treatments))
-  expect_error(get_subset_indicators(c("A", "B", "C"), c("A", "C", "B", "A", "A", "C", "B", "A", "B", "A")))
-  expect_error(get_subset_indicators(c("A", "E", "C"), treatments))
+test_that("`get_target_indicators` checks input.", {
+  expect_silent(get_target_indicators(c("A", "B", "C"), treatments))
+  expect_silent(get_target_indicators(c("A", "C"), treatments))
+  expect_error(get_target_indicators(1:3, treatments))
+  expect_error(get_target_indicators(c("A", "B", "A"), treatments))
+  expect_error(get_target_indicators(c("A", "B", "C"), c("A", "C", "B", "A", "A", "C", "B", "A", "B", "A")))
+  expect_error(get_target_indicators(c("A", "E", "C"), treatments))
 })
 
-test_that("`get_subset_indicators` returns correct output", {
-  expect_identical(get_subset_indicators(c("A", "B", "C"), treatments),
+test_that("`get_target_indicators` returns correct output", {
+  expect_identical(get_target_indicators(c("A", "B", "C"), treatments),
                    NULL)
-  expect_identical(get_subset_indicators(c("A", "B"), treatments),
+  expect_identical(get_target_indicators(c("A", "B"), treatments),
                    which(treatments %in% c("A", "B")))
-  expect_identical(get_subset_indicators(c("A"), treatments),
+  expect_identical(get_target_indicators(c("A"), treatments),
                    which(treatments %in% c("A")))
 })

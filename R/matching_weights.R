@@ -20,16 +20,16 @@
 
 #' Unit weights implied by matching
 #'
-#' \code{matching_weights} derives the weights for units in sample implied
-#' by a matching. If the matching is exact, reweighting the units with this
-#' function will produce a sample where all treatment groups are identical
-#' on the matching covariates. If the matching is approximate, the reweighted
-#' treatment groups will similar, but not identical.
+#' \code{matching_weights} derives the weights implied by a matching for units
+#' assigne to matched groups. If the matching is exact, reweighting the units
+#' with this function will produce a sample where all treatment groups are
+#' identical on the matching covariates. If the matching is approximate, the
+#' reweighted treatment groups will similar, but not identical.
 #'
-#' Let \eqn{S(g)} be the number of unit indicated by \code{subset} in group
-#' \eqn{g} (or the total number of units in the group if \code{subset} is
+#' Let \eqn{S(g)} be the number of unit indicated by \code{target} in group
+#' \eqn{g} (or the total number of units in the group if \code{target} is
 #' \code{NULL}). Let \eqn{T} be the total number of units indicated by
-#' \code{subset} in sample (or the sample size if \code{subset} is \code{NULL}).
+#' \code{target} in sample (or the sample size if \code{target} is \code{NULL}).
 #' Let \eqn{A(t, g)} be the number of units assigned to treatment \eqn{t} in
 #' group \eqn{g}. The weight for a unit in group \eqn{g} that is assigned to
 #' treatment \eqn{t} is given by:
@@ -52,7 +52,7 @@
 #' to \eqn{t}; the matching does not contain enough information to impute the
 #' missing treatment in group \eqn{g}. Subsequently, all units assigned to
 #' \eqn{t} will be assigned weight of \code{NA}. To solve this, either change
-#' the target by setting \eqn{S(g)=0} (using the \code{subset} parameter) or
+#' the target by setting \eqn{S(g)=0} (using the \code{target} parameter) or
 #' change the matching so that the group contain at least one unit assigned to
 #' \eqn{t} (e.g., by merging \eqn{g} with another group).
 #'
@@ -61,14 +61,14 @@
 #' @param matching
 #'    \code{\link{qm_matching}} or \code{\link[scclust]{scclust}} object with
 #'    the matched groups.
-#' @param subset
+#' @param target
 #'    units to target the weights for. If \code{NULL}, the weights pertain to
 #'    all units in the sample (i.e., ATE). A non-null value specifies a subset
 #'    of units that the weights should be targeted for (e.g., ATT or ATC). If
-#'    \code{subset} is a logical vector with the same length as the sample size,
-#'    units indicated with \code{TRUE} will be targeted. If \code{subset} is an
-#'    integer vector, the units with indices in \code{subset} are targeted. If
-#'    \code{subset} is a character vector, it should contain treatment labels,
+#'    \code{target} is a logical vector with the same length as the sample size,
+#'    units indicated with \code{TRUE} will be targeted. If \code{target} is an
+#'    integer vector, the units with indices in \code{target} are targeted. If
+#'    \code{target} is a character vector, it should contain treatment labels,
 #'    and the weights pertain to the corresponding units (as given by
 #'    \code{treatments}).
 #'
@@ -92,26 +92,26 @@
 #' weights_ate <- matching_weights(my_data$treatment, my_matching)
 #'
 #' # Weights for ATT for T1
-#' weights_att <- matching_weights(my_data$treatment, my_matching, subset = "T1")
+#' weights_att <- matching_weights(my_data$treatment, my_matching, target = "T1")
 #'
-#' # Estimate treatment effects with WLS estimator (see `regression_estimator`)
+#' # Estimate treatment effects with WLS estimator (see `lm_match`)
 #' effects <- lm(y ~ treatment + x1 + x2, data = my_data, weights = weights_att)
 #'
 #' @export
 matching_weights <- function(treatments,
                              matching,
-                             subset = NULL) {
+                             target = NULL) {
   treatments <- coerce_treatments(treatments)
   num_observations <- length(treatments)
   ensure_matching(matching, num_observations)
-  subset <- coerce_subset(subset, treatments)
+  target <- coerce_target(target, treatments)
 
-  mwres <- internal_matching_weights(treatments, matching, subset)
+  mwres <- internal_matching_weights(treatments, matching, target)
 
   if (any(mwres$treatment_missing)) {
     warning("Some matched groups are missing treatment conditions. No weights exist for corresponding units.")
     mwres$unit_weights[as.integer(treatments) %in% which(mwres$treatment_missing)] <- NA
   }
 
-  mwres$unit_weights / mwres$total_subset_count
+  mwres$unit_weights / mwres$total_target_count
 }

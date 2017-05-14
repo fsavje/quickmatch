@@ -23,40 +23,40 @@ context("internal_matching_weights")
 
 replica_matching_weights <- function(treatments,
                                      matching,
-                                     subset = NULL) {
+                                     target = NULL) {
   stopifnot(is.factor(treatments),
             scclust::is.scclust(matching),
             length(matching) == length(treatments),
-            is.null(subset) || is.logical(subset) || is.integer(subset))
+            is.null(target) || is.logical(target) || is.integer(target))
 
   num_observations <- length(treatments)
 
-  if (is.null(subset)) {
-    subset <- rep(TRUE, num_observations)
-  } else if (is.integer(subset)) {
-    tmp_subset <- rep(FALSE, num_observations)
-    tmp_subset[subset] <- TRUE
-    subset <- tmp_subset
+  if (is.null(target)) {
+    target <- rep(TRUE, num_observations)
+  } else if (is.integer(target)) {
+    tmp_target <- rep(FALSE, num_observations)
+    tmp_target[target] <- TRUE
+    target <- tmp_target
   }
 
   # Find matched groups with treatments
-  subset_match <- unique(as.integer(matching)[subset])
+  target_match <- unique(as.integer(matching)[target])
   treatment_missing <- !unname(unlist(lapply(split(as.integer(matching), treatments, drop = FALSE),
-                                             function(x) { all(subset_match %in% unique(x)) })))
+                                             function(x) { all(target_match %in% unique(x)) })))
 
   # Estimation
   match_treat_factor <- interaction(as.integer(matching), treatments)
 
-  total_subset_count <- as.numeric(sum(subset))
+  total_target_count <- as.numeric(sum(target))
 
-  subset_count <- rep(NA, num_observations)
-  split(subset_count, as.integer(matching)) <- lapply(split(subset, as.integer(matching)), sum)
+  target_count <- rep(NA, num_observations)
+  split(target_count, as.integer(matching)) <- lapply(split(target, as.integer(matching)), sum)
 
   match_treat_count <- rep(NA, num_observations)
   split(match_treat_count, match_treat_factor) <- lapply(split(as.integer(matching), match_treat_factor), length)
 
-  list("unit_weights" = subset_count / match_treat_count,
-       "total_subset_count" = total_subset_count,
+  list("unit_weights" = target_count / match_treat_count,
+       "total_target_count" = total_target_count,
        "treatment_missing" = treatment_missing)
 }
 
@@ -152,7 +152,7 @@ unit_weight[treatment1 == "B"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight <- tot_count / unit_weight
 
 ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = 500,
+                 "total_target_count" = 500,
                  "treatment_missing" = rep(FALSE, 2L))
 
 test_that("`internal_matching_weights` vanilla", {
@@ -173,10 +173,10 @@ unit_weight[treatment1 == "B"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight <- tot_count / unit_weight
 
 ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = as.numeric(sum(target)),
+                 "total_target_count" = as.numeric(sum(target)),
                  "treatment_missing" = rep(FALSE, 2L))
 
-test_that("`internal_matching_weights` subset", {
+test_that("`internal_matching_weights` target", {
   expect_identical(replica_matching_weights(treatment1, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment1, test_matching, which(target)), ref_list)
   expect_identical(replica_matching_weights(treatment1, test_matching, rev(which(target))), ref_list)
@@ -195,7 +195,7 @@ unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight <- tot_count / unit_weight
 
 ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = 500,
+                 "total_target_count" = 500,
                  "treatment_missing" = rep(FALSE, 3L))
 
 test_that("`internal_matching_weights` vanilla", {
@@ -217,10 +217,10 @@ unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight <- tot_count / unit_weight
 
 ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = as.numeric(sum(target)),
+                 "total_target_count" = as.numeric(sum(target)),
                  "treatment_missing" = rep(FALSE, 3L))
 
-test_that("`internal_matching_weights` subset", {
+test_that("`internal_matching_weights` target", {
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
@@ -229,7 +229,7 @@ test_that("`internal_matching_weights` subset", {
   expect_identical(internal_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
 
-test_matching <- quickmatch(distances(cov), treatment2, subset = "B")
+test_matching <- quickmatch(distances(cov), treatment2, target = "B")
 target <- (treatment2 == "B")
 tot_count <- rep(NA, 500)
 tmp_int_match <- as.integer(test_matching)
@@ -243,10 +243,10 @@ unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight <- tot_count / unit_weight
 
 ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = as.numeric(sum(target)),
+                 "total_target_count" = as.numeric(sum(target)),
                  "treatment_missing" = rep(FALSE, 3L))
 
-test_that("`internal_matching_weights` subset", {
+test_that("`internal_matching_weights` target", {
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
@@ -255,7 +255,7 @@ test_that("`internal_matching_weights` subset", {
   expect_identical(internal_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
 })
 
-test_matching <- quickmatch(distances(cov), treatment2, subset = "B", secondary_unassigned_method = "ignore")
+test_matching <- quickmatch(distances(cov), treatment2, target = "B", secondary_unassigned_method = "ignore")
 target <- (treatment2 == "B")
 tot_count <- rep(NA, 500)
 tmp_int_match <- as.integer(test_matching)
@@ -269,10 +269,10 @@ unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight <- tot_count / unit_weight
 
 ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = as.numeric(sum(target)),
+                 "total_target_count" = as.numeric(sum(target)),
                  "treatment_missing" = rep(FALSE, 3L))
 
-test_that("`internal_matching_weights` subset", {
+test_that("`internal_matching_weights` target", {
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)
@@ -291,7 +291,7 @@ unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight <- tot_count / unit_weight
 
 ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = 500,
+                 "total_target_count" = 500,
                  "treatment_missing" = c(FALSE, FALSE, TRUE))
 
 test_that("`internal_matching_weights` vanilla", {
@@ -313,10 +313,10 @@ unit_weight[treatment2 == "C"] <- match_count(as.integer(test_matching)[treatmen
 unit_weight <- tot_count / unit_weight
 
 ref_list <- list("unit_weights" = unit_weight,
-                 "total_subset_count" = as.numeric(sum(target)),
+                 "total_target_count" = as.numeric(sum(target)),
                  "treatment_missing" = c(TRUE, FALSE, FALSE))
 
-test_that("`internal_matching_weights` subset", {
+test_that("`internal_matching_weights` target", {
   expect_identical(replica_matching_weights(treatment2, test_matching, target), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, which(target)), ref_list)
   expect_identical(replica_matching_weights(treatment2, test_matching, rev(which(target))), ref_list)

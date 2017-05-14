@@ -18,21 +18,21 @@
 # along with this program. If not, see http://www.gnu.org/licenses/
 # ==============================================================================
 
-#' Regression-based average treatment effect estimator
+#' Regression-based matching estimator of treatment effects
 #'
-#' \code{regression_estimator} estimates treatment effects in matched samples.
+#' \code{lm_match} estimates treatment effects in matched samples.
 #' The function expects the user to provide the outcomes, treatment indicators, and
 #' a matching object. The function returns point estimates of the average treatment
 #' effects and variance estimates. It is possible to estimate treatment effects for
 #' subsets of the observations, such as estimates of the average treatment effect for
 #' the treated.
 #'
-#' \code{regression_estimator} estimates treatment effects using weighted
+#' \code{lm_match} estimates treatment effects using weighted
 #' regression. The function first derives unit-level weights implied by the
 #' matching. In detail, let \eqn{S(g)} be the number of unit indicated by
-#' \code{subset} in group \eqn{g} (or the total number of units in the group
-#' if \code{subset} is \code{NULL}). Let \eqn{T} be the total number of units
-#' indicated by \code{subset} in sample (or the sample size if \code{subset}
+#' \code{target} in group \eqn{g} (or the total number of units in the group
+#' if \code{target} is \code{NULL}). Let \eqn{T} be the total number of units
+#' indicated by \code{target} in sample (or the sample size if \code{target}
 #' is \code{NULL}). Let \eqn{A(t, g)} be the number of units assigned to treatment \eqn{t} in group \eqn{g}. The weight for a unit in group
 #' \eqn{g} that is assigned to treatment \eqn{t} is given by:
 #'
@@ -67,15 +67,15 @@
 #' @param covariates
 #'    vector, matrix or data frame with covariates to include in the estimation.
 #'    If \code{NULL}, no covariates are included.
-#' @param subset
+#' @param target
 #'    units to target the estimation for. If \code{NULL}, the effect is estimated
 #'    for all units in the sample (i.e., ATE). A non-null value
 #'    specifies a subset of units that the effect should be estimated for (e.g.,
-#'    ATT or ATC). If \code{subset} is a logical vector with the same length as
+#'    ATT or ATC). If \code{target} is a logical vector with the same length as
 #'    the sample size, units indicated with \code{TRUE} will be targeted. If
-#'    \code{subset} is an integer vector, the units with indices in \code{subset}
+#'    \code{target} is an integer vector, the units with indices in \code{target}
 #'    are targeted. If
-#'    \code{subset} is a character vector, it should contain treatment labels,
+#'    \code{target} is a character vector, it should contain treatment labels,
 #'    and the effect for the corresponding units (as given by \code{treatments}) will be
 #'    estimated.
 #'
@@ -95,7 +95,7 @@
 #'    \eqn{4.5}, and the estimated treatment effect between conditions \eqn{c}
 #'    and \eqn{b} is \eqn{-1.0}. Or in symbols \eqn{E[Y(a) - Y(b) | S] = 4.5} and
 #'    \eqn{E[Y(c) - Y(b) | S] = -1.0} where \eqn{S} is the condition set indicated
-#'    by the \code{subset} parameter.
+#'    by the \code{target} parameter.
 #'
 #'    The second matrix (\code{effect_variances}) contains estimates of
 #'    variances of the corresponding effect estimators.
@@ -119,43 +119,43 @@
 #' my_matching <- quickmatch(my_distances, my_data$treatment)
 #'
 #' # ATE without covariates
-#' regression_estimator(my_data$y,
-#'                      my_data$treatment,
-#'                      my_matching)
+#' lm_match(my_data$y,
+#'          my_data$treatment,
+#'          my_matching)
 #'
 #' # ATE with covariates
-#' regression_estimator(my_data$y,
-#'                      my_data$treatment,
-#'                      my_matching,
-#'                      my_data[c("x1", "x2")])
+#' lm_match(my_data$y,
+#'          my_data$treatment,
+#'          my_matching,
+#'          my_data[c("x1", "x2")])
 #'
 #' # ATT for T1
-#' regression_estimator(my_data$y,
-#'                      my_data$treatment,
-#'                      my_matching,
-#'                      my_data[c("x1", "x2")],
-#'                      subset = "T1")
+#' lm_match(my_data$y,
+#'          my_data$treatment,
+#'          my_matching,
+#'          my_data[c("x1", "x2")],
+#'          target = "T1")
 #'
 #' @export
-regression_estimator <- function(outcomes,
-                                 treatments,
-                                 matching,
-                                 covariates = NULL,
-                                 subset = NULL) {
+lm_match <- function(outcomes,
+                     treatments,
+                     matching,
+                     covariates = NULL,
+                     target = NULL) {
   outcomes <- coerce_double(outcomes)
   num_observations <- length(outcomes)
   treatments <- coerce_treatments(treatments, num_observations)
   ensure_matching(matching, num_observations)
   covariates <- coerce_covariates(covariates, num_observations)
-  subset <- coerce_subset(subset, treatments)
+  target <- coerce_target(target, treatments)
 
-  mwres <- internal_matching_weights(treatments, matching, subset)
+  mwres <- internal_matching_weights(treatments, matching, target)
 
   if (any(mwres$treatment_missing)) {
     warning("Some matched groups are missing treatment conditions. Corresponding potential outcomes cannot be estimated.")
   }
 
-  # No need to normalize with total number of units in `subset` since regression
+  # No need to normalize with total number of units in `target` since regression
   # does it. Not normalizing is numerically more stable.
   if (is.null(covariates)) {
     lm_res <- stats::lm(outcomes ~ 0 + treatments, weights = mwres$unit_weights)

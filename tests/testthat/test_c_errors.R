@@ -28,20 +28,20 @@ context("Input checking in C code")
 t_qmc_matching_weights <- function(treatments = c(1L, 1L, 2L, 3L, 2L, 1L, 3L),
                                    num_treatments = 3L,
                                    matching = qm_matching(c("A", "B", "A", "A", "B", "B", "B")),
-                                   subset = NULL) {
+                                   target = NULL) {
   .Call(qmc_matching_weights,
         treatments,
         num_treatments,
         matching,
-        subset)
+        target)
 }
 
 test_that("`qmc_matching_weights` checks input.", {
   expect_silent(t_qmc_matching_weights())
   expect_silent(t_qmc_matching_weights(matching = qm_matching(c("A", "B", "A", "A", "B", NA, "B")),
-                                       subset = c(1L, 4L)))
-  expect_silent(t_qmc_matching_weights(subset = c(1L, 4L, 7L)))
-  expect_silent(t_qmc_matching_weights(subset = c(FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE)))
+                                       target = c(1L, 4L)))
+  expect_silent(t_qmc_matching_weights(target = c(1L, 4L, 7L)))
+  expect_silent(t_qmc_matching_weights(target = c(FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE)))
 
   expect_error(t_qmc_matching_weights(treatments = letters[1:7]),
                regexp = "`R_treatments` must be integer.")
@@ -57,10 +57,10 @@ test_that("`qmc_matching_weights` checks input.", {
                regexp = "`R_matching` is empty.")
   expect_error(t_qmc_matching_weights(matching = structure(c(0L, 1L, 0L, 0L, 1L, 1L), "cluster_count" = 2L, class = c("qm_matching", "scclust"))),
                regexp = "`R_matching` and `R_treatments` must be same length.")
-  expect_error(t_qmc_matching_weights(subset = "X"),
-               regexp = "`R_subset` must be NULL, integer or logical.")
-  expect_error(t_qmc_matching_weights(subset = c(FALSE, TRUE, FALSE, TRUE, FALSE, FALSE)),
-               regexp = "`R_subset` and `R_treatments` must be same length when `R_subset` is logical.")
+  expect_error(t_qmc_matching_weights(target = "X"),
+               regexp = "`R_target` must be NULL, integer or logical.")
+  expect_error(t_qmc_matching_weights(target = c(FALSE, TRUE, FALSE, TRUE, FALSE, FALSE)),
+               regexp = "`R_target` and `R_treatments` must be same length when `R_target` is logical.")
   expect_error(t_qmc_matching_weights(treatments = c(1L, 0L, 2L, 3L, 2L, 1L, 3L)),
                regexp = "Treatment out of bounds.")
   expect_error(t_qmc_matching_weights(treatments = c(1L, 1L, 2L, 3L, 2L, -1L, 3L)),
@@ -73,14 +73,14 @@ test_that("`qmc_matching_weights` checks input.", {
                regexp = "Matching out of bounds.")
   expect_error(t_qmc_matching_weights(matching = structure(c(0L, 1L, 0L, 0L, 2L, 1L, 1L), "cluster_count" = 2L, class = c("qm_matching", "scclust"))),
                regexp = "Matching out of bounds.")
-  expect_error(t_qmc_matching_weights(subset = c(1L, 0L)),
-               regexp = "Subset out of bounds.")
-  expect_error(t_qmc_matching_weights(subset = c(1L, -1L)),
-               regexp = "Subset out of bounds.")
-  expect_error(t_qmc_matching_weights(subset = c(1L, 8L)),
-               regexp = "Subset out of bounds.")
+  expect_error(t_qmc_matching_weights(target = c(1L, 0L)),
+               regexp = "Target out of bounds.")
+  expect_error(t_qmc_matching_weights(target = c(1L, -1L)),
+               regexp = "Target out of bounds.")
+  expect_error(t_qmc_matching_weights(target = c(1L, 8L)),
+               regexp = "Target out of bounds.")
   expect_warning(t_qmc_matching_weights(matching = qm_matching(c("A", "B", "A", "A", "B", NA, "B"))),
-                 regexp = "Some units in subset are unmatched. They will be ignored.")
+                 regexp = "Some units in target are unmatched. They will be ignored.")
 })
 
 
@@ -88,21 +88,21 @@ test_that("`qmc_matching_weights` checks input.", {
 # utilities.c
 # ==============================================================================
 
-t_qmc_get_subset_indicators <- function(subset_indicators = c(TRUE, FALSE, TRUE),
+t_qmc_get_target_indicators <- function(target_indicators = c(TRUE, FALSE, TRUE),
                                         treatments = c(0L, 0L, 1L, 2L, 1L, 0L)) {
-  .Call(qmc_get_subset_indicators,
-        subset_indicators,
+  .Call(qmc_get_target_indicators,
+        target_indicators,
         treatments)
 }
 
-test_that("`qmc_get_subset_indicators` checks input.", {
-  expect_silent(t_qmc_get_subset_indicators())
-  expect_error(t_qmc_get_subset_indicators(subset_indicators = letters[1:3]),
-               regexp = "`R_subset` must be logical.")
-  expect_error(t_qmc_get_subset_indicators(treatments = letters[1:6]),
+test_that("`qmc_get_target_indicators` checks input.", {
+  expect_silent(t_qmc_get_target_indicators())
+  expect_error(t_qmc_get_target_indicators(target_indicators = letters[1:3]),
+               regexp = "`R_target` must be logical.")
+  expect_error(t_qmc_get_target_indicators(treatments = letters[1:6]),
                regexp = "`R_treatments` must be integer.")
-  expect_error(t_qmc_get_subset_indicators(treatments = c(0L, 0L, -1L, 2L, 1L, 0L)),
+  expect_error(t_qmc_get_target_indicators(treatments = c(0L, 0L, -1L, 2L, 1L, 0L)),
                regexp = "Treatment out of bounds.")
-  expect_error(t_qmc_get_subset_indicators(treatments = c(0L, 0L, 1L, 3L, 1L, 0L)),
+  expect_error(t_qmc_get_target_indicators(treatments = c(0L, 0L, 1L, 3L, 1L, 0L)),
                regexp = "Treatment out of bounds.")
 })

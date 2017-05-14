@@ -5,7 +5,7 @@
 \title{Construct generalized full matchings}
 \usage{
 quickmatch(distances, treatments, treatment_constraints = NULL,
-  size_constraint = NULL, subset = NULL, caliper = NULL, ...)
+  size_constraint = NULL, target = NULL, caliper = NULL, ...)
 }
 \arguments{
 \item{distances}{\code{\link[distances]{distances}} object or a numeric vector, matrix
@@ -25,16 +25,16 @@ condition in each group.}
 greater or equal to the sum of \code{treatment_constraints}. If NULL, no
 constraints other than the treatment constraints are imposed.}
 
-\item{subset}{units to target the matching for. All units indicated by \code{subset} are
+\item{target}{units to target the matching for. All units indicated by \code{target} are
 ensured to be assigned to a matched group (disregarding eventual
-\code{caliper} setting). Units not indicated by \code{subset} could be
+\code{caliper} setting). Units not indicated by \code{target} could be
 left unassigned if they are not necessary to satisfy the matching
 constraints. If \code{NULL}, \code{quickmatch} targets all units and
-ensures that all units are assigned to a group. If \code{subset} is a
+ensures that all units are assigned to a group. If \code{target} is a
 logical vector with the same length as the sample size, units indicated
-with \code{TRUE} will be targeted. If \code{subset} is an integer vector,
-the units with indices in \code{subset} are targeted. Indices starts at 1
-and \code{subset} must be sorted. If \code{subset} is a character vector,
+with \code{TRUE} will be targeted. If \code{target} is an integer vector,
+the units with indices in \code{target} are targeted. Indices starts at 1
+and \code{target} must be sorted. If \code{target} is a character vector,
 it should contain treatment labels, and the corresponding units (as given
 by \code{treatments}) will be targeted.}
 
@@ -74,42 +74,42 @@ group will contain at least one unit assigned to "A", at least two units
 assigned to "B" and at least four units in total, where the fourth unit can
 be from any treatment condition.
 
-The \code{subset} argument can be used to control which units are included
-in the matching. When \code{subset} is \code{NULL} (the default), all units
+The \code{target} argument can be used to control which units are included
+in the matching. When \code{target} is \code{NULL} (the default), all units
 will be assigned to a matched group. When not \code{NULL}, the argument
 indicates that some units can safely be ignored when the groups are
 constructed. This can be useful, for example, when one is interested in
 estimating treatment effects only for a certain type of units (e.g., the
 average treatment effect for the treated, ATT). It is particularly useful
 when units of interested are not represented in the whole covariate space
-(i.e., an one-sided overlap problem). Without the \code{subset} argument,
+(i.e., an one-sided overlap problem). Without the \code{target} argument,
 the function would in such cases try to assign every unit to a group,
 including units in sparse regions that we are not interested in. This could
 lead to unnecessarily large and diverse matched groups. We can avoid such
-situations by specifying in \code{subset} that some units safely can be ignored.
+situations by specifying in \code{target} that some units safely can be ignored.
 
 As an example, assume that the units are assigned to either of two treatment
 conditions, "A" and "B". Units assigned to "B" are more numerous and tend to
 have more extreme covariate values. We are, however, only interested in
 estimating the treatment effect for units assigned to "A". By specifying
-\code{subset = "A"}, the function ensures that all those units are assigned
+\code{target = "A"}, the function ensures that all those units are assigned
 to a matched group. Some units assigned to treatment "B" -- in particular
 the units with extreme covariate values -- will be left unassigned. However,
 as those units are not of interest, they can safely be ignored, and we
 avoid groups with poor qualities.
 
-The default behavior when \code{subset} is non-NULL is to assign as many
+The default behavior when \code{target} is non-NULL is to assign as many
 units as possible without increasing the maximum within-group distance. This
 behavior might, however, increase the average within-group distance in some
 cases. If called with \code{secondary_unassigned_method = "ignore"}, units
-not specified in \code{subset} will be ignored unless they are absolutely
+not specified in \code{target} will be ignored unless they are absolutely
 needed to satisfying the matching constraints. This tends to reduce bias
 since the within-group distances are minimized, but it could increase
 variance since we ignore potentially useful information in the sample. An
 intermediate alternative is to specify an aggressive caliper for the
 secondary units, which is done with the \code{secondary_radius} argument.
 (These arguments are part of the \code{\link[scclust]{sc_clustering}}
-function that \code{quickmatch} calls. The \code{subset} argument
+function that \code{quickmatch} calls. The \code{target} argument
 corresponds to the \code{primary_data_points} argument in that function.)
 
 The \code{caliper} argument constrains the maximum distance between units
@@ -156,7 +156,7 @@ quickmatch(my_distances,
 # but some "C" units might be unassigned.
 quickmatch(my_distances,
            my_data$treatment,
-           subset = c("T1", "T2"))
+           target = c("T1", "T2"))
 
 # Impose caliper
 quickmatch(my_distances,

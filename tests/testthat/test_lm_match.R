@@ -199,8 +199,8 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B"), c("A", "B"))
 dimnames(control_variances) <- list(c("A", "B"), c("A", "B"))
 
-test_that("`regression_estimator` vanilla", {
-  expect_silent(package_result <- regression_estimator(df1$y, df1$treat1, matching1))
+test_that("`lm_match` vanilla", {
+  expect_silent(package_result <- lm_match(df1$y, df1$treat1, matching1))
   expect_equal(package_result$effects, control_effects)
   expect_equal(package_result$effect_variances, control_variances)
 })
@@ -218,8 +218,8 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B"), c("A", "B"))
 dimnames(control_variances) <- list(c("A", "B"), c("A", "B"))
 
-test_that("`regression_estimator` covariates", {
-  expect_silent(package_result <- regression_estimator(df1$y, df1$treat1, matching1, df1[c("x1", "x2")]))
+test_that("`lm_match` covariates", {
+  expect_silent(package_result <- lm_match(df1$y, df1$treat1, matching1, df1[c("x1", "x2")]))
   expect_equal(package_result$effects, control_effects)
   expect_equal(package_result$effect_variances, control_variances)
 })
@@ -250,11 +250,11 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B"), c("A", "B"))
 dimnames(control_variances) <- list(c("A", "B"), c("A", "B"))
 
-test_that("`regression_estimator` subset", {
-  expect_silent(package_result1 <- regression_estimator(df1$y, df1$treat1, matching1, subset = "B"))
-  expect_silent(package_result2 <- regression_estimator(df1$y, df1$treat1, matching1, subset = target))
-  expect_silent(package_result3 <- regression_estimator(df1$y, df1$treat1, matching1, subset = which(target)))
-  expect_silent(package_result4 <- regression_estimator(df1$y, df1$treat1, matching1, subset = rev(which(target))))
+test_that("`lm_match` target", {
+  expect_silent(package_result1 <- lm_match(df1$y, df1$treat1, matching1, target = "B"))
+  expect_silent(package_result2 <- lm_match(df1$y, df1$treat1, matching1, target = target))
+  expect_silent(package_result3 <- lm_match(df1$y, df1$treat1, matching1, target = which(target)))
+  expect_silent(package_result4 <- lm_match(df1$y, df1$treat1, matching1, target = rev(which(target))))
   expect_equal(package_result1$effects, control_effects)
   expect_equal(package_result1$effect_variances, control_variances)
   expect_equal(package_result2$effects, control_effects)
@@ -278,11 +278,11 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B"), c("A", "B"))
 dimnames(control_variances) <- list(c("A", "B"), c("A", "B"))
 
-test_that("`regression_estimator` subset + covariates", {
-  expect_silent(package_result1 <- regression_estimator(df1$y, df1$treat1, matching1, df1[c("x1", "x2")], subset = "B"))
-  expect_silent(package_result2 <- regression_estimator(df1$y, df1$treat1, matching1, df1[c("x1", "x2")], subset = target))
-  expect_silent(package_result3 <- regression_estimator(df1$y, df1$treat1, matching1, df1[c("x1", "x2")], subset = which(target)))
-  expect_silent(package_result4 <- regression_estimator(df1$y, df1$treat1, matching1, df1[c("x1", "x2")], subset = rev(which(target))))
+test_that("`lm_match` target + covariates", {
+  expect_silent(package_result1 <- lm_match(df1$y, df1$treat1, matching1, df1[c("x1", "x2")], target = "B"))
+  expect_silent(package_result2 <- lm_match(df1$y, df1$treat1, matching1, df1[c("x1", "x2")], target = target))
+  expect_silent(package_result3 <- lm_match(df1$y, df1$treat1, matching1, df1[c("x1", "x2")], target = which(target)))
+  expect_silent(package_result4 <- lm_match(df1$y, df1$treat1, matching1, df1[c("x1", "x2")], target = rev(which(target))))
   expect_equal(package_result1$effects, control_effects)
   expect_equal(package_result1$effect_variances, control_variances)
   expect_equal(package_result2$effects, control_effects)
@@ -317,8 +317,8 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
 dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
 
-test_that("`regression_estimator` three treatments", {
-  expect_silent(package_result <- regression_estimator(df2$y, df2$treat2, matching2))
+test_that("`lm_match` three treatments", {
+  expect_silent(package_result <- lm_match(df2$y, df2$treat2, matching2))
   expect_equal(package_result$effects, control_effects)
   expect_equal(package_result$effect_variances, control_variances)
 })
@@ -338,8 +338,8 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
 dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
 
-test_that("`regression_estimator` three treatments + covariates", {
-  expect_silent(package_result <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")]))
+test_that("`lm_match` three treatments + covariates", {
+  expect_silent(package_result <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")]))
   expect_equal(package_result$effects, control_effects)
   expect_equal(package_result$effect_variances, control_variances)
 })
@@ -373,11 +373,11 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
 dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
 
-test_that("`regression_estimator` three treatments + subset", {
-  expect_silent(package_result1 <- regression_estimator(df2$y, df2$treat2, matching2, subset = "B"))
-  expect_silent(package_result2 <- regression_estimator(df2$y, df2$treat2, matching2, subset = target))
-  expect_silent(package_result3 <- regression_estimator(df2$y, df2$treat2, matching2, subset = which(target)))
-  expect_silent(package_result4 <- regression_estimator(df2$y, df2$treat2, matching2, subset = rev(which(target))))
+test_that("`lm_match` three treatments + target", {
+  expect_silent(package_result1 <- lm_match(df2$y, df2$treat2, matching2, target = "B"))
+  expect_silent(package_result2 <- lm_match(df2$y, df2$treat2, matching2, target = target))
+  expect_silent(package_result3 <- lm_match(df2$y, df2$treat2, matching2, target = which(target)))
+  expect_silent(package_result4 <- lm_match(df2$y, df2$treat2, matching2, target = rev(which(target))))
   expect_equal(package_result1$effects, control_effects)
   expect_equal(package_result1$effect_variances, control_variances)
   expect_equal(package_result2$effects, control_effects)
@@ -403,11 +403,11 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
 dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
 
-test_that("`regression_estimator` three treatments + covariates + subset", {
-  expect_silent(package_result1 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = "B"))
-  expect_silent(package_result2 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = target))
-  expect_silent(package_result3 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = which(target)))
-  expect_silent(package_result4 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = rev(which(target))))
+test_that("`lm_match` three treatments + covariates + target", {
+  expect_silent(package_result1 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = "B"))
+  expect_silent(package_result2 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = target))
+  expect_silent(package_result3 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = which(target)))
+  expect_silent(package_result4 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = rev(which(target))))
   expect_equal(package_result1$effects, control_effects)
   expect_equal(package_result1$effect_variances, control_variances)
   expect_equal(package_result2$effects, control_effects)
@@ -420,7 +420,7 @@ test_that("`regression_estimator` three treatments + covariates + subset", {
 
 
 df2 <- df[c("y", "x1", "x2", "treat2")]
-matching2 <- quickmatch(distances(df2[c("x1", "x2")]), df2$treat2, subset = "B")
+matching2 <- quickmatch(distances(df2[c("x1", "x2")]), df2$treat2, target = "B")
 target <- df2$treat2 == "B"
 df2$tot_count <- NA
 tmp_int_match <- as.integer(matching2)
@@ -447,11 +447,11 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
 dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
 
-test_that("`regression_estimator` three treatments + subset", {
-  expect_silent(package_result1 <- regression_estimator(df2$y, df2$treat2, matching2, subset = "B"))
-  expect_silent(package_result2 <- regression_estimator(df2$y, df2$treat2, matching2, subset = target))
-  expect_silent(package_result3 <- regression_estimator(df2$y, df2$treat2, matching2, subset = which(target)))
-  expect_silent(package_result4 <- regression_estimator(df2$y, df2$treat2, matching2, subset = rev(which(target))))
+test_that("`lm_match` three treatments + target", {
+  expect_silent(package_result1 <- lm_match(df2$y, df2$treat2, matching2, target = "B"))
+  expect_silent(package_result2 <- lm_match(df2$y, df2$treat2, matching2, target = target))
+  expect_silent(package_result3 <- lm_match(df2$y, df2$treat2, matching2, target = which(target)))
+  expect_silent(package_result4 <- lm_match(df2$y, df2$treat2, matching2, target = rev(which(target))))
   expect_equal(package_result1$effects, control_effects)
   expect_equal(package_result1$effect_variances, control_variances)
   expect_equal(package_result2$effects, control_effects)
@@ -477,11 +477,11 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
 dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
 
-test_that("`regression_estimator` three treatments + covariates + subset", {
-  expect_silent(package_result1 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = "B"))
-  expect_silent(package_result2 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = target))
-  expect_silent(package_result3 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = which(target)))
-  expect_silent(package_result4 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = rev(which(target))))
+test_that("`lm_match` three treatments + covariates + target", {
+  expect_silent(package_result1 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = "B"))
+  expect_silent(package_result2 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = target))
+  expect_silent(package_result3 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = which(target)))
+  expect_silent(package_result4 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = rev(which(target))))
   expect_equal(package_result1$effects, control_effects)
   expect_equal(package_result1$effect_variances, control_variances)
   expect_equal(package_result2$effects, control_effects)
@@ -494,7 +494,7 @@ test_that("`regression_estimator` three treatments + covariates + subset", {
 
 
 df2 <- df[c("y", "x1", "x2", "treat2")]
-matching2 <- quickmatch(distances(df2[c("x1", "x2")]), df2$treat2, subset = "B", secondary_unassigned_method = "ignore")
+matching2 <- quickmatch(distances(df2[c("x1", "x2")]), df2$treat2, target = "B", secondary_unassigned_method = "ignore")
 target <- df2$treat2 == "B"
 df2$tot_count <- NA
 tmp_int_match <- as.integer(matching2)
@@ -521,11 +521,11 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
 dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
 
-test_that("`regression_estimator` three treatments + subset", {
-  expect_silent(package_result1 <- regression_estimator(df2$y, df2$treat2, matching2, subset = "B"))
-  expect_silent(package_result2 <- regression_estimator(df2$y, df2$treat2, matching2, subset = target))
-  expect_silent(package_result3 <- regression_estimator(df2$y, df2$treat2, matching2, subset = which(target)))
-  expect_silent(package_result4 <- regression_estimator(df2$y, df2$treat2, matching2, subset = rev(which(target))))
+test_that("`lm_match` three treatments + target", {
+  expect_silent(package_result1 <- lm_match(df2$y, df2$treat2, matching2, target = "B"))
+  expect_silent(package_result2 <- lm_match(df2$y, df2$treat2, matching2, target = target))
+  expect_silent(package_result3 <- lm_match(df2$y, df2$treat2, matching2, target = which(target)))
+  expect_silent(package_result4 <- lm_match(df2$y, df2$treat2, matching2, target = rev(which(target))))
   expect_equal(package_result1$effects, control_effects)
   expect_equal(package_result1$effect_variances, control_variances)
   expect_equal(package_result2$effects, control_effects)
@@ -551,11 +551,11 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
 dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
 
-test_that("`regression_estimator` three treatments + covariates + subset", {
-  expect_silent(package_result1 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = "B"))
-  expect_silent(package_result2 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = target))
-  expect_silent(package_result3 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = which(target)))
-  expect_silent(package_result4 <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], subset = rev(which(target))))
+test_that("`lm_match` three treatments + covariates + target", {
+  expect_silent(package_result1 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = "B"))
+  expect_silent(package_result2 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = target))
+  expect_silent(package_result3 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = which(target)))
+  expect_silent(package_result4 <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")], target = rev(which(target))))
   expect_equal(package_result1$effects, control_effects)
   expect_equal(package_result1$effect_variances, control_variances)
   expect_equal(package_result2$effects, control_effects)
@@ -590,8 +590,8 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
 dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
 
-test_that("`regression_estimator` three treatments + missing treatment in matched group", {
-  expect_warning(package_result <- regression_estimator(df2$y, df2$treat2, matching2))
+test_that("`lm_match` three treatments + missing treatment in matched group", {
+  expect_warning(package_result <- lm_match(df2$y, df2$treat2, matching2))
   expect_equal(package_result$effects, control_effects)
   expect_equal(package_result$effect_variances, control_variances)
 })
@@ -611,8 +611,8 @@ control_variances <- matrix(c(0, coef_var[1,1] + coef_var[2,2] - 2 * coef_var[1,
 dimnames(control_effects) <- list(c("A", "B", "C"), c("A", "B", "C"))
 dimnames(control_variances) <- list(c("A", "B", "C"), c("A", "B", "C"))
 
-test_that("`regression_estimator` three treatments + missing treatment + covariates", {
-  expect_warning(package_result <- regression_estimator(df2$y, df2$treat2, matching2, df2[c("x1", "x2")]))
+test_that("`lm_match` three treatments + missing treatment + covariates", {
+  expect_warning(package_result <- lm_match(df2$y, df2$treat2, matching2, df2[c("x1", "x2")]))
   expect_equal(package_result$effects, control_effects)
   expect_equal(package_result$effect_variances, control_variances)
 })

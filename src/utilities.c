@@ -29,20 +29,20 @@
 // External function implementations
 // =============================================================================
 
-SEXP qmc_get_subset_indicators(const SEXP R_subset,
+SEXP qmc_get_target_indicators(const SEXP R_target,
                                const SEXP R_treatments)
 {
-	if (!isLogical(R_subset)) {
-		iqmc_error("`R_subset` must be logical.");
+	if (!isLogical(R_target)) {
+		iqmc_error("`R_target` must be logical.");
 	}
 	if (!isInteger(R_treatments)) {
 		iqmc_error("`R_treatments` must be integer.");
 	}
 
-	const size_t num_treatments = (size_t) xlength(R_subset);
+	const size_t num_treatments = (size_t) xlength(R_target);
 	const size_t num_observations = (size_t) xlength(R_treatments);
 
-	const int* const subset = LOGICAL(R_subset);
+	const int* const target = LOGICAL(R_target);
 	const int* const treatments = INTEGER(R_treatments);
 
 	SEXP R_out_indices = PROTECT(allocVector(INTSXP, (R_xlen_t) num_observations));
@@ -58,7 +58,7 @@ SEXP qmc_get_subset_indicators(const SEXP R_subset,
 
 	for (int i = 0; i < num_observations; ++i) {
 		*out_indices = i + 1;
-		out_indices += (subset[treatments[i]] != 0);
+		out_indices += (target[treatments[i]] != 0);
 	}
 
 	SETLENGTH(R_out_indices, out_indices - INTEGER(R_out_indices));

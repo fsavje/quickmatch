@@ -119,14 +119,14 @@ t_quickmatch <- function(distances = distancesEucl,
                          treatments = treatmentsUse,
                          treatment_constraints = c("A" = 1L, "B" = 1L),
                          size_constraint = 2L,
-                         subset = NULL,
+                         target = NULL,
                          caliper = NULL,
                          ...) {
   quickmatch(distances = distances,
              treatments = treatments,
              treatment_constraints = treatment_constraints,
              size_constraint = size_constraint,
-             subset = subset,
+             target = target,
              caliper = caliper,
              ...)
 }
@@ -183,38 +183,38 @@ test_that("`quickmatch` returns correct output", {
   expect_identical(t_quickmatch(treatment_constraints = NULL, size_constraint = NULL),
                    t_sc_clustering())
 
-  expect_identical(t_quickmatch(subset = c("A", "B")),
+  expect_identical(t_quickmatch(target = c("A", "B")),
                    t_sc_clustering())
-  expect_identical(t_quickmatch(subset = Aindex),
+  expect_identical(t_quickmatch(target = Aindex),
                    t_sc_clustering(primary_data_points = Aindex))
-  expect_identical(t_quickmatch(subset = Alogical),
+  expect_identical(t_quickmatch(target = Alogical),
                    t_sc_clustering(primary_data_points = Aindex))
-  expect_identical(t_quickmatch(subset = "A"),
+  expect_identical(t_quickmatch(target = "A"),
                    t_sc_clustering(primary_data_points = Aindex))
-  expect_identical(t_quickmatch(subset = "A", caliper = 1.0),
+  expect_identical(t_quickmatch(target = "A", caliper = 1.0),
                    t_sc_clustering(primary_data_points = Aindex, seed_radius = 0.5, secondary_radius = "seed_radius"))
 
   expect_identical(t_quickmatch(caliper = 1.0),
                    t_sc_clustering(seed_radius = 0.5))
   expect_identical(t_quickmatch(primary_unassigned_method = "ignore"),
                    t_sc_clustering(primary_unassigned_method = "ignore"))
-  expect_identical(t_quickmatch(subset = "A", secondary_unassigned_method = "ignore"),
+  expect_identical(t_quickmatch(target = "A", secondary_unassigned_method = "ignore"),
                    t_sc_clustering(primary_data_points = Aindex, secondary_unassigned_method = "ignore"))
   expect_identical(t_quickmatch(primary_radius = 0.5),
                    t_sc_clustering(primary_radius = 0.5))
-  expect_identical(t_quickmatch(subset = "A", secondary_radius = 0.5),
+  expect_identical(t_quickmatch(target = "A", secondary_radius = 0.5),
                    t_sc_clustering(primary_data_points = Aindex, secondary_radius = 0.5))
 
   expect_warning(expect_identical(t_quickmatch(seed_radius = 0.5, caliper = 2.0),
                                   t_sc_clustering(seed_radius = 0.5)))
   expect_identical(t_quickmatch(caliper = 1.0, primary_unassigned_method = "ignore"),
                    t_sc_clustering(seed_radius = 0.5, primary_unassigned_method = "ignore", secondary_radius = "seed_radius"))
-  expect_warning(expect_identical(t_quickmatch(caliper = 1.0, subset = "A", secondary_unassigned_method = "closest_assigned"),
+  expect_warning(expect_identical(t_quickmatch(caliper = 1.0, target = "A", secondary_unassigned_method = "closest_assigned"),
                                   t_sc_clustering(seed_radius = 0.5, primary_data_points = Aindex, secondary_unassigned_method = "closest_assigned", secondary_radius = "seed_radius")))
   expect_warning(expect_identical(t_quickmatch(caliper = 1.0, primary_unassigned_method = "closest_assigned"),
                                   t_sc_clustering(seed_radius = 0.25, primary_unassigned_method = "closest_assigned")))
   expect_warning(expect_identical(t_quickmatch(caliper = 1.0, primary_radius = "estimated_radius"),
                                   t_sc_clustering(seed_radius = 0.5, primary_radius = "estimated_radius", secondary_radius = "seed_radius")))
-  expect_warning(expect_identical(t_quickmatch(caliper = 1.0, subset = "A", secondary_radius = "estimated_radius"),
+  expect_warning(expect_identical(t_quickmatch(caliper = 1.0, target = "A", secondary_radius = "estimated_radius"),
                                   t_sc_clustering(seed_radius = 0.5, primary_data_points = Aindex, secondary_radius = "estimated_radius")))
 })

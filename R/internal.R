@@ -19,24 +19,24 @@
 # ==============================================================================
 
 # Translate character indicators for different treatments to unit indices.
-# get_subset_indicators(c("A", "C"), factor(c("A", "B", "A", "C", "B")))
+# get_target_indicators(c("A", "C"), factor(c("A", "B", "A", "C", "B")))
 # > c(1, 3, 4)
-get_subset_indicators <- function(subset,
+get_target_indicators <- function(target,
                                   treatments) {
-  stopifnot(is.character(subset),
-            !anyDuplicated(subset),
+  stopifnot(is.character(target),
+            !anyDuplicated(target),
             is.factor(treatments),
-            all(subset %in% levels(treatments)))
+            all(target %in% levels(treatments)))
 
-  subset_indicators <- rep(FALSE, nlevels(treatments))
-  names(subset_indicators) <- levels(treatments)
-  subset_indicators[subset] <- TRUE
+  target_indicators <- rep(FALSE, nlevels(treatments))
+  names(target_indicators) <- levels(treatments)
+  target_indicators[target] <- TRUE
 
-  if (all(subset_indicators)) {
+  if (all(target_indicators)) {
     return(NULL)
   } else {
-    return(.Call(qmc_get_subset_indicators,
-                 c(FALSE, subset_indicators),
+    return(.Call(qmc_get_target_indicators,
+                 c(FALSE, target_indicators),
                  unclass(treatments)))
   }
 }
@@ -44,14 +44,14 @@ get_subset_indicators <- function(subset,
 
 internal_matching_weights <- function(treatments,
                                       matching,
-                                      subset = NULL) {
+                                      target = NULL) {
   stopifnot(is.factor(treatments),
             scclust::is.scclust(matching),
             length(matching) == length(treatments),
-            is.null(subset) || is.logical(subset) || is.integer(subset))
+            is.null(target) || is.logical(target) || is.integer(target))
   .Call(qmc_matching_weights,
         unclass(treatments),
         nlevels(treatments),
         matching,
-        subset)
+        target)
 }

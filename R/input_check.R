@@ -198,53 +198,53 @@ coerce_size_constraint <- function(size_constraint,
 }
 
 
-# Coerce `subset` to indicator vector if character
-coerce_subset <- function(subset,
+# Coerce `target` to indicator vector if character
+coerce_target <- function(target,
                           treatments,
                           check_NA = TRUE) {
   stopifnot(is.factor(treatments))
 
-  if (is.character(subset)) {
-    if (anyDuplicated(subset)) {
-      new_error("`", match.call()$subset, "` may not contain duplicates.")
+  if (is.character(target)) {
+    if (anyDuplicated(target)) {
+      new_error("`", match.call()$target, "` may not contain duplicates.")
     }
-    non_exist <- !(subset %in% levels(treatments))
+    non_exist <- !(target %in% levels(treatments))
     if (any(non_exist)) {
-      new_error("`", match.call()$subset,
+      new_error("`", match.call()$target,
                 "` contains unknown treatment labels: ",
-                paste0(paste0("\"", subset[non_exist], "\""), collapse = ", "),
+                paste0(paste0("\"", target[non_exist], "\""), collapse = ", "),
                 ".")
     }
-    subset <- get_subset_indicators(subset, treatments)
-  } else if (is.logical(subset)) {
-    if (check_NA && anyNA(subset)) {
-      new_error("`", match.call()$subset, "` may not contain NAs.")
+    target <- get_target_indicators(target, treatments)
+  } else if (is.logical(target)) {
+    if (check_NA && anyNA(target)) {
+      new_error("`", match.call()$target, "` may not contain NAs.")
     }
-    if (check_NA && !any(subset)) {
-      new_error("`", match.call()$subset, "` cannot be all `FALSE`.")
+    if (check_NA && !any(target)) {
+      new_error("`", match.call()$target, "` cannot be all `FALSE`.")
     }
-    if (length(subset) != length(treatments)) {
-      new_error("`", match.call()$subset, "` is not of the same length as `", match.call()$treatments, "`.")
+    if (length(target) != length(treatments)) {
+      new_error("`", match.call()$target, "` is not of the same length as `", match.call()$treatments, "`.")
     }
-  } else if (!is.null(subset)) {
-    if (!is.integer(subset)) {
-      if (is.numeric_integer(subset)) {
-        storage.mode(subset) <- "integer"
+  } else if (!is.null(target)) {
+    if (!is.integer(target)) {
+      if (is.numeric_integer(target)) {
+        storage.mode(target) <- "integer"
       } else {
-        new_error("`", match.call()$subset, "` must be integer, logical, character or NULL.")
+        new_error("`", match.call()$target, "` must be integer, logical, character or NULL.")
       }
     }
-    if (check_NA && anyDuplicated(subset)) {
-      new_error("`", match.call()$subset, "` may not contain duplicates.")
+    if (check_NA && anyDuplicated(target)) {
+      new_error("`", match.call()$target, "` may not contain duplicates.")
     }
-    if (check_NA && anyNA(subset)) {
-      new_error("`", match.call()$subset, "` may not contain NAs.")
+    if (check_NA && anyNA(target)) {
+      new_error("`", match.call()$target, "` may not contain NAs.")
     }
-    if (length(subset) == 0) {
-      new_error("`", match.call()$subset, "` cannot be empty.")
+    if (length(target) == 0) {
+      new_error("`", match.call()$target, "` cannot be empty.")
     }
   }
-  subset
+  target
 }
 
 

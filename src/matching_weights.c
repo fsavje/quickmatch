@@ -34,7 +34,7 @@
 SEXP qmc_matching_weights(const SEXP R_treatments,
                           const SEXP R_num_treatments,
                           const SEXP R_matching,
-                          const SEXP R_subset)
+                          const SEXP R_target)
 {
 	if (!isInteger(R_treatments)) {
 		iqmc_error("`R_treatments` must be integer.");
@@ -57,11 +57,11 @@ SEXP qmc_matching_weights(const SEXP R_treatments,
 	if (xlength(R_matching) != xlength(R_treatments)) {
 		iqmc_error("`R_matching` and `R_treatments` must be same length.");
 	}
-	if (!isNull(R_subset) && !isInteger(R_subset) && !isLogical(R_subset)) {
-		iqmc_error("`R_subset` must be NULL, integer or logical.");
+	if (!isNull(R_target) && !isInteger(R_target) && !isLogical(R_target)) {
+		iqmc_error("`R_target` must be NULL, integer or logical.");
 	}
-	if (isLogical(R_subset) && (xlength(R_subset) != xlength(R_treatments))) {
-		iqmc_error("`R_subset` and `R_treatments` must be same length when `R_subset` is logical.");
+	if (isLogical(R_target) && (xlength(R_target) != xlength(R_treatments))) {
+		iqmc_error("`R_target` and `R_treatments` must be same length when `R_target` is logical.");
 	}
 
 	// R objects to C
@@ -86,15 +86,15 @@ SEXP qmc_matching_weights(const SEXP R_treatments,
 		if (matching_bc != 0) {
 			iqmc_error("Matching out of bounds.");
 		}
-		if (isInteger(R_subset)) {
-			const size_t len_subset = (size_t) xlength(R_subset);
-			const int* const subset = INTEGER(R_subset);
-			uint32_t subset_bc = 0;
-			for (size_t i = 0; i < len_subset; ++i) {
-				subset_bc += (subset[i] <= 0) + (subset[i] > num_observations);
+		if (isInteger(R_target)) {
+			const size_t len_target = (size_t) xlength(R_target);
+			const int* const target = INTEGER(R_target);
+			uint32_t target_bc = 0;
+			for (size_t i = 0; i < len_target; ++i) {
+				target_bc += (target[i] <= 0) + (target[i] > num_observations);
 			}
-			if (subset_bc != 0) {
-				iqmc_error("Subset out of bounds.");
+			if (target_bc != 0) {
+				iqmc_error("Target out of bounds.");
 			}
 		}
 	}
@@ -107,41 +107,41 @@ SEXP qmc_matching_weights(const SEXP R_treatments,
 	int* const treatment_missing = LOGICAL(R_treatment_missing);
 
 	// Allocate working memory
-	uint32_t* const subset_count = calloc(num_groups, sizeof(uint32_t));
+	uint32_t* const target_count = calloc(num_groups, sizeof(uint32_t));
 	uint32_t* const treatment_count = calloc(num_groups * num_treatments, sizeof(uint32_t));
 	double* const block_treatment_weight = malloc(sizeof(double[num_groups * num_treatments]));
 
-	if (subset_count == NULL || treatment_count == NULL || block_treatment_weight == NULL) {
-		free(subset_count);
+	if (target_count == NULL || treatment_count == NULL || block_treatment_weight == NULL) {
+		free(target_count);
 		free(treatment_count);
 		free(block_treatment_weight);
 		iqmc_error("Out of memory.");
 	}
 
-	if (isNull(R_subset)) {
+	if (isNull(R_target)) {
 		for (size_t i = 0; i < num_observations; ++i) {
-			++subset_count[(matching[i] != NA_INTEGER) * (matching[i] + 1)];
+			++target_count[(matching[i] != NA_INTEGER) * (matching[i] + 1)];
 		}
-	} else if (isInteger(R_subset)) {
-		const size_t len_subset = (size_t) xlength(R_subset);
-		const int* const subset = INTEGER(R_subset);
-		for (size_t i = 0; i < len_subset; ++i) {
-			++subset_count[(matching[subset[i] - 1] != NA_INTEGER) * (matching[subset[i] - 1] + 1)];
+	} else if (isInteger(R_target)) {
+		const size_t len_target = (size_t) xlength(R_target);
+		const int* const target = INTEGER(R_target);
+		for (size_t i = 0; i < len_target; ++i) {
+			++target_count[(matching[target[i] - 1] != NA_INTEGER) * (matching[target[i] - 1] + 1)];
 		}
-	} else { // isLogical(R_subset)
-		iqmc_assert(((size_t) xlength(R_subset)) == num_observations);
-		const int* const subset = LOGICAL(R_subset);
+	} else { // isLogical(R_target)
+		iqmc_assert(((size_t) xlength(R_target)) == num_observations);
+		const int* const target = LOGICAL(R_target);
 		for (size_t i = 0; i < num_observations; ++i) {
-			subset_count[(matching[i] != NA_INTEGER) * (matching[i] + 1)] += (subset[i] != 0);
+			target_count[(matching[i] != NA_INTEGER) * (matching[i] + 1)] += (target[i] != 0);
 		}
 	}
-	if (subset_count[0] > 0) {
-		warning("Some units in subset are unmatched. They will be ignored.");
+	if (target_count[0] > 0) {
+		warning("Some units in target are unmatched. They will be ignored.");
 	}
 
-	uint64_t total_subset_count = 0;
+	uint64_t total_target_count = 0;
 	for (size_t g = 1; g < num_groups; ++g) {
-		total_subset_count += subset_count[g];
+		total_target_count += target_count[g];
 	}
 
 	// Count number of units assigned to each treatment in each matched group
@@ -154,13 +154,13 @@ SEXP qmc_matching_weights(const SEXP R_treatments,
 		treatment_missing[t] = 0;
 		block_treatment_weight[t_add] = NA_REAL; // Unassigned units
 		for (size_t g = 1; g < num_groups; ++g) {
-			if (subset_count[g] == 0) {
+			if (target_count[g] == 0) {
 				block_treatment_weight[t_add + g] = 0.0;
-			} else if (treatment_count[t_add + g] == 0) { // subset_count[g] > 0
+			} else if (treatment_count[t_add + g] == 0) { // target_count[g] > 0
 				treatment_missing[t] = 1;
 				block_treatment_weight[t_add + g] = NA_REAL;
-			} else { // subset_count[g] > 0 && treatment_count[t_add + g] > 0
-				block_treatment_weight[t_add + g] = ((double) subset_count[g]) / ((double) treatment_count[t_add + g]);
+			} else { // target_count[g] > 0 && treatment_count[t_add + g] > 0
+				block_treatment_weight[t_add + g] = ((double) target_count[g]) / ((double) treatment_count[t_add + g]);
 			}
 		}
 	}
@@ -170,18 +170,18 @@ SEXP qmc_matching_weights(const SEXP R_treatments,
 	}
 
 	// Free working memory and return
-	free(subset_count);
+	free(target_count);
 	free(treatment_count);
 	free(block_treatment_weight);
 
 	SEXP R_weight_obj = PROTECT(allocVector(VECSXP, 3));
 	SET_VECTOR_ELT(R_weight_obj, 0, R_unit_weights);
-	SET_VECTOR_ELT(R_weight_obj, 1, ScalarReal((double) total_subset_count));
+	SET_VECTOR_ELT(R_weight_obj, 1, ScalarReal((double) total_target_count));
 	SET_VECTOR_ELT(R_weight_obj, 2, R_treatment_missing);
 
 	SEXP R_weight_obj_names = PROTECT(allocVector(STRSXP, 3));
 	SET_STRING_ELT(R_weight_obj_names, 0, mkChar("unit_weights"));
-	SET_STRING_ELT(R_weight_obj_names, 1, mkChar("total_subset_count"));
+	SET_STRING_ELT(R_weight_obj_names, 1, mkChar("total_target_count"));
 	SET_STRING_ELT(R_weight_obj_names, 2, mkChar("treatment_missing"));
 	setAttrib(R_weight_obj, R_NamesSymbol, R_weight_obj_names);
 

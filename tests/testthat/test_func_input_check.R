@@ -39,8 +39,8 @@ sound_treatment_constraints <- c("1" = 2L, "2" = 0L)
 unsound_treatment_constraints <- c(2L, 0L)
 sound_size_constraint <- 3L
 unsound_size_constraint <- 100L
-sound_subset <- NULL
-unsound_subset <- "a"
+sound_target <- NULL
+unsound_target <- "a"
 sound_caliper <- NULL
 unsound_caliper <- "a"
 sound_group_labels <- letters[1:10]
@@ -83,14 +83,14 @@ t_quickmatch <- function(distances = sound_distances,
                          treatments = sound_treatments,
                          treatment_constraints = sound_treatment_constraints,
                          size_constraint = sound_size_constraint,
-                         subset = sound_subset,
+                         target = sound_target,
                          caliper = sound_caliper,
                          ...) {
   quickmatch(distances = distances,
              treatments = treatments,
              treatment_constraints = treatment_constraints,
              size_constraint = size_constraint,
-             subset = subset,
+             target = target,
              caliper = caliper,
              ...)
 }
@@ -102,7 +102,7 @@ test_that("`quickmatch` checks input.", {
   expect_error(t_quickmatch(treatments = unsound_treatments))
   expect_error(t_quickmatch(treatment_constraints = unsound_treatment_constraints))
   expect_error(t_quickmatch(size_constraint = unsound_size_constraint))
-  expect_error(t_quickmatch(subset = unsound_subset))
+  expect_error(t_quickmatch(target = unsound_target))
   expect_error(t_quickmatch(caliper = unsound_caliper))
 
   expect_silent(t_quickmatch(distances = sound_covariates))
@@ -115,7 +115,7 @@ test_that("`quickmatch` checks input.", {
   expect_error(t_quickmatch(type_constraints = sound_treatment_constraints),
                regexp = "`type_constraints` is ignored, please use the `treatment_constraints` parameter instead.")
   expect_error(t_quickmatch(primary_data_points = 1:20),
-               regexp = "`primary_data_points` is ignored, please use the `subset` parameter instead.")
+               regexp = "`primary_data_points` is ignored, please use the `target` parameter instead.")
 
   expect_silent(t_quickmatch(seed_radius = 10))
   expect_silent(t_quickmatch(primary_unassigned_method = "ignore"))
@@ -146,19 +146,19 @@ test_that("`quickmatch` checks input.", {
 
 t_matching_weights <- function(treatments = sound_treatments,
                                matching = sound_matching,
-                               subset = sound_subset) {
+                               target = sound_target) {
   matching_weights(treatments = treatments,
                    matching = matching,
-                   subset = subset)
+                   target = target)
 }
 
 test_that("`matching_weights` checks input.", {
   expect_silent(t_matching_weights())
-  expect_silent(t_matching_weights(subset = "1"))
-  expect_silent(t_matching_weights(subset = rep(c(TRUE, FALSE), each = 10)))
+  expect_silent(t_matching_weights(target = "1"))
+  expect_silent(t_matching_weights(target = rep(c(TRUE, FALSE), each = 10)))
   expect_error(t_matching_weights(treatments = unsound_treatments))
   expect_error(t_matching_weights(matching = unsound_matching))
-  expect_error(t_matching_weights(subset = unsound_subset))
+  expect_error(t_matching_weights(target = unsound_target))
 
   expect_warning(t_matching_weights(treatments = c("A", "B", "A", "B"), matching = qm_matching(c("1", "1", "1", "2"))),
                  regexp = "Some matched groups are missing treatment conditions. No weights exist for corresponding units.")
@@ -172,13 +172,13 @@ test_that("`matching_weights` checks input.", {
 t_covariate_balance <- function(treatments = sound_treatments,
                                 covariates = sound_covariates,
                                 matching = sound_matching,
-                                subset = sound_subset,
+                                target = sound_target,
                                 normalize = TRUE,
                                 all_differences = FALSE) {
   covariate_balance(treatments = treatments,
                     covariates = covariates,
                     matching = matching,
-                    subset = subset,
+                    target = target,
                     normalize = normalize,
                     all_differences = all_differences)
 }
@@ -188,7 +188,7 @@ test_that("`covariate_balance` checks input.", {
   expect_error(t_covariate_balance(treatments = unsound_treatments))
   expect_error(t_covariate_balance(covariates = unsound_covariates))
   expect_error(t_covariate_balance(matching = unsound_matching))
-  expect_error(t_covariate_balance(subset = unsound_subset))
+  expect_error(t_covariate_balance(target = unsound_target))
   expect_error(t_covariate_balance(normalize = "A"))
   expect_error(t_covariate_balance(all_differences = "A"))
 
@@ -198,30 +198,30 @@ test_that("`covariate_balance` checks input.", {
 
 
 # ==============================================================================
-# regression_estimator
+# lm_match
 # ==============================================================================
 
-t_regression_estimator <- function(outcomes = sound_outcomes,
+t_lm_match <- function(outcomes = sound_outcomes,
                                    treatments = sound_treatments,
                                    matching = sound_matching,
                                    covariates = sound_covariates,
-                                   subset = sound_subset) {
-  regression_estimator(outcomes = outcomes,
+                                   target = sound_target) {
+  lm_match(outcomes = outcomes,
                        treatments = treatments,
                        matching = matching,
                        covariates = covariates,
-                       subset = subset)
+                       target = target)
 }
 
-test_that("`regression_estimator` checks input.", {
-  expect_silent(t_regression_estimator())
-  expect_silent(t_regression_estimator(covariates = NULL))
-  expect_silent(t_regression_estimator(subset = "1"))
-  expect_silent(t_regression_estimator(subset = rep(c(TRUE, FALSE), each = 10)))
-  expect_warning(t_regression_estimator(treatments = rep(1:2, each = 10), subset = "1"))
-  expect_error(t_regression_estimator(outcomes = unsound_outcomes))
-  expect_error(t_regression_estimator(treatments = unsound_treatments))
-  expect_error(t_regression_estimator(matching = unsound_matching))
-  expect_error(t_regression_estimator(covariates = unsound_covariates))
-  expect_error(t_regression_estimator(subset = unsound_subset))
+test_that("`lm_match` checks input.", {
+  expect_silent(t_lm_match())
+  expect_silent(t_lm_match(covariates = NULL))
+  expect_silent(t_lm_match(target = "1"))
+  expect_silent(t_lm_match(target = rep(c(TRUE, FALSE), each = 10)))
+  expect_warning(t_lm_match(treatments = rep(1:2, each = 10), target = "1"))
+  expect_error(t_lm_match(outcomes = unsound_outcomes))
+  expect_error(t_lm_match(treatments = unsound_treatments))
+  expect_error(t_lm_match(matching = unsound_matching))
+  expect_error(t_lm_match(covariates = unsound_covariates))
+  expect_error(t_lm_match(target = unsound_target))
 })

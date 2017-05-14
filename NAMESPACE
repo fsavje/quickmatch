@@ -2,9 +2,9 @@
 
 export(covariate_balance)
 export(is.qm_matching)
+export(lm_match)
 export(matching_weights)
 export(qm_matching)
 export(quickmatch)
-export(regression_estimator)
 import(distances)
 useDynLib(quickmatch, .registration = TRUE)
