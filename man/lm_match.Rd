@@ -9,7 +9,7 @@ lm_match(outcomes, treatments, matching, covariates = NULL, target = NULL)
 \arguments{
 \item{outcomes}{numeric vector with observed outcomes.}
 
-\item{treatments}{factor specifying which treatments the units are assigned to.}
+\item{treatments}{factor specifying the units' treatment assignments.}
 
 \item{matching}{\code{\link{qm_matching}} or \code{\link[scclust]{scclust}} object with
 the matched groups.}
@@ -18,22 +18,21 @@ the matched groups.}
 If \code{NULL}, no covariates are included.}
 
 \item{target}{units to target the estimation for. If \code{NULL}, the effect is estimated
-for all units in the sample (i.e., ATE). A non-null value
-specifies a subset of units that the effect should be estimated for (e.g.,
-ATT or ATC). If \code{target} is a logical vector with the same length as
-the sample size, units indicated with \code{TRUE} will be targeted. If
+for all units in the sample (i.e., ATE). A non-null value specifies a
+subset of units for which the effect should be estimated (e.g., ATT or
+ATC). If \code{target} is a logical vector with the same length as the
+sample size, units indicated with \code{TRUE} will be targeted. If
 \code{target} is an integer vector, the units with indices in \code{target}
-are targeted. If
-\code{target} is a character vector, it should contain treatment labels,
-and the effect for the corresponding units (as given by \code{treatments}) will be
-estimated.}
+are targeted. If \code{target} is a character vector, it should contain
+treatment labels, and the effect for the corresponding units (as given by
+\code{treatments}) will be estimated.}
 }
 \value{
-A list with two numeric matrices with all estimated treatment effects
-   and their estimated variances is returned.
-   The first matrix (\code{effects}) contains estimated treatment effects.
-   Rows in this matrix indicate minuends in the treatment effect contrast and
-   columns indicate subtrahends. For example, in the matrix:
+A list with two numeric matrices with all estimated treatment effects and
+   their estimated variances is returned. The first matrix (\code{effects})
+   contains estimated treatment effects. Rows in this matrix indicate minuends
+   in the treatment effect contrast and columns indicate subtrahends. For
+   example, in the matrix:
    \tabular{rrrr}{
      \tab a \tab b \tab c\cr
      a \tab 0.0 \tab 4.5 \tab 5.5\cr
@@ -42,48 +41,42 @@ A list with two numeric matrices with all estimated treatment effects
    }
    the estimated treatment effect between conditions \eqn{a} and \eqn{b} is
    \eqn{4.5}, and the estimated treatment effect between conditions \eqn{c}
-   and \eqn{b} is \eqn{-1.0}. Or in symbols \eqn{E[Y(a) - Y(b) | S] = 4.5} and
-   \eqn{E[Y(c) - Y(b) | S] = -1.0} where \eqn{S} is the condition set indicated
-   by the \code{target} parameter.
+   and \eqn{b} is \eqn{-1.0}. In symbols, \eqn{E[Y(a) - Y(b) | S] = 4.5} and
+   \eqn{E[Y(c) - Y(b) | S] = -1.0} where \eqn{S} is the condition set
+   indicated by the \code{target} parameter.
 
    The second matrix (\code{effect_variances}) contains estimates of
    variances of the corresponding effect estimators.
 }
 \description{
-\code{lm_match} estimates treatment effects in matched samples.
-The function expects the user to provide the outcomes, treatment indicators, and
-a matching object. The function returns point estimates of the average treatment
-effects and variance estimates. It is possible to estimate treatment effects for
-subsets of the observations, such as estimates of the average treatment effect for
-the treated.
+\code{lm_match} estimates treatment effects in matched samples. The function
+expects the user to provide the outcomes, treatment indicators, and a matching
+object. It returns point estimates of the average treatment effects and variance
+estimates. It is possible to estimate treatment effects for subsets of the
+observations, such as estimates of the average treatment effect for the treated
+(ATT).
 }
 \details{
-\code{lm_match} estimates treatment effects using weighted
-regression. The function first derives unit-level weights implied by the
-matching. In detail, let \eqn{S(g)} be the number of units indicated by
-\code{target} in group \eqn{g} (or the total number of units in the group
-if \code{target} is \code{NULL}). Let \eqn{T} be the total number of units
-indicated by \code{target} in sample (or the sample size if \code{target}
-is \code{NULL}). Let \eqn{A(t, g)} be the number of units assigned to treatment \eqn{t} in group \eqn{g}. The weight for a unit in group
-\eqn{g} that is assigned to treatment \eqn{t} is given by:
+\code{lm_match} estimates treatment effects using weighted regression. The
+function first derives the unit-level weights implied by the matching. In
+detail, let \eqn{S(g)} be the number of units indicated by \code{target} in
+group \eqn{g}. Let \eqn{T} be the total number of units indicated by
+\code{target} in sample. Let \eqn{A(t, g)} be the number of units assigned
+to treatment \eqn{t} in group \eqn{g}. The weight for a unit in group \eqn{g}
+that is assigned to treatment \eqn{t} is given by:
 
 \deqn{\frac{S(g)}{T \times A(t, g)}.}{S(g) / [T * A(t, g)].}
 
-For example, consider a matched group with one treated unit and two control
-units when we are interested in the average effect of the treated (ATT) and
-we have 50 treated units in total (\eqn{T=50}). For all three units in the
-group, we have \eqn{S(g)=1}. For the treated unit we have \eqn{A(t, g)=1},
-so its weight becomes \eqn{1/50}. The two control units have \eqn{A(t, g)=2},
-so their weights are both \eqn{1/100}. See \code{\link{matching_weights}} for
-more details.
+See \code{\link{matching_weights}} for more details.
 
 The function uses the derived weights in a weighted least squares regression
-(using the \code{\link[stats]{lm}} function) with indicator variables for the treatment
-conditions. Optionally, covariates can be added to the regression (e.g., a common
-recommendation is to include the covariates used to construct the matching).
-Standard errors are estimated with the heteroskedasticity-robust estimates derived
-using the "HC1" estimator in the \code{\link[sandwich]{vcovHC}} function.
-Units not assigned to matched groups are excluded from the estimation.
+(using the \code{\link[stats]{lm}} function) with indicator variables for the
+treatment conditions. Optionally, covariates can be added to the regression
+(e.g., a common recommendation is to include the covariates used to construct
+the matching). Standard errors are estimated with the heteroskedasticity-robust
+"HC1" estimator in the \code{\link[sandwich]{vcovHC}} function. Units not
+assigned to matched groups and units assigned weights of zero are excluded
+from the estimation.
 }
 \examples{
 # Construct example data

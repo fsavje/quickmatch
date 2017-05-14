@@ -8,7 +8,7 @@ covariate_balance(treatments, covariates, matching = NULL, target = NULL,
   normalize = TRUE, all_differences = FALSE)
 }
 \arguments{
-\item{treatments}{factor specifying which treatments units are assigned to.}
+\item{treatments}{factor specifying the units' treatment assignments.}
 
 \item{covariates}{vector, matrix or data frame with covariates to derive balance for.}
 
@@ -16,29 +16,31 @@ covariate_balance(treatments, covariates, matching = NULL, target = NULL,
 the matched groups. If \code{NULL}, balance is derived for the unmatched
 sample.}
 
-\item{target}{units to target the balance measures for. If \code{NULL}, the measures
-will be the raw average over all units in the sample (i.e., ATE). A non-null value
-specifies a subset of units that the measures should pertain to (e.g.,
+\item{target}{units to target the balance measures for. If \code{NULL}, the measures will
+be the raw average over all units in the sample (i.e., ATE). A non-null
+value specifies a subset of units to derive balance measures for (e.g.,
 ATT or ATC). If \code{target} is a logical vector with the same length as
 the sample size, units indicated with \code{TRUE} will be targeted. If
 \code{target} is an integer vector, the units with indices in \code{target}
 are targeted. If \code{target} is a character vector, it should contain
-treatment labels, and the corresponding units (as given by \code{treatments})
-will be targeted. If \code{matching} is \code{NULL}, \code{target} is ignored.}
+treatment labels, and the corresponding units (as given by
+\code{treatments}) will be targeted. If \code{matching} is \code{NULL},
+\code{target} is ignored.}
 
-\item{normalize}{logical indicating whether differences should be normalized by the sample
-standard deviation of the corresponding covariates.}
+\item{normalize}{logical scalar indicating whether differences should be normalized by the
+sample standard deviation of the corresponding covariates.}
 
-\item{all_differences}{logical indicating whether full matrices of differences should be reported.
-If \code{FALSE}, only the maximum difference for each covariate is returned.}
+\item{all_differences}{logical scalar indicating whether full matrices of differences should be
+reported. If \code{FALSE}, only the maximum difference for each covariate
+is returned.}
 }
 \value{
 Returns the mean difference between treatment groups in the matched sample
    for each covariate.
 
-   When \code{all_differences == TRUE}, the function returns a matrix with the
-   mean difference for each possible pair of treatment conditions for each
-   covariate. Rows in the matrix indicate minuends in the difference and
+   When \code{all_differences = TRUE}, the function returns a matrix for each
+   covariate with the mean difference for each possible pair of treatment
+   conditions. Rows in the matrices indicate minuends in the differences and
    columns indicate subtrahends. For example, when differences are normalized,
    the matrix:
    \tabular{rrrr}{
@@ -48,12 +50,12 @@ Returns the mean difference between treatment groups in the matched sample
      c \tab -0.5 \tab -0.2 \tab 0.0\cr
    }
    reports that the mean difference for the corresponding covariate between
-   treatments "a" and "b" is 30\% of a sample standard deviation. The maximum
-   (in absolute value) difference is also reported in a separate vector. In this
-   example, the maximum is 0.5.
+   treatments "a" and "b" is 30\% of a sample standard deviation of the covariate.
+   The maximum difference (in absolute value) is also reported in a separate vector.
+   For example, the maximum difference for the covariate in the example above is 0.5.
 
-   When \code{all_differences == FALSE}, only
-   the maximum differences are reported.
+   When \code{all_differences = FALSE}, only the maximum differences are
+   reported.
 }
 \description{
 \code{covariate_balance} derives measures of covariate balance between
@@ -62,24 +64,24 @@ differences between all pairs of treatment conditions for each covariate.
 }
 \details{
 \code{covariate_balance} calculates covariate balance by first deriving the
-(normalized) mean difference between all treatment conditions of each covariate in
-each matched group, and then aggregating the differences by a weighted average.
-The \code{target} parameter decides the weights for the averaging. When the
-average treatment effect (ATE) is of interest (i.e., \code{target == NULL}),
-the matched groups will be weighted by their sizes. When \code{target}
-indicates that some subset of units is of interest, the number of such units
-in each matched group will decide its weight. For example, if we are interested
-in the average treatment effect of the treated (ATT), the weight of a group
-will be proportional to the number of treated units in that group. The
-reweighting of the groups captures that we are prepared to accept greater
-imbalances in groups with few units of interest.
+(normalized) mean difference between all treatment conditions for each
+covariate in each matched group. It then aggregates the differences by a
+weighted average, where the \code{target} parameter decides the weights.
+When the average treatment effect (ATE) is of interest (i.e.,
+\code{target == NULL}), the matched groups will be weighted by their sizes.
+When \code{target} indicates that some subset of units is of interest, the
+number of such units in each matched group will decide its weight. For
+example, if we are interested in the average treatment effect of the treated
+(ATT), the weight of a group will be proportional to the number of treated
+units in that group. The reweighting of the groups captures that we are
+prepared to accept greater imbalances in groups with few units of interest.
 
 By default, the differences are normalized by the sample standard deviation
 of the corresponding covariate (see the \code{normalize} parameter). In more
 detail, the sample variance of the covariate is derived separately for each
 treatment group. The square root of the mean of these variances is then used
 for the normalization. The matching is ignored when deriving the normalization
-factor so that differences can be compared across different matchings or with
+factor so that balance can be compared across different matchings or with
 the unmatched sample.
 
 \code{covariate_balance} focuses on mean differences, but higher moments and
@@ -96,13 +98,13 @@ my_data <- data.frame(y = rnorm(100),
 # Make distances
 my_distances <- distances(my_data, dist_variables = c("x1", "x2"))
 
-# Balance in unmatched sample
+# Balance in unmatched sample (maximum for each covariate)
 covariate_balance(my_data$treatment, my_data[c("x1", "x2")])
 
 # Make matching
 my_matching <- quickmatch(my_distances, my_data$treatment)
 
-# Balance in matched sample
+# Balance in matched sample (maximum for each covariate)
 covariate_balance(my_data$treatment, my_data[c("x1", "x2")], my_matching)
 
 # Balance in matched sample for ATT

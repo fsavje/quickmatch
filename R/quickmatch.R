@@ -18,99 +18,104 @@
 # along with this program. If not, see http://www.gnu.org/licenses/
 # ==============================================================================
 
-
 #' Derive generalized full matchings
 #'
-#' \code{quickmatch} constructs generalized full matchings. The function constructs a
-#' near-optimal matching so that units assigned to the same group are as similar as
-#' possible. The function expects the user to provide distances measuring the
-#' similarity of the units and a set of matching constraints.
+#' \code{quickmatch} constructs near-optimal generalized full matchings. The
+#' function expects the user to provide distances measuring the similarity of
+#' units and a set of matching constraints. It then constructs a matching
+#' so that units assigned to the same group are as similar as possible while
+#' satisfying the matching constraints.
 #'
-#' The \code{treatment_constraints} argument should contain a named vector with
-#' all treatment-specific constraints. For example, in a sample with treatment
+#' The \code{treatment_constraints} parameter should be a named vector with
+#' treatment-specific constraints. For example, in a sample with treatment
 #' conditions "A", "B" and "C", the vector \code{c("A" = 1, "B" = 2, "C" = 0)}
 #' specifies that each matched group should contain at least one unit with
 #' treatment "A", at least two units with treatment "B" and any number of units
 #' with treatment "C". Treatments not specified in the vector defaults to zero.
 #' For example, the vector \code{c("A" = 1, "B" = 2)} is identical to the
-#' previous one. When \code{NULL}, the parameter defaults to requiring at least
-#' one unit for each treatment. In our current example, \code{NULL} would be
-#' shorthand for \code{c("A" = 1, "B" = 1, "C" = 1)}.
+#' previous one. When \code{treatment_constraints} is \code{NULL}, the function
+#' requires at least one unit for each treatment in each group. In our current
+#' example, \code{NULL} would be shorthand for \code{c("A" = 1, "B" = 1, "C" = 1)}.
 #'
-#' The \code{size_constraint} argument can be used to constrain the matched
-#' groups to contain at least a certain number of units in total (independently of
-#' treatment assignment). For example, if \code{treatment_constraints =
+#' The \code{size_constraint} parameter can be used to constrain the matched
+#' groups to contain at least a certain number of units in total (independently
+#' of treatment assignment). For example, if \code{treatment_constraints =
 #' c("A" = 1, "B" = 2)} and \code{total_size_constraint = 4}, each matched
 #' group will contain at least one unit assigned to "A", at least two units
 #' assigned to "B" and at least four units in total, where the fourth unit can
 #' be from any treatment condition.
 #'
-#' The \code{target} argument can be used to control which units are included
+#' The \code{target} parameter can be used to control which units are included
 #' in the matching. When \code{target} is \code{NULL} (the default), all units
-#' will be assigned to a matched group. When not \code{NULL}, the argument
-#' indicates that some units can safely be ignored when the groups are
-#' constructed. This can be useful, for example, when one is interested in
-#' estimating treatment effects only for a certain type of units (e.g., the
-#' average treatment effect for the treated, ATT). It is particularly useful
-#' when units of interested are not represented in the whole covariate space
-#' (i.e., an one-sided overlap problem). Without the \code{target} argument,
-#' the function would in such cases try to assign every unit to a group,
-#' including units in sparse regions that we are not interested in. This could
-#' lead to unnecessarily large and diverse matched groups. We can avoid such
-#' situations by specifying in \code{target} that some units safely can be ignored.
+#' will be assigned to a matched group. When not \code{NULL}, the parameter
+#' indicates that some units must be assigned to matched group and that the
+#' remaining units can safely be ignored. This can be useful, for example,
+#' when one is interested in estimating treatment effects only for a certain
+#' type of units (e.g., the average treatment effect for the treated, ATT). It
+#' is particularly useful when units of interested are not represented in the
+#' whole covariate space (i.e., an one-sided overlap problem). Without the
+#' \code{target} parameter, the function would in such cases try to assign every
+#' unit to a group, including units in sparse regions that we are not interested
+#' in. This could lead to unnecessarily large and diverse matched groups. By
+#' specifying that some units are of interest only insofar as they help us satisfy
+#' the matching constraints (i.e., setting the \code{target} parameter to the
+#' appropriate value), we can avoid such situations.
 #'
-#' As an example, assume that the units are assigned to either of two treatment
-#' conditions, "A" and "B". Units assigned to "B" are more numerous and tend to
-#' have more extreme covariate values. We are, however, only interested in
-#' estimating the treatment effect for units assigned to "A". By specifying
-#' \code{target = "A"}, the function ensures that all those units are assigned
-#' to a matched group. Some units assigned to treatment "B" -- in particular
-#' the units with extreme covariate values -- will be left unassigned. However,
-#' as those units are not of interest, they can safely be ignored, and we
-#' avoid groups with poor qualities.
+#' Consider, as an example, a study with two treatment conditions, "A" and "B".
+#' Units assigned to "B" are more numerous and tend to have more extreme
+#' covariate values. We are, however, only interested in estimating the
+#' treatment effect for units assigned to "A". By specifying \code{target = "A"},
+#' the function ensures that all "A" units are assigned to matched groups. Some
+#' units assigned to treatment "B" -- in particular the units with extreme
+#' covariate values -- will be left unassigned. However, as those units are not
+#' of interest, they can safely be ignored, and we avoid groups of poor quality.
 #'
-#' The default behavior when \code{target} is non-NULL is to assign as many
-#' units as possible without increasing the maximum within-group distance. This
-#' behavior might, however, increase the average within-group distance in some
-#' cases. If called with \code{secondary_unassigned_method = "ignore"}, units
-#' not specified in \code{target} will be ignored unless they are absolutely
-#' needed to satisfying the matching constraints. This tends to reduce bias
-#' since the within-group distances are minimized, but it could increase
-#' variance since we ignore potentially useful information in the sample. An
-#' intermediate alternative is to specify an aggressive caliper for the
-#' secondary units, which is done with the \code{secondary_radius} argument.
-#' (These arguments are part of the \code{\link[scclust]{sc_clustering}}
-#' function that \code{quickmatch} calls. The \code{target} argument
-#' corresponds to the \code{primary_data_points} argument in that function.)
+#' Even if some of the units that can be ignored are not needed to satisfy the
+#' matching constraints, it is rarely beneficial to discard them blindly; they can
+#' occasionally provide useful information. The default behavior when \code{target}
+#' is non-NULL is to assign as many of the ignorable units as possible given that
+#' the within-group distances do not increase too much
+#' (using \code{secondary_unassigned_method = "estimated_radius"}). This behavior
+#' might, however, reduce covariate balance in some instances. If called with
+#' \code{secondary_unassigned_method = "ignore"}, units not specified in
+#' \code{target} will be discarded unless they are absolutely needed to satisfying
+#' the matching constraints. This tends to reduce bias since the within-group
+#' distances are minimized, but it could increase variance since we ignore
+#' potentially useful information in the sample. An intermediate alternative
+#' is to specify an aggressive caliper for the ignorable units, which is done
+#' with the \code{secondary_radius} parameter. (These parameters are part of the
+#' \code{\link[scclust]{sc_clustering}} function that \code{quickmatch} calls.
+#' The \code{target} parameter corresponds to the \code{primary_data_points}
+#' parameter in that function.)
 #'
-#' The \code{caliper} argument constrains the maximum distance between units
+#' The \code{caliper} parameter constrains the maximum distance between units
 #' assigned to the same matched group. This is implemented by restricting the
 #' edge weight in the graph used to construct the matched groups (see
 #' \code{\link[scclust]{sc_clustering}} for details). As a result, the caliper
 #' will affect all groups in the matching and, in general, make it harder for
-#' the function to find good matchings even for groups where the caliper is not
+#' the function to find good matches even for groups where the caliper is not
 #' binding. In particular, a too tight \code{caliper} can lead to discarded
 #' units that otherwise would be assigned to a group satisfying both the
 #' matching constraints and the caliper. For this reason, it is recommended
-#' to set \code{caliper} quite high and only use it to avoid particularly poor
-#' matches. It strongly recommended to use the \code{caliper} argument only
+#' to set the \code{caliper} value quite high and only use it to avoid particularly
+#' poor matches. It strongly recommended to use the \code{caliper} parameter only
 #' when \code{primary_unassigned_method = "closest_seed"} in the underlying
 #' \code{\link[scclust]{sc_clustering}} function (which is the default
 #' behavior).
 #'
 #' @param distances
 #'    \code{\link[distances]{distances}} object or a numeric vector, matrix
-#'    or data frame. The argument describes the similarity of the units to be
-#'    matched. It can either be preprocessed distance information from a
-#'    \code{\link[distances]{distances}} object, or raw
-#'    covariate data. When called with covariate data, Euclidean distances are
-#'    calculated unless otherwise specified.
+#'    or data frame. The parameter describes the similarity of the units to be
+#'    matched. It can either be preprocessed distance information using a
+#'    \code{\link[distances]{distances}} object, or raw covariate data. When
+#'    called with covariate data, Euclidean distances are calculated unless
+#'    otherwise specified.
 #' @param treatments
-#'    factor specifying which treatments the units are assigned to.
+#'    factor specifying the units' treatment assignments.
 #' @param treatment_constraints
-#'    named integer vector with the treatment constraints. If \code{NULL},
-#'    the constraints are set so to requiring one unit of each treatment
-#'    condition in each group.
+#'    named integer vector with the treatment constraints. If \code{NULL}, the
+#'    function ensures that each matched group contains one unit from each
+#'    treatment condition.
 #' @param size_constraint
 #'    integer with the required total number of units in each group. Must be
 #'    greater or equal to the sum of \code{treatment_constraints}. If NULL, no
@@ -120,8 +125,8 @@
 #'    ensured to be assigned to a matched group (disregarding eventual
 #'    \code{caliper} setting). Units not indicated by \code{target} could be
 #'    left unassigned if they are not necessary to satisfy the matching
-#'    constraints. If \code{NULL}, \code{quickmatch} targets all units and
-#'    ensures that all units are assigned to a group. If \code{target} is a
+#'    constraints. If \code{NULL}, \code{quickmatch} targets the complete sample
+#'    and ensures that all units are assigned to a group. If \code{target} is a
 #'    logical vector with the same length as the sample size, units indicated
 #'    with \code{TRUE} will be targeted. If \code{target} is an integer vector,
 #'    the units with indices in \code{target} are targeted. Indices starts at 1
@@ -131,10 +136,9 @@
 #' @param caliper
 #'    restrict the maximum within-group distance.
 #' @param ...
-#'    additional parameters to be sent either to the
-#'    \code{\link[distances]{distances}} function when \code{distances} contains
-#'    covariate data, or to the underlying \code{\link[scclust]{sc_clustering}}
-#'    function.
+#'    additional parameters to be sent either to the \code{\link[distances]{distances}}
+#'    function when the \code{distances} parameter contains covariate data, or
+#'    to the underlying \code{\link[scclust]{sc_clustering}} function.
 #'
 #' @return
 #'    Returns a \code{\link{qm_matching}} object with the matched groups.
@@ -172,9 +176,11 @@
 #'            treatment_constraints = c("T1" = 1, "T2" = 1, "C" = 2),
 #'            size_constraint = 6)
 #'
-#' # Focus the matching to units assigned to T1 or T2.
-#' # Each group will contain at least one unit of each treatment condition,
-#' # but some "C" units might be unassigned.
+#' # Focus the matching to units assigned to "T1" and "T2" (i.e., all
+#' # units assigned to "T1" or T2 will be assigned to a matched group).
+#' # Units assigned to treatment "C" will be assigned to groups so to
+#' # ensure that each group contains at least one unit of each treatment
+#' # condition. Remaining "C" units could be left unassigned.
 #' quickmatch(my_distances,
 #'            my_data$treatment,
 #'            target = c("T1", "T2"))

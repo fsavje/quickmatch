@@ -7,30 +7,31 @@
 matching_weights(treatments, matching, target = NULL)
 }
 \arguments{
-\item{treatments}{factor specifying which treatments the units are assigned to.}
+\item{treatments}{factor specifying the units' treatment assignments.}
 
 \item{matching}{\code{\link{qm_matching}} or \code{\link[scclust]{scclust}} object with
 the matched groups.}
 
-\item{target}{units to target the weights for. If \code{NULL}, the weights pertain to
-all units in the sample (i.e., ATE). A non-null value specifies a subset
-of units that the weights should be targeted for (e.g., ATT or ATC). If
-\code{target} is a logical vector with the same length as the sample size,
-units indicated with \code{TRUE} will be targeted. If \code{target} is an
-integer vector, the units with indices in \code{target} are targeted. If
-\code{target} is a character vector, it should contain treatment labels,
-and the weights pertain to the corresponding units (as given by
-\code{treatments}).}
+\item{target}{units to target the weights for. If \code{NULL}, the weights will target
+all units, so that the reweighted treatment groups are as similar as
+possible to the complete sample (i.e., corresponding to ATE). A non-null
+value specifies a subset of units that the weights should be targeted for
+(e.g., ATT or ATC). If \code{target} is a logical vector with the same
+length as the sample size, units indicated with \code{TRUE} will be
+targeted. If \code{target} is an integer vector, the units with indices
+in \code{target} are targeted. If \code{target} is a character vector, it
+should contain treatment labels, and the weights target the corresponding
+units (as given by \code{treatments}).}
 }
 \value{
-Returns a numeric vector with the weight of each unit.
+Returns a numeric vector with the weights of the units in the matching.
 }
 \description{
 \code{matching_weights} derives the weights implied by a matching for units
-assigne to matched groups. If the matching is exact, reweighting the units
+assigned to matched groups. If the matching is exact, reweighting the units
 with this function will produce a sample where all treatment groups are
-identical on the matching covariates. If the matching is approximate, the
-reweighted treatment groups will similar, but not identical.
+identical on the matching covariates. If the matching is approximate but of
+good quality, the reweighted treatment groups will be close to identical.
 }
 \details{
 Let \eqn{S(g)} be the number of unit indicated by \code{target} in group
@@ -43,25 +44,27 @@ treatment \eqn{t} is given by:
 
 \deqn{\frac{S(g)}{T \times A(t, g)}.}{S(g) / [T * A(t, g)].}
 
-For example, consider a matched group with one treated unit and two control
+Consider, for example, a matched group with one treated unit and two control
 units when we are interested in the average effect of the treated (ATT) and
 we have 50 treated units in total (\eqn{T=50}). For all three units in the
 group, we have \eqn{S(g)=1}. For the treated unit we have \eqn{A(t, g)=1},
 so its weight becomes \eqn{1/50}. The two control units have \eqn{A(t, g)=2},
 so their weights are both \eqn{1/100}.
 
-These weights are such that the difference between the weighted outcome
-averages of two treatment conditions is the same as the average within-group
-difference-in-means between the two conditions.
+These weights are such that the difference between the weighted averages of
+the outcomes in two treatment conditions is the same as the average
+within-group difference-in-means between the two conditions.
 
-If a matched group \eqn{g} with \eqn{S(g)>0} lacks some treatment condition
-\eqn{t}, the matching cannot be used to construct weights for units assigned
-to \eqn{t}; the matching does not contain enough information to impute the
-missing treatment in group \eqn{g}. Subsequently, all units assigned to
-\eqn{t} will be assigned weight of \code{NA}. To solve this, either change
-the target by setting \eqn{S(g)=0} (using the \code{target} parameter) or
-change the matching so that the group contain at least one unit assigned to
-\eqn{t} (e.g., by merging \eqn{g} with another group).
+If a matched group \eqn{g} with \eqn{S(g) > 0} lacks some treatment condition
+\eqn{t}, no weights exist for the units assigned to \eqn{t} (in other groups)
+so to replicate group \eqn{g}; the matching does not contain enough
+information to impute the missing treatment in group \eqn{g}. Subsequently,
+all units assigned to \eqn{t} will be given the weight \code{NA}. There is
+two ways to solve this problem. First, one can change the target estimand by
+setting \eqn{S(g) = 0} for all groups that are missing units assigned to
+\eqn{t}. This is done with the \code{target} parameter. Second, one can change
+the matching so that all groups contain at least one unit assigned to \eqn{t}
+(e.g., by merging groups).
 }
 \examples{
 # Construct example data

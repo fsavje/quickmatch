@@ -18,7 +18,6 @@
 # along with this program. If not, see http://www.gnu.org/licenses/
 # ==============================================================================
 
-
 #' Constructor for qm_matching objects
 #'
 #' The \code{qm_matching} function constructs a \code{qm_matching} object from
