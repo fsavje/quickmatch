@@ -42,12 +42,26 @@ my_data <- data.frame(y = rnorm(100),
 # Make distances
 my_distances <- distances(my_data, dist_variables = c("x1", "x2"))
 
-# Make matching to estimate ATT
-my_matching <- quickmatch(my_distances, my_data$treatment, subset = "T")
+### Average treatment effect (ATE)
 
-# Calculate covariate balance
-covariate_balance(my_data$treatment, my_data[c("x1", "x2")], my_matching, subset = "T")
+# Make matching
+my_matching_ate <- quickmatch(my_distances, my_data$treatment)
 
-# Estimate ATT
-regression_estimator(my_data$y, my_data$treatment, my_matching, subset = "T")
+# Covariate balance
+covariate_balance(my_data$treatment, my_data[c("x1", "x2")], my_matching_ate)
+
+# Estimate effect
+lm_match(my_data$y, my_data$treatment, my_matching_ate)
+
+
+### Average treatment effect of the treated (ATT)
+
+# Make matching
+my_matching_att <- quickmatch(my_distances, my_data$treatment, target = "T")
+
+# Covariate balance
+covariate_balance(my_data$treatment, my_data[c("x1", "x2")], my_matching_att, target = "T")
+
+# Estimate effect
+lm_match(my_data$y, my_data$treatment, my_matching_att, target = "T")
 ```
