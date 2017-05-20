@@ -1,7 +1,7 @@
 Package: quickmatch
 Type: Package
 Title: Quick Generalized Full Matching
-Version: 0.1.2
+Version: 0.1.2.9000
 Date: 2017-05-19
 Authors@R: c(
     person("Fredrik", "Savje", email = "fredrik.savje@berkeley.edu", role = c("aut", "cre")),
