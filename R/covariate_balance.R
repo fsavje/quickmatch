@@ -148,13 +148,9 @@ covariate_balance <- function(treatments,
   treatments <- coerce_treatments(treatments)
   num_observations <- length(treatments)
   covariates <- coerce_covariates(covariates, num_observations)
-  if (is.null(covariates)) {
-    stop("`covariates` is NULL.")
-  }
-  if (!is.null(matching)) {
-    ensure_matching(matching, num_observations)
-    target <- coerce_target(target, treatments)
-  }
+  if (is.null(covariates)) stop("`covariates` is NULL.")
+  if (!is.null(matching)) ensure_matching(matching, num_observations)
+  target <- coerce_target(target, treatments)
   normalize <- coerce_logical(normalize, 1L)
   all_differences <- coerce_logical(all_differences, 1L)
 

@@ -74,9 +74,7 @@ replica_covariate_averages <- function(treatments,
   treatments <- coerce_treatments(treatments)
   num_observations <- length(treatments)
   covariates <- coerce_covariates(covariates, num_observations)
-  if (is.null(covariates)) {
-    stop("`covariates` is NULL.")
-  }
+  if (is.null(covariates)) stop("`covariates` is NULL.")
   ensure_matching(matching, num_observations)
   target <- coerce_target(target, treatments)
   if (is.null(target)) {
