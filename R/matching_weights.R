@@ -29,7 +29,7 @@
 #' Let \eqn{S(g)} be the number of unit indicated by \code{target} in group
 #' \eqn{g} (or the total number of units in the group if \code{target} is
 #' \code{NULL}). Let \eqn{T} be the total number of units indicated by
-#' \code{target} in sample (or the sample size if \code{target} is \code{NULL}).
+#' \code{target} in the sample (or the sample size if \code{target} is \code{NULL}).
 #' Let \eqn{A(t, g)} be the number of units assigned to treatment \eqn{t} in
 #' group \eqn{g}. The weight for a unit in group \eqn{g} that is assigned to
 #' treatment \eqn{t} is given by:

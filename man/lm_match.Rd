@@ -61,7 +61,7 @@ observations, such as estimates of the average treatment effect for the treated
 function first derives the unit-level weights implied by the matching. In
 detail, let \eqn{S(g)} be the number of units indicated by \code{target} in
 group \eqn{g}. Let \eqn{T} be the total number of units indicated by
-\code{target} in sample. Let \eqn{A(t, g)} be the number of units assigned
+\code{target} in the sample. Let \eqn{A(t, g)} be the number of units assigned
 to treatment \eqn{t} in group \eqn{g}. The weight for a unit in group \eqn{g}
 that is assigned to treatment \eqn{t} is given by:
 
