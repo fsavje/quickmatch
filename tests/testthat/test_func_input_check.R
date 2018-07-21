@@ -166,6 +166,32 @@ test_that("`matching_weights` checks input.", {
 
 
 # ==============================================================================
+# covariate_averages
+# ==============================================================================
+
+t_covariate_averages <- function(treatments = sound_treatments,
+                                 covariates = sound_covariates,
+                                 matching = sound_matching,
+                                 target = sound_target) {
+  covariate_averages(treatments = treatments,
+                     covariates = covariates,
+                     matching = matching,
+                     target = target)
+}
+
+test_that("`covariate_averages` checks input.", {
+  expect_silent(t_covariate_averages())
+  expect_error(t_covariate_averages(treatments = unsound_treatments))
+  expect_error(t_covariate_averages(covariates = unsound_covariates))
+  expect_error(t_covariate_averages(matching = unsound_matching))
+  expect_error(t_covariate_averages(target = unsound_target))
+
+  expect_error(t_covariate_averages(covariates = NULL),
+               regexp = "`covariates` is NULL.")
+})
+
+
+# ==============================================================================
 # covariate_balance
 # ==============================================================================
 

@@ -158,21 +158,10 @@ covariate_balance <- function(treatments,
   normalize <- coerce_logical(normalize, 1L)
   all_differences <- coerce_logical(all_differences, 1L)
 
-  if (is.null(matching)) {
-    cov_tr_mean <- t(apply(covariates, 2, function(cov) {
-      sapply(split(cov, treatments), mean)
-    }))
-  } else {
-    mwres <- internal_matching_weights(treatments, matching, target)
-    if (any(mwres$treatment_missing)) {
-      warning("Some matched groups are missing treatment conditions. Corresponding balance measures cannot be derived.")
-    }
-    cov_tr_mean <- t(apply(covariates, 2, function(cov) {
-      sapply(split(cov * mwres$unit_weights, treatments), sum, na.rm = TRUE)
-    }))
-    cov_tr_mean <- cov_tr_mean / mwres$total_target_count
-    cov_tr_mean[, mwres$treatment_missing] <- NA
-  }
+  cov_tr_mean <- covariate_averages(treatments,
+                                    covariates,
+                                    matching,
+                                    target)
 
   if (normalize) {
     cov_sd <- apply(covariates, 2, function(cov) {
