@@ -19,6 +19,7 @@
  * ========================================================================== */
 
 #include "matching_weights.h"
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -34,7 +35,8 @@
 SEXP qmc_matching_weights(const SEXP R_treatments,
                           const SEXP R_num_treatments,
                           const SEXP R_matching,
-                          const SEXP R_target)
+                          const SEXP R_target,
+                          const SEXP R_unassigned_as_NA)
 {
 	if (!isInteger(R_treatments)) {
 		iqmc_error("`R_treatments` must be integer.");
@@ -63,6 +65,9 @@ SEXP qmc_matching_weights(const SEXP R_treatments,
 	if (isLogical(R_target) && (xlength(R_target) != xlength(R_treatments))) {
 		iqmc_error("`R_target` and `R_treatments` must be same length when `R_target` is logical.");
 	}
+	if (!isLogical(R_unassigned_as_NA)) {
+	  iqmc_error("`R_unassigned_as_NA` must be logical.");
+	}
 
 	// R objects to C
 	const size_t num_observations = (size_t) xlength(R_treatments);
@@ -71,6 +76,7 @@ SEXP qmc_matching_weights(const SEXP R_treatments,
 	const size_t num_groups = (size_t) asInteger(getAttrib(R_matching, install("cluster_count"))) + 1;
 	const int* const treatments = INTEGER(R_treatments);
 	const int* const matching = INTEGER(R_matching);
+	const bool unassigned_as_NA = (bool) asLogical(R_unassigned_as_NA);
 
 	// Bounds and sanity checks
 	{
@@ -149,10 +155,15 @@ SEXP qmc_matching_weights(const SEXP R_treatments,
 		++treatment_count[((treatments[i] - 1) * num_groups) + ((matching[i] != NA_INTEGER) * (matching[i] + 1))];
 	}
 
+	double unassigned_value = 0.0;
+	if (unassigned_as_NA) {
+	  unassigned_value = NA_REAL;
+	}
+
 	for (uint32_t t = 0; t < num_treatments; ++t) {
 		const size_t t_add = t * num_groups;
 		treatment_missing[t] = 0;
-		block_treatment_weight[t_add] = NA_REAL; // Unassigned units
+		block_treatment_weight[t_add] = unassigned_value; // Unassigned units
 		for (size_t g = 1; g < num_groups; ++g) {
 			if (target_count[g] == 0) {
 				block_treatment_weight[t_add + g] = 0.0;

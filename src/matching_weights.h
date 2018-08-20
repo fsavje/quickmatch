@@ -27,6 +27,7 @@
 SEXP qmc_matching_weights(SEXP R_treatments,
                           SEXP R_num_treatments,
                           SEXP R_matching,
-                          SEXP R_target);
+                          SEXP R_target,
+                          SEXP R_unassigned_as_NA);
 
 #endif // ifndef QMC_MATCHING_WEIGHTS_HG

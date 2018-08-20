@@ -139,7 +139,7 @@ lm_match <- function(outcomes,
   covariates <- coerce_covariates(covariates, num_observations)
   target <- coerce_target(target, treatments)
 
-  mwres <- internal_matching_weights(treatments, matching, target)
+  mwres <- internal_matching_weights(treatments, matching, target, TRUE)
 
   if (sum(!mwres$treatment_missing) <= 1) {
     stop("Less than two potential outcomes can be estimated.")

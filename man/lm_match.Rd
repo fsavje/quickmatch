@@ -4,7 +4,8 @@
 \alias{lm_match}
 \title{Regression-based matching estimator of treatment effects}
 \usage{
-lm_match(outcomes, treatments, matching, covariates = NULL, target = NULL)
+lm_match(outcomes, treatments, matching, covariates = NULL,
+  target = NULL)
 }
 \arguments{
 \item{outcomes}{numeric vector with observed outcomes.}

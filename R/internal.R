@@ -44,14 +44,17 @@ get_target_indicators <- function(target,
 
 internal_matching_weights <- function(treatments,
                                       matching,
-                                      target = NULL) {
+                                      target,
+                                      unassigned_as_NA) {
   stopifnot(is.factor(treatments),
             scclust::is.scclust(matching),
             length(matching) == length(treatments),
-            is.null(target) || is.logical(target) || is.integer(target))
+            is.null(target) || is.logical(target) || is.integer(target),
+            is.logical(unassigned_as_NA) && length(unassigned_as_NA) == 1L)
   .Call(qmc_matching_weights,
         unclass(treatments),
         nlevels(treatments),
         matching,
-        target)
+        target,
+        unassigned_as_NA)
 }

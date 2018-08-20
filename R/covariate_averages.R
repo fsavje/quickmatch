@@ -143,7 +143,7 @@ covariate_averages <- function(treatments,
       sapply(split(cov, treatments), mean)
     }))
   } else {
-    mwres <- internal_matching_weights(treatments, matching, target)
+    mwres <- internal_matching_weights(treatments, matching, target, TRUE)
     if (any(mwres$treatment_missing)) {
       warning("Some matched groups are missing treatment conditions. Corresponding balance measures cannot be derived.")
     }

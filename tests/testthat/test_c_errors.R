@@ -28,12 +28,14 @@ context("Input checking in C code")
 t_qmc_matching_weights <- function(treatments = c(1L, 1L, 2L, 3L, 2L, 1L, 3L),
                                    num_treatments = 3L,
                                    matching = qm_matching(c("A", "B", "A", "A", "B", "B", "B")),
-                                   target = NULL) {
+                                   target = NULL,
+                                   unassigned_as_NA = TRUE) {
   .Call(qmc_matching_weights,
         treatments,
         num_treatments,
         matching,
-        target)
+        target,
+        unassigned_as_NA)
 }
 
 test_that("`qmc_matching_weights` checks input.", {
@@ -42,6 +44,7 @@ test_that("`qmc_matching_weights` checks input.", {
                                        target = c(1L, 4L)))
   expect_silent(t_qmc_matching_weights(target = c(1L, 4L, 7L)))
   expect_silent(t_qmc_matching_weights(target = c(FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE)))
+  expect_silent(t_qmc_matching_weights(unassigned_as_NA = FALSE))
 
   expect_error(t_qmc_matching_weights(treatments = letters[1:7]),
                regexp = "`R_treatments` must be integer.")
@@ -79,6 +82,8 @@ test_that("`qmc_matching_weights` checks input.", {
                regexp = "Target out of bounds.")
   expect_error(t_qmc_matching_weights(target = c(1L, 8L)),
                regexp = "Target out of bounds.")
+  expect_error(t_qmc_matching_weights(unassigned_as_NA = "Test"),
+               regexp = "`R_unassigned_as_NA` must be logical.")
   expect_warning(t_qmc_matching_weights(matching = qm_matching(c("A", "B", "A", "A", "B", NA, "B"))),
                  regexp = "Some units in target are unmatched. They will be ignored.")
 })

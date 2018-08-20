@@ -26,7 +26,7 @@
 #' identical on the matching covariates. If the matching is approximate but of
 #' good quality, the reweighted treatment groups will be close to identical.
 #'
-#' Let \eqn{S(g)} be the number of unit indicated by \code{target} in group
+#' Let \eqn{S(g)} be the number of units indicated by \code{target} in group
 #' \eqn{g} (or the total number of units in the group if \code{target} is
 #' \code{NULL}). Let \eqn{T} be the total number of units indicated by
 #' \code{target} in the sample (or the sample size if \code{target} is \code{NULL}).
@@ -57,6 +57,8 @@
 #' \eqn{t}. This is done with the \code{target} parameter. Second, one can change
 #' the matching so that all groups contain at least one unit assigned to \eqn{t}
 #' (e.g., by merging groups).
+#'
+#' Units not assigned to matched groups are given zero weights.
 #'
 #' @param treatments
 #'    factor specifying the units' treatment assignments.
@@ -109,7 +111,7 @@ matching_weights <- function(treatments,
   ensure_matching(matching, num_observations)
   target <- coerce_target(target, treatments)
 
-  mwres <- internal_matching_weights(treatments, matching, target)
+  mwres <- internal_matching_weights(treatments, matching, target, FALSE)
 
   if (any(mwres$treatment_missing)) {
     warning("Some matched groups are missing treatment conditions. No weights exist for corresponding units.")

@@ -34,7 +34,7 @@ identical on the matching covariates. If the matching is approximate but of
 good quality, the reweighted treatment groups will be close to identical.
 }
 \details{
-Let \eqn{S(g)} be the number of unit indicated by \code{target} in group
+Let \eqn{S(g)} be the number of units indicated by \code{target} in group
 \eqn{g} (or the total number of units in the group if \code{target} is
 \code{NULL}). Let \eqn{T} be the total number of units indicated by
 \code{target} in the sample (or the sample size if \code{target} is \code{NULL}).
@@ -65,6 +65,8 @@ setting \eqn{S(g) = 0} for all groups that are missing units assigned to
 \eqn{t}. This is done with the \code{target} parameter. Second, one can change
 the matching so that all groups contain at least one unit assigned to \eqn{t}
 (e.g., by merging groups).
+
+Units not assigned to matched groups are given zero weights.
 }
 \examples{
 # Construct example data

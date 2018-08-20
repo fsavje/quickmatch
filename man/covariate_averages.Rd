@@ -4,7 +4,8 @@
 \alias{covariate_averages}
 \title{Covariate averages in matched sample}
 \usage{
-covariate_averages(treatments, covariates, matching = NULL, target = NULL)
+covariate_averages(treatments, covariates, matching = NULL,
+  target = NULL)
 }
 \arguments{
 \item{treatments}{factor specifying the units' treatment assignments.}
