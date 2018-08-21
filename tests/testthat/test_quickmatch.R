@@ -218,3 +218,18 @@ test_that("`quickmatch` returns correct output", {
   expect_warning(expect_identical(t_quickmatch(caliper = 1.0, target = "A", secondary_radius = "estimated_radius"),
                                   t_sc_clustering(seed_radius = 0.5, primary_data_points = Aindex, secondary_radius = "estimated_radius")))
 })
+
+
+my_data <- data.frame(x1 = rbinom(1e3, 2, 0.4),
+                      x2 = rbinom(1e3, 2, 0.4),
+                      treatment = factor(sample(rep(c("T1", "T2", "C"), c(25e1, 25e1, 50e1)))))
+my_distances <- distances(my_data, dist_variables = c("x1", "x2"))
+
+test_that("`quickmatch` handles discrete covariates", {
+  expect_warning(quickmatch(my_distances, my_data$treatment))
+  expect_warning(expect_identical(quickmatch(my_distances, my_data$treatment),
+                                  quickmatch(my_distances, my_data$treatment, secondary_unassigned_method = "ignore")))
+  expect_error(quickmatch(my_distances, my_data$treatment, secondary_unassigned_method = "closest_seed"))
+})
+
+

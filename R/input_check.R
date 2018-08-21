@@ -23,23 +23,23 @@
 # ==============================================================================
 
 # Throw error
-new_error <- function(...) {
+new_error <- function(..., level = -2) {
   stop(structure(list(message = paste0(...),
-                      call = match.call(definition = sys.function(-2),
-                                        call = sys.call(which = -2),
+                      call = match.call(definition = sys.function(level),
+                                        call = sys.call(which = level),
                                         expand.dots = TRUE,
-                                        envir = sys.frame(-3))),
+                                        envir = sys.frame(level - 1))),
                  class = c("error", "condition")))
 }
 
 
 # Throw warning
-new_warning <- function(...) {
-  warning(structure(list(message = paste0(...),
-                         call = match.call(definition = sys.function(-2),
-                                           call = sys.call(which = -2),
+new_warning <- function(..., level = -2) {
+  warning(structure(list(message = paste0(..., level = -2),
+                         call = match.call(definition = sys.function(level),
+                                           call = sys.call(which = level),
                                            expand.dots = TRUE,
-                                           envir = sys.frame(-3))),
+                                           envir = sys.frame(level - 1))),
                     class = c("warning", "condition")))
 }
 
