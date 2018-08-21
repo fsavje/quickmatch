@@ -135,7 +135,7 @@ t_sc_clustering <- function(distances = distancesEucl,
                             size_constraint = 2L,
                             type_labels = treatmentsUse,
                             type_constraints = c("A" = 1L, "B" = 1L),
-                            seed_method = "exclusion_updating",
+                            seed_method = "inwards_updating",
                             primary_data_points = NULL,
                             primary_unassigned_method = "closest_seed",
                             secondary_unassigned_method = "closest_seed",
@@ -183,6 +183,17 @@ test_that("`quickmatch` returns correct output", {
   expect_identical(t_quickmatch(treatment_constraints = NULL, size_constraint = NULL),
                    t_sc_clustering())
 
+  expect_identical(t_quickmatch(treatment_constraints = NULL, seed_method = "exclusion_updating"),
+                   t_sc_clustering(seed_method = "exclusion_updating"))
+  expect_identical(t_quickmatch(treatment_constraints = c("A" = 2L, "B" = 0L), seed_method = "exclusion_updating"),
+                   t_sc_clustering(type_constraints = c("A" = 2L, "B" = 0L), seed_method = "exclusion_updating"))
+  expect_identical(t_quickmatch(size_constraint = NULL, seed_method = "exclusion_updating"),
+                   t_sc_clustering(seed_method = "exclusion_updating"))
+  expect_identical(t_quickmatch(size_constraint = 4L, seed_method = "exclusion_updating"),
+                   t_sc_clustering(size_constraint = 4L, seed_method = "exclusion_updating"))
+  expect_identical(t_quickmatch(treatment_constraints = NULL, size_constraint = NULL, seed_method = "exclusion_updating"),
+                   t_sc_clustering(seed_method = "exclusion_updating"))
+
   expect_identical(t_quickmatch(target = c("A", "B")),
                    t_sc_clustering())
   expect_identical(t_quickmatch(target = Aindex),
@@ -226,10 +237,8 @@ my_data <- data.frame(x1 = rbinom(1e3, 2, 0.4),
 my_distances <- distances(my_data, dist_variables = c("x1", "x2"))
 
 test_that("`quickmatch` handles discrete covariates", {
-  expect_warning(quickmatch(my_distances, my_data$treatment))
-  expect_warning(expect_identical(quickmatch(my_distances, my_data$treatment),
-                                  quickmatch(my_distances, my_data$treatment, secondary_unassigned_method = "ignore")))
+  expect_error(expect_warning(quickmatch(my_distances, my_data$treatment)))
+  expect_error(expect_warning(expect_identical(quickmatch(my_distances, my_data$treatment),
+                                               quickmatch(my_distances, my_data$treatment, secondary_unassigned_method = "ignore"))))
   expect_error(quickmatch(my_distances, my_data$treatment, secondary_unassigned_method = "closest_seed"))
 })
-
-
