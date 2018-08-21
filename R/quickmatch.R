@@ -318,11 +318,11 @@ quickmatch <- function(distances,
   error = function(x) {
     if (grepl("\\(scclust:src/nng_clustering.c:[0-9]+\\) Infeasible radius constraint.", x$message)) {
       if (secondary_unassigned_method_default) {
-        new_warning("All seeds are at zero distance to their neighbors in the clustering NNG. This typically happens with discrete low-dimensional covariates. Consider using exact matching with such data. Running with `secondary_unassigned_method == \"ignore\".", level = -5)
+        new_warning("Most seeds are at zero distance to their neighbors in the clustering NNG. This typically happens with discrete low-dimensional covariates. Consider using exact matching with such data. Running with `secondary_unassigned_method == \"ignore\"`.", level = -5)
         sc_call$secondary_unassigned_method <- "ignore"
         do.call(scclust::sc_clustering, sc_call)
       } else {
-        new_error("** Error in scclust: ", x$message, "\n  ** Explanation of error: All seeds are at zero distance to their neighbors in the clustering NNG. This typically happens with discrete low-dimensional covariates. Consider using exact matching with such data.", level = -5)
+        new_error("** Error in scclust: ", x$message, "\n  ** Explanation of error: Most seeds are at zero distance to their neighbors in the clustering NNG. This typically happens with discrete low-dimensional covariates. Consider using exact matching with such data.", level = -5)
       }
     } else {
       new_error("** Error in scclust: ", x$message, level = -5)

@@ -1,8 +1,3 @@
-## Submit comment
-
-Updates maintainer information.
-
-
 ## Test environments
 
   * x86_64-apple-darwin15.6.0 (local machine)
@@ -13,7 +8,7 @@ Updates maintainer information.
 
   * x86_64-pc-linux-gnu (travis-ci)
      - 3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.5.0,
-       devel
+       3.5.1, devel
 
   * x86_64-w64-mingw32/x64 (appveyor)
      - 3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.5.0,
@@ -25,15 +20,13 @@ Updates maintainer information.
 
 ## R CMD check results
 
-  * No ERRORs.
+  * No ERRORs
 
   * No WARNINGs.
 
-  * 1 NOTE:
-
-     > CRAN repository db conflicts: 'Maintainer'
+  * No NOTEs.
 
 
 ## Downstream dependencies
 
-	* There are currently no downstream dependencies for this package.
+  * There are currently no downstream dependencies for this package.
