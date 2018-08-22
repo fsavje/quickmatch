@@ -18,7 +18,7 @@ Depends:
     distances
 Imports:
     sandwich,
-    scclust (>= 0.1.2.9000),
+    scclust (>= 0.2.0),
     stats
 Suggests:
     testthat
