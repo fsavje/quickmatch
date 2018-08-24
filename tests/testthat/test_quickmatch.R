@@ -237,8 +237,8 @@ my_data <- data.frame(x1 = rbinom(1e3, 2, 0.4),
 my_distances <- distances(my_data, dist_variables = c("x1", "x2"))
 
 test_that("`quickmatch` handles discrete covariates", {
-  expect_error(expect_warning(quickmatch(my_distances, my_data$treatment)))
-  expect_error(expect_warning(expect_identical(quickmatch(my_distances, my_data$treatment),
-                                               quickmatch(my_distances, my_data$treatment, secondary_unassigned_method = "ignore"))))
+  expect_warning(quickmatch(my_distances, my_data$treatment))
+  expect_warning(expect_identical(quickmatch(my_distances, my_data$treatment),
+                                               quickmatch(my_distances, my_data$treatment, secondary_unassigned_method = "ignore")))
   expect_error(quickmatch(my_distances, my_data$treatment, secondary_unassigned_method = "closest_seed"))
 })
