@@ -1,3 +1,9 @@
+## Submit comment
+
+Please excuse two releases in such a short time window. This fixes the error
+raised by quickmatch's tests due to an erroneous error message in scclust 0.1.2.
+
+
 ## Test environments
 
   * x86_64-apple-darwin15.6.0 (local machine)
