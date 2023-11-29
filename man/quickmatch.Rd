@@ -4,8 +4,15 @@
 \alias{quickmatch}
 \title{Derive generalized full matchings}
 \usage{
-quickmatch(distances, treatments, treatment_constraints = NULL,
-  size_constraint = NULL, target = NULL, caliper = NULL, ...)
+quickmatch(
+  distances,
+  treatments,
+  treatment_constraints = NULL,
+  size_constraint = NULL,
+  target = NULL,
+  caliper = NULL,
+  ...
+)
 }
 \arguments{
 \item{distances}{\code{\link[distances]{distances}} object or a numeric vector, matrix

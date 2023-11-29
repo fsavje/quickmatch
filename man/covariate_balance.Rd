@@ -4,8 +4,14 @@
 \alias{covariate_balance}
 \title{Covariate balance in matched sample}
 \usage{
-covariate_balance(treatments, covariates, matching = NULL,
-  target = NULL, normalize = TRUE, all_differences = FALSE)
+covariate_balance(
+  treatments,
+  covariates,
+  matching = NULL,
+  target = NULL,
+  normalize = TRUE,
+  all_differences = FALSE
+)
 }
 \arguments{
 \item{treatments}{factor specifying the units' treatment assignments.}
