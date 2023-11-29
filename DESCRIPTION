@@ -1,8 +1,8 @@
 Package: quickmatch
 Type: Package
 Title: Quick Generalized Full Matching
-Version: 0.2.1.9000
-Date: 2018-08-24
+Version: 0.2.2
+Date: 2023-11-29
 Authors@R: c(
     person("Fredrik", "Savje", email = "fredrik.savje@yale.edu", role = c("aut", "cre")),
     person("Jasjeet", "Sekhon", role = "aut"),
@@ -27,4 +27,4 @@ License: GPL (>= 3)
 URL: https://github.com/fsavje/quickmatch
 BugReports: https://github.com/fsavje/quickmatch/issues
 Encoding: UTF-8
-RoxygenNote: 6.1.0
+RoxygenNote: 7.2.3
